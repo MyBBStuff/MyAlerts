@@ -115,28 +115,65 @@ function myalerts_deactivate()
 $plugins->add_hook('global_start', 'myalerts_global');
 function myalerts_global()
 {
-	global $Alerts, $db, $mybb;
+	global $db, $mybb;
 
-	require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
-	$Alerts = new Alerts($mybb, $db);
+	if ($mybb->settings['myalerts_enabled'])
+	{
+		global $Alerts;
+		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
+		$Alerts = new Alerts($mybb, $db);
+	}
 }
 
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp');
 function myalerts_xmlhttp()
 {
-	global $mybb, $db, $Alerts;
+	global $mybb, $db;
 
-	if ($mybb->input['action'] == 'getAlerts')
+	if ($mybb->settings['myalerts_enabled'])
 	{
-		$newAlerts = $Alerts->getAlerts();
-		header('Content-Type: text/javascript');
-		echo json_encode($newAlerts);
-	}
+		global $Alerts;
 
-	if ($mybb->input['action'] == 'getNewAlerts')
-	{
-		$newAlerts = $Alerts->getUnreadAlerts();
-		header('Content-Type: text/javascript');
-		echo json_encode($newAlerts);
+		if ($mybb->input['action'] == 'getAlerts')
+		{
+			$newAlerts = $Alerts->getAlerts();
+			header('Content-Type: text/javascript');
+			echo json_encode($newAlerts);
+		}
+
+		if ($mybb->input['action'] == 'getNewAlerts')
+		{
+			$newAlerts = $Alerts->getUnreadAlerts();
+			header('Content-Type: text/javascript');
+			echo json_encode($newAlerts);
+		}
+
+		if ($mybb->input['action'] == 'markAlertsRead')
+		{
+			if ($Alerts->markRead($db->escape_string($mybb->input['alertsList']))
+			{
+				header('Content-Type: text/javascript');
+				echo json_encode(array('response' => 'success'));
+			}
+			else
+			{
+				header('Content-Type: text/javascript');
+				echo json_encode(array('response' => 'error'));
+			}
+		}
+
+		if ($mybb->input['action'] == 'deleteAlerts')
+		{
+			if ($Alerts->deleteAlerts($db->escape_string($mybb->input['alertsList']))
+			{
+				header('Content-Type: text/javascript');
+				echo json_encode(array('response' => 'success'));
+			}
+			else
+			{
+				header('Content-Type: text/javascript');
+				echo json_encode(array('response' => 'error'));
+			}
+		}
 	}
 }
