@@ -217,7 +217,7 @@ function myalerts_addAlert_rep()
 $plugins->add_hook('private_do_send_end', 'myalerts_addAlert_pm');
 function myalerts_addAlert_pm()
 {
-    global $mybb, $pm;
+    global $mybb, $pm, $pmhandler;
 
     if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_pm'])
     {
@@ -230,6 +230,7 @@ function myalerts_addAlert_pm()
                     'username'  =>  $mybb->user['username'],
                     ),
             'pm_title'  =>  $pm['subject'],
+            'pm_id'     =>  $pmhandler->pmid,
             'dateline'  =>  TIME_NOW,
             )
         );
@@ -284,7 +285,7 @@ function myalerts_page()
                     }
                     elseif ($alert['content']['type'] == 'pm')
                     {
-                        $alert['message'] = $alert['user'].' sent you a new private message titled "'.$alert['content']['pm_title'].'". (Received: '.$alert['dateline'].')';
+                        $alert['message'] = $alert['user'].' sent you a new private message titled "<a href="'.$mybb->settings['bburl'].'/private.php?action=read&amp;pmid='.intval($alert['content']['pm_id']).'">'.$alert['content']['pm_title'].'</a>". (Received: '.$alert['dateline'].')';
                     }
 
                     $alertinfo = $alert['message'];

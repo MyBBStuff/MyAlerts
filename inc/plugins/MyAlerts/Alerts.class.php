@@ -65,7 +65,7 @@ class Alerts
 	{
 		if (intval($this->mybb->user['uid']) > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->simple_select('alerts', '*', 'uid = '.intval($this->mybb->user['uid']), array('limit' => $start.', '.$this->mybb->settings['myalerts_perpage']));
+			$alerts = $this->db->simple_select('alerts', '*', 'uid = '.intval($this->mybb->user['uid']), array('limit' => $start.', '.$this->mybb->settings['myalerts_perpage'], 'order_by' => 'id', 'order_dir' => 'DESC'));
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
@@ -98,7 +98,7 @@ class Alerts
 	{
 		if (intval($this->mybb->user['uid']) > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->simple_select('alerts', '*', 'uid = '.intval($this->mybb->user['uid']).' AND unread = 1');
+			$alerts = $this->db->simple_select('alerts', '*', 'uid = '.intval($this->mybb->user['uid']).' AND unread = 1', array('order_by' => 'id', 'order_dir' => 'DESC'));
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
