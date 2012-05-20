@@ -9,7 +9,7 @@
 
 class Alerts
 {
-	private static $version = '1.00';
+	private static $version = '0.01';
 	private $mybb = null;
 	private $db = null;
 

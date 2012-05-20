@@ -41,7 +41,7 @@ function myalerts_install()
 
     $plugin_info = myalerts_info();
     $euantor_plugins = $cache->read('euantor_plugins');
-    $euantor_plugins[] = array(
+    $euantor_plugins['myalerts'] = array(
         'title'     =>  'MyAlerts',
         'version'   =>  $plugin_info['version'],
         );
@@ -76,9 +76,22 @@ function myalerts_uninstall()
 
 function myalerts_activate()
 {
+    global $mybb, $db;
+
     if(!file_exists(PLUGINLIBRARY))
     {
         flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
+
+    $this_version = myalerts_info();
+    $this_version = $this_version['version'];
+    require_once MYALERTS_PLUGIN_PATH.'/Alerts.class.php';
+    $Alerts = new Alerts($mybb, $db);
+
+    if ($Alerts->getVersion() != $this_version)
+    {
+        flash_message("It seems the Alerts class is not up to date. Please ensure the /inc/plugins/MyAlerts/ folder is up to date.", "error");
         admin_redirect("index.php?module=config-plugins");
     }
 
