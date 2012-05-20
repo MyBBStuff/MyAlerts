@@ -140,4 +140,23 @@ class Alerts
 	{
 		return $this->db->delete_query('alerts', 'id IN('.$alerts.')');
 	}
+
+	/**
+	 *	Add an alert
+	 *
+	 *	@param int - UID
+	 *	@param Array - content
+	 *	@return boolean
+	 */
+	public function addAlert($uid, $content = array())
+	{
+		$content = serialize($content);
+
+		$insertArray = array(
+			'uid'		=> intval($uid),
+			'content'	=>	$this->db->escape_string($content)
+			);
+
+		$this->db->insert_query('alerts', $insertArray);
+	}
 }

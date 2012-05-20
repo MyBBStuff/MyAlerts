@@ -100,6 +100,16 @@ function myalerts_activate()
                 'value'         =>  '10',
                 'optionscode'   =>  'text',
                 ),
+            'alert_rep' =>  array(
+                'title'         =>  'Alert on reputation?',
+                'description'   =>  'Do you wish for users to receive a new alert when somebody gives them a reputation?',
+                'value'         =>  '1',
+                ),
+            'alert_pm'  =>  array(
+                'title'         =>  'Alert on Private Message?',
+                'description'   =>  'Do you wish for users to receive an alert when they are sent a new Private Message (PM)?',
+                'value'         =>  '1',
+                ),
     		)
     	);
 
@@ -171,6 +181,49 @@ function myalerts_global()
 	}
 }
 
+$plugins->add_hook('reputation_do_add_process', 'myalerts_addAlert_rep');
+function myalerts_addAlert_rep()
+{
+    global $mybb, $reputation;
+
+    if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_rep'])
+    {
+        global $Alerts;
+
+        $Alerts->addAlert($reputation['uid'], array(
+            'type'      =>  'rep',
+            'from'      =>  array(
+                    'uid'       =>  intval($mybb->user['uid']),
+                    'username'  =>  $mybb->user['username'],
+                    ),
+            'dateline'  =>  TIME_NOW,
+            )
+        );
+    }
+}
+
+$plugins->add_hook('private_do_send_end', 'myalerts_addAlert_pm');
+function myalerts_addAlert_pm()
+{
+    global $mybb, $pm;
+
+    if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_pm'])
+    {
+        global $Alerts;
+
+        $Alerts->addAlert($pm['to'], array(
+            'type'      =>  'pm',
+            'from'      =>  array(
+                    'uid'       =>  intval($mybb->user['uid']),
+                    'username'  =>  $mybb->user['username'],
+                    ),
+            'pm_title'  =>  $pm['subject'],
+            'dateline'  =>  TIME_NOW,
+            )
+        );
+    }
+}
+
 $plugins->add_hook('misc_start', 'myalerts_page');
 function myalerts_page()
 {
@@ -182,6 +235,8 @@ function myalerts_page()
 
         if ($mybb->input['action'] == 'myalerts')
         {
+            add_breadcrumb('Alerts', 'misc.php?action=myalerts');
+
             $numAlerts = $Alerts->getNumAlerts();
             $page = intval($mybb->input['page']);
             $pages = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
@@ -204,19 +259,26 @@ function myalerts_page()
 
             $alertsList = $Alerts->getAlerts($start);
 
-            foreach ($alertsList as $alert)
+            if ($numAlerts > 0)
             {
-                $alert['user'] = build_profile_link($alert['content']['from']['username'], $alert['content']['from']['uid']);
-                $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['content']['dateline']);
-
-                if ($alert['content']['type'] == 'rep')
+                foreach ($alertsList as $alert)
                 {
-                    $alert['message'] = $alert['user'].' has given you a reputation. (Received: '.$alert['dateline'].')';
+                    $alert['user'] = build_profile_link($alert['content']['from']['username'], $alert['content']['from']['uid']);
+                    $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['content']['dateline']);
+
+                    if ($alert['content']['type'] == 'rep')
+                    {
+                        $alert['message'] = $alert['user'].' has given you a reputation. (Received: '.$alert['dateline'].')';
+                    }
+                    elseif ($alert['content']['type'] == 'pm')
+                    {
+                        $alert['message'] = $alert['user'].' sent you a new private message titled "'.$alert['content']['pm_title'].'". (Received: '.$alert['dateline'].')';
+                    }
+
+                    $alertinfo = $alert['message'];
+
+                    eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
                 }
-
-                $alertinfo = $alert['message'];
-
-                eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
             }
 
             eval("\$content .= \"".$templates->get('myalerts_page')."\";");
