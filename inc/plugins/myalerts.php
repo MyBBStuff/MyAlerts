@@ -94,6 +94,12 @@ function myalerts_activate()
     			'description'	=>	'This switch can be used to globally disable all MyAlerts features',
     			'value'			=>	'1',
     			),
+            'perpage'   =>  array(
+                'title'         =>  'Alerts per page',
+                'description'   =>  'How many alerts do you wish to display on the alerts listing page? (default is 10)',
+                'value'         =>  '10',
+                'optionscode'   =>  'text',
+                ),
     		)
     	);
 
@@ -118,7 +124,7 @@ function myalerts_activate()
             <tbody>
                 <tr>
                     <td class="trow1" id="latestAlertsListing">
-                        {$alertsList}
+                        {$alertsListing}
                     </td>
                 </tr>
             </tbody>
@@ -126,6 +132,7 @@ function myalerts_activate()
         <div class="float_right">
             {$multipage}
         </div>
+        <br class="clear" />
         {$footer}
     </body>
 </html>',
@@ -175,11 +182,31 @@ function myalerts_page()
 
         if ($mybb->input['action'] == 'myalerts')
         {
-            $alertsList = $Alerts->getAlerts();
+            $numAlerts = $Alerts->getNumAlerts();
+            $page = intval($mybb->input['page']);
+            $pages = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
+
+            if ($page > $pages OR $page <= 0)
+            {
+                $page = 1;
+            }
+
+            if ($page)
+            {
+                $start = ($page - 1) * $mybb->settings['myalerts_perpage'];
+            }
+            else
+            {
+                $start = 0;
+                $page = 1;
+            }
+            $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "misc.php?action=myalerts");
+
+            $alertsList = $Alerts->getAlerts($start);
 
             foreach ($alertsList as $alert)
             {
-                $alert['user'] = build_profile_link($alert['content']['from']['username'], $aleert['content']['from']['uid']);
+                $alert['user'] = build_profile_link($alert['content']['from']['username'], $alert['content']['from']['uid']);
                 $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['content']['dateline']);
 
                 if ($alert['content']['type'] == 'rep')
@@ -189,11 +216,11 @@ function myalerts_page()
 
                 $alertinfo = $alert['message'];
 
-                eval("\$alertsList .= \"".$templates->get('myalerts_alert_row')."\";");
+                eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
             }
 
-            eval("\$page .= \"".$templates->get('myalerts_page')."\";");
-            output_page($page);
+            eval("\$content .= \"".$templates->get('myalerts_page')."\";");
+            output_page($content);
         }
     }
 }

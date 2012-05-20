@@ -44,16 +44,28 @@ class Alerts
 	}
 
 	/**
+	 *	Get the number of alerts a user has
+	 *
+	 *	@return int
+	 */
+	public function getNumAlerts()
+	{
+		$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.intval($this->mybb->user['uid']));
+		return intval($this->db->fetch_field($num, 'count'));
+	}
+
+	/**
 	 *	Fetch all alerts for the currently logged in user
 	 *
+	 *	@param Integer - the start point (used for multipaging alerts)
 	 *	@return Array
 	 *	@return boolean - if the user has no new alerts
 	 */
-	public function getAlerts()
+	public function getAlerts($start = 0)
 	{
 		if (intval($this->mybb->user['uid']) > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->simple_select('alerts', '*', 'uid = '.intval($this->mybb->user['uid']));
+			$alerts = $this->db->simple_select('alerts', '*', 'uid = '.intval($this->mybb->user['uid']), array('limit' => $start.', '.$this->mybb->settings['myalerts_perpage']));
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
