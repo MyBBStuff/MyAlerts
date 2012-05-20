@@ -40,7 +40,7 @@ class Alerts
 	 */
 	public static function getVersion()
 	{
-		return $this->version;
+		return self::$version;
 	}
 
 	/**
