@@ -96,6 +96,44 @@ function myalerts_activate()
     			),
     		)
     	);
+
+    $PL->templates('myalerts',
+        'MyAlerts',
+        array(
+            'page'      =>  '<html>
+    <head>
+        <title>Alerts - {$mybb->settings[\'bbname\']}</title>
+            {$headerinclude}
+    </head>
+    <body>
+        {$header}
+        <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+            <thead>
+                <tr>
+                    <th class="thead" colspan="1">
+                        <strong>Recent Alerts</strong>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="trow1" id="latestAlertsListing">
+                        {$alertsList}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="float_right">
+            {$multipage}
+        </div>
+        {$footer}
+    </body>
+</html>',
+            'alert_row' =>  '<div class="alert_row">
+    {$alertinfo}
+</div>',
+            )
+        );
 }
 
 function myalerts_deactivate()
@@ -110,6 +148,7 @@ function myalerts_deactivate()
     $PL or require_once PLUGINLIBRARY;
 
     $PL->settings_delete('myalerts');
+    $PL->templates_delete('myalerts');
 }
 
 $plugins->add_hook('global_start', 'myalerts_global');
@@ -123,6 +162,40 @@ function myalerts_global()
 		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
 		$Alerts = new Alerts($mybb, $db);
 	}
+}
+
+$plugins->add_hook('misc_start', 'myalerts_page');
+function myalerts_page()
+{
+    global $mybb, $db, $theme, $templates, $headerinclude, $header, $footer;
+
+    if ($mybb->settings['myalerts_enabled'])
+    {
+        global $Alerts;
+
+        if ($mybb->input['action'] == 'myalerts')
+        {
+            $alertsList = $Alerts->getAlerts();
+
+            foreach ($alertsList as $alert)
+            {
+                $alert['user'] = build_profile_link($alert['content']['from']['username'], $aleert['content']['from']['uid']);
+                $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['content']['dateline']);
+
+                if ($alert['content']['type'] == 'rep')
+                {
+                    $alert['message'] = $alert['user'].' has given you a reputation. (Received: '.$alert['dateline'].')';
+                }
+
+                $alertinfo = $alert['message'];
+
+                eval("\$alertsList .= \"".$templates->get('myalerts_alert_row')."\";");
+            }
+
+            eval("\$page .= \"".$templates->get('myalerts_page')."\";");
+            output_page($page);
+        }
+    }
 }
 
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp');
@@ -150,7 +223,7 @@ function myalerts_xmlhttp()
 
 		if ($mybb->input['action'] == 'markAlertsRead')
 		{
-			if ($Alerts->markRead($db->escape_string($mybb->input['alertsList']))
+			if ($Alerts->markRead($db->escape_string($mybb->input['alertsList'])))
 			{
 				header('Content-Type: text/javascript');
 				echo json_encode(array('response' => 'success'));
@@ -164,7 +237,7 @@ function myalerts_xmlhttp()
 
 		if ($mybb->input['action'] == 'deleteAlerts')
 		{
-			if ($Alerts->deleteAlerts($db->escape_string($mybb->input['alertsList']))
+			if ($Alerts->deleteAlerts($db->escape_string($mybb->input['alertsList'])))
 			{
 				header('Content-Type: text/javascript');
 				echo json_encode(array('response' => 'success'));
@@ -177,3 +250,4 @@ function myalerts_xmlhttp()
 		}
 	}
 }
+?>
