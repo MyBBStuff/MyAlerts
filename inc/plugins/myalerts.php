@@ -277,7 +277,7 @@ function myalerts_page()
                 foreach ($alertsList as $alert)
                 {
                     $alert['user'] = build_profile_link($alert['content']['from']['username'], $alert['content']['from']['uid']);
-                    $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['content']['dateline']);
+                    $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['content']['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['content']['dateline']);
 
                     if ($alert['content']['type'] == 'rep')
                     {
