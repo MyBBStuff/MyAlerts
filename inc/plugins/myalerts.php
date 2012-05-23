@@ -53,6 +53,8 @@ function myalerts_install()
                 `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 `uid` INT(10) NOT NULL,
                 `unread` TINYINT(4) NOT NULL DEFAULT \'1\',
+                `dateline` BIGINT(30) NOT NULL,
+                `type` VARCHAR(25) NOT NULL,
                 `content` TEXT NOT NULL
             ) ENGINE=MyISAM '.$db->build_create_table_collation().';');
     }
@@ -202,13 +204,11 @@ function myalerts_addAlert_rep()
     {
         global $Alerts;
 
-        $Alerts->addAlert($reputation['uid'], array(
-            'type'      =>  'rep',
+        $Alerts->addAlert($reputation['uid'], 'rep', array(
             'from'      =>  array(
                     'uid'       =>  intval($mybb->user['uid']),
                     'username'  =>  $mybb->user['username'],
                     ),
-            'dateline'  =>  TIME_NOW,
             )
         );
     }
@@ -223,15 +223,13 @@ function myalerts_addAlert_pm()
     {
         global $Alerts;
 
-        $Alerts->addAlert($pm['to'], array(
-            'type'      =>  'pm',
+        $Alerts->addAlert($pm['to'], 'pm', array(
             'from'      =>  array(
                     'uid'       =>  intval($mybb->user['uid']),
                     'username'  =>  $mybb->user['username'],
                     ),
             'pm_title'  =>  $pm['subject'],
             'pm_id'     =>  $pmhandler->pmid,
-            'dateline'  =>  TIME_NOW,
             )
         );
     }
@@ -277,13 +275,13 @@ function myalerts_page()
                 foreach ($alertsList as $alert)
                 {
                     $alert['user'] = build_profile_link($alert['content']['from']['username'], $alert['content']['from']['uid']);
-                    $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['content']['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['content']['dateline']);
+                    $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
 
-                    if ($alert['content']['type'] == 'rep')
+                    if ($alert['type'] == 'rep')
                     {
                         $alert['message'] = $alert['user'].' has given you a reputation. (Received: '.$alert['dateline'].')';
                     }
-                    elseif ($alert['content']['type'] == 'pm')
+                    elseif ($alert['type'] == 'pm')
                     {
                         $alert['message'] = $alert['user'].' sent you a new private message titled "<a href="'.$mybb->settings['bburl'].'/private.php?action=read&amp;pmid='.intval($alert['content']['pm_id']).'">'.$alert['content']['pm_title'].'</a>". (Received: '.$alert['dateline'].')';
                     }

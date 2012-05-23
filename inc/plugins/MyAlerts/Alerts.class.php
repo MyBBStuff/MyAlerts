@@ -145,15 +145,18 @@ class Alerts
 	 *	Add an alert
 	 *
 	 *	@param int - UID
+	 *	@param string - the type of alert
 	 *	@param Array - content
 	 *	@return boolean
 	 */
-	public function addAlert($uid, $content = array())
+	public function addAlert($uid, $type = '', $content = array())
 	{
 		$content = serialize($content);
 
 		$insertArray = array(
-			'uid'		=> intval($uid),
+			'uid'		=>	intval($uid),
+			'dateline'	=>	TIME_NOW,
+			'type'		=>	$this->db->escape_string($type),
 			'content'	=>	$this->db->escape_string($content)
 			);
 
