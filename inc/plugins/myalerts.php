@@ -50,12 +50,12 @@ function myalerts_install()
     if (!$db->table_exists('alerts'))
     {
         $db->write_query('CREATE TABLE `'.TABLE_PREFIX.'alerts` (
-                `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                `uid` INT(10) NOT NULL,
-                `unread` TINYINT(4) NOT NULL DEFAULT \'1\',
-                `dateline` BIGINT(30) NOT NULL,
-                `type` VARCHAR(25) NOT NULL,
-                `content` TEXT NOT NULL
+            `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `uid` INT(10) NOT NULL,
+            `unread` TINYINT(4) NOT NULL DEFAULT \'1\',
+            `dateline` BIGINT(30) NOT NULL,
+            `type` VARCHAR(25) NOT NULL,
+            `content` TEXT NOT NULL
             ) ENGINE=MyISAM '.$db->build_create_table_collation().';');
     }
 }
@@ -78,11 +78,16 @@ function myalerts_uninstall()
 
 function myalerts_activate()
 {
-    global $mybb, $db;
+    global $mybb, $db, $lang;
+
+    if (!$lang->myalerts)
+    {
+        $lang->load('myalerts');
+    }
 
     if(!file_exists(PLUGINLIBRARY))
     {
-        flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
+        flash_message($lang->myalerts_pluginlibrary_missing, "error");
         admin_redirect("index.php?module=config-plugins");
     }
 
@@ -92,7 +97,7 @@ function myalerts_activate()
 
     if (Alerts::getVersion() != $this_version)
     {
-        flash_message("It seems the Alerts class is not up to date. Please ensure the /inc/plugins/MyAlerts/ folder is up to date. (MyAlerts version: {$this_version}, MyAlerts Class version: ".Alerts::getVersion().")", "error");
+        flash_message($lang->sprintf($lang->myalerts_class_outdated, $this_version, Alerts::getVersion()), "error");
         admin_redirect("index.php?module=config-plugins");
     }
 
@@ -100,71 +105,71 @@ function myalerts_activate()
     $PL or require_once PLUGINLIBRARY;
 
     $PL->settings('myalerts',
-    	'MyAlerts Settings',
-    	'Settings for the MyAlerts plugin',
+    	$lang->setting_group_myalerts,
+    	$lang->setting_group_myalerts_desc,
     	array(
     		'enabled'	=>	array(
-    			'title'			=>	'Enable MyAlerts?',
-    			'description'	=>	'This switch can be used to globally disable all MyAlerts features',
+    			'title'			=>	$lang->setting_myalerts_enabled,
+    			'description'	=>	$lang->setting_myalerts_enabled_desc,
     			'value'			=>	'1',
     			),
             'perpage'   =>  array(
-                'title'         =>  'Alerts per page',
-                'description'   =>  'How many alerts do you wish to display on the alerts listing page? (default is 10)',
+                'title'         =>  $lang->setting_myalerts_perpage,
+                'description'   =>  $lang->setting_myalerts_perpage_desc,
                 'value'         =>  '10',
                 'optionscode'   =>  'text',
                 ),
             'alert_rep' =>  array(
-                'title'         =>  'Alert on reputation?',
-                'description'   =>  'Do you wish for users to receive a new alert when somebody gives them a reputation?',
+                'title'         =>  $lang->setting_myalerts_alert_rep,
+                'description'   =>  $lang->setting_myalerts_alert_rep_desc,
                 'value'         =>  '1',
                 ),
             'alert_pm'  =>  array(
-                'title'         =>  'Alert on Private Message?',
-                'description'   =>  'Do you wish for users to receive an alert when they are sent a new Private Message (PM)?',
+                'title'         =>  $lang->setting_myalerts_alert_pm,
+                'description'   =>  $lang->setting_myalerts_alert_pm_desc,
                 'value'         =>  '1',
                 ),
-    		)
-    	);
+            )
+    );
 
-    $PL->templates('myalerts',
-        'MyAlerts',
-        array(
-            'page'      =>  '<html>
-    <head>
+$PL->templates('myalerts',
+    'MyAlerts',
+    array(
+        'page'      =>  '<html>
+        <head>
         <title>Alerts - {$mybb->settings[\'bbname\']}</title>
-            {$headerinclude}
-    </head>
-    <body>
+        {$headerinclude}
+        </head>
+        <body>
         {$header}
         <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
-            <thead>
-                <tr>
-                    <th class="thead" colspan="1">
-                        <strong>Recent Alerts</strong>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="trow1" id="latestAlertsListing">
-                        {$alertsListing}
-                    </td>
-                </tr>
-            </tbody>
+        <thead>
+        <tr>
+        <th class="thead" colspan="1">
+        <strong>Recent Alerts</strong>
+        </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td class="trow1" id="latestAlertsListing">
+        {$alertsListing}
+        </td>
+        </tr>
+        </tbody>
         </table>
         <div class="float_right">
-            {$multipage}
+        {$multipage}
         </div>
         <br class="clear" />
         {$footer}
-    </body>
-</html>',
-            'alert_row' =>  '<div class="alert_row">
-    {$alertinfo}
-</div>',
-            )
-        );
+        </body>
+        </html>',
+        'alert_row' =>  '<div class="alert_row">
+        {$alertinfo}
+        </div>',
+        )
+    );
 }
 
 function myalerts_deactivate()
@@ -206,9 +211,9 @@ function myalerts_addAlert_rep()
 
         $Alerts->addAlert($reputation['uid'], 'rep', array(
             'from'      =>  array(
-                    'uid'       =>  intval($mybb->user['uid']),
-                    'username'  =>  $mybb->user['username'],
-                    ),
+                'uid'       =>  intval($mybb->user['uid']),
+                'username'  =>  $mybb->user['username'],
+                ),
             )
         );
     }
@@ -225,9 +230,9 @@ function myalerts_addAlert_pm()
 
         $Alerts->addAlert($pm['to'], 'pm', array(
             'from'      =>  array(
-                    'uid'       =>  intval($mybb->user['uid']),
-                    'username'  =>  $mybb->user['username'],
-                    ),
+                'uid'       =>  intval($mybb->user['uid']),
+                'username'  =>  $mybb->user['username'],
+                ),
             'pm_title'  =>  $pm['subject'],
             'pm_id'     =>  $pmhandler->pmid,
             )
