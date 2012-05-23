@@ -331,15 +331,15 @@ function myalerts_page()
                     $alert['user'] = build_profile_link($alert['content']['from']['username'], $alert['content']['from']['uid']);
                     $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
 
-                    if ($alert['type'] == 'rep')
+                    if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                     {
                         $alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
                     }
-                    elseif ($alert['type'] == 'pm')
+                    elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                     {
                         $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".$alert['content']['pm_title']."</a>", $alert['dateline']);
                     }
-                    elseif ($alert['type'] == 'buddylist')
+                    elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                     {
                         $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
                     }
