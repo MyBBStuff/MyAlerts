@@ -306,7 +306,6 @@ function myalerts_alert_quoted()
     
         $matches = array_merge($match[2], $match[3]);
 
-
         foreach($matches as $key => $value)
         { 
             if (empty($value))
