@@ -134,6 +134,11 @@ function myalerts_activate()
                 'description'   =>  $lang->setting_myalerts_alert_buddylist_desc,
                 'value'         =>  '1',
                 ),
+            'alert_quoted'  =>  array(
+                'title'         =>  $lang->setting_myalerts_alert_quoted,
+                'description'   =>  $lang->setting_myalerts_alert_quoted_desc,
+                'value'         =>  '1',
+                ),
             )
     );
 
@@ -264,7 +269,7 @@ function myalerts_alert_buddylist()
 
             if (count($users) > 0)
             {
-                $query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
+                $query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".$db->escape_string(my_strtolower(implode("','", $users)))."')");
             }
 
             while($user = $db->fetch_array($query))
@@ -281,6 +286,55 @@ function myalerts_alert_buddylist()
 
             $Alerts->addMassAlert($userArray, 'buddylist', $content);
         }
+    }
+}
+
+$plugins->add_hook('newreply_do_newreply_end', 'myalerts_alert_quoted');
+function myalerts_alert_quoted()
+{
+    global $mybb, $db, $pid, $post;
+
+    if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_quoted'])
+    {
+        global $Alerts;
+
+        $message = $post['message'];
+
+        $pattern = "#\[quote=([\"']|&quot;|)(.*?)(?:\\1)(.*?)(?:[\"']|&quot;)?\](.*?)\[/quote\](\r\n?|\n?)#esi";
+
+        preg_match_all($pattern, $message, $match);
+    
+        $matches = array_merge($match[2], $match[3]);
+
+
+        foreach($matches as $key => $value)
+        { 
+            if (empty($value))
+            { 
+                unset($matches[$key]); 
+            } 
+        } 
+
+        $users = array_values($matches);
+
+        $uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE username IN (\''.$db->escape_string(my_strtolower(implode("','", $users))).'\')');
+
+        $userList = array();
+
+        while ($uid = $db->fetch_array($uids))
+        {
+            $userList[] = $uid['uid'];
+        }
+
+        $Alerts->addMassAlert($userList, 'quoted', array(
+            'from'      =>  array(
+                'uid'       =>  $mybb->user['uid'],
+                'username'  =>  $mybb->user['username'],
+                ),
+            'tid'       =>  $post['tid'],
+            'pid'       =>  $pid,
+            'subject'   =>  $post['subjct'],
+            ));
     }
 }
 

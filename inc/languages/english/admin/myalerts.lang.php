@@ -15,4 +15,6 @@ $l['setting_myalerts_alert_pm'] = "Alert on Private Message?";
 $l['setting_myalerts_alert_pm_desc'] = "Do you wish for users to receive an alert when they are sent a new Private Message (PM)?";
 $l['setting_myalerts_alert_buddylist'] = "Alert on Buddy List addition?";
 $l['setting_myalerts_alert_buddylist_desc'] = "Do you wish for users to receive an alert when they are added to another user's buddy list?";
+$l['setting_myalerts_alert_quoted'] = "Alert when quoted in a post?";
+$l['setting_myalerts_alert_quoted_desc'] = "Do you wish for users to receive an alert when they are quoted in a post?";
 ?>
