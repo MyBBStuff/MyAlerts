@@ -129,6 +129,11 @@ function myalerts_activate()
                 'description'   =>  $lang->setting_myalerts_alert_pm_desc,
                 'value'         =>  '1',
                 ),
+            'alert_buddylist'  =>  array(
+                'title'         =>  $lang->setting_myalerts_alert_buddylist,
+                'description'   =>  $lang->setting_myalerts_alert_buddylist_desc,
+                'value'         =>  '1',
+                ),
             )
     );
 
@@ -240,6 +245,45 @@ function myalerts_addAlert_pm()
     }
 }
 
+$plugins->add_hook('usercp_do_editlists_end', 'myalerts_alert_buddylist');
+function myalerts_alert_buddylist()
+{
+    global $mybb, $db;
+
+    if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_buddylist'])
+    {
+        if ($mybb->input['manage'] != 'ignore') // don't wish to alert when users are added to an ignore list
+        {
+            global $Alerts;
+
+            $users = explode(",", $mybb->input['add_username']);
+            $users = array_map("trim", $users);
+            $users = array_unique($users);
+
+            $userArray = array();
+
+            if (count($users) > 0)
+            {
+                $query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
+            }
+
+            while($user = $db->fetch_array($query))
+            {
+                $userArray[] = $user['uid'];
+            }
+
+            $content = array(
+                'from'  =>  array(
+                    'uid'       =>  $mybb->user['uid'],
+                    'username'  =>  $mybb->user['username'],
+                    ),
+                );
+
+            $Alerts->addMassAlert($userArray, 'buddylist', $content);
+        }
+    }
+}
+
 $plugins->add_hook('misc_start', 'myalerts_page');
 function myalerts_page()
 {
@@ -294,6 +338,10 @@ function myalerts_page()
                     elseif ($alert['type'] == 'pm')
                     {
                         $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".$alert['content']['pm_title']."</a>", $alert['dateline']);
+                    }
+                    elseif ($alert['type'] == 'buddylist')
+                    {
+                        $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
                     }
 
                     $alertinfo = $alert['message'];

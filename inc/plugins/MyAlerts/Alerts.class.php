@@ -162,4 +162,29 @@ class Alerts
 
 		$this->db->insert_query('alerts', $insertArray);
 	}
+
+	/**
+	 *	Add an alert for multiple users
+	 *
+	 *	@param array - UIDs
+	 *	@param string - the type of alert
+	 *	@param Array - content
+	 *	@return boolean
+	 */
+	public function addMassAlert($uids, $type = '', $content = array())
+	{
+		foreach ($uids as $uid)
+		{
+			$content = serialize($content);
+
+			$insertArray = array(
+				'uid'		=>	intval($uid),
+				'dateline'	=>	TIME_NOW,
+				'type'		=>	$this->db->escape_string($type),
+				'content'	=>	$this->db->escape_string($content)
+				);
+
+			$this->db->insert_query('alerts', $insertArray);
+		}
+	}
 }

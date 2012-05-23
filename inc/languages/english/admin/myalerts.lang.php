@@ -13,4 +13,6 @@ $l['setting_myalerts_alert_rep'] = "Alert on reputation?";
 $l['setting_myalerts_alert_rep_desc'] = "Do you wish for users to receive a new alert when somebody gives them a reputation?";
 $l['setting_myalerts_alert_pm'] = "Alert on Private Message?";
 $l['setting_myalerts_alert_pm_desc'] = "Do you wish for users to receive an alert when they are sent a new Private Message (PM)?";
+$l['setting_myalerts_alert_buddylist'] = "Alert on Buddy List addition?";
+$l['setting_myalerts_alert_buddylist_desc'] = "Do you wish for users to receive an alert when they are added to another user's buddy list?";
 ?>
