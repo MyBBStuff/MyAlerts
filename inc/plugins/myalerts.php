@@ -136,38 +136,38 @@ $PL->templates('myalerts',
     'MyAlerts',
     array(
         'page'      =>  '<html>
-        <head>
+    <head>
         <title>Alerts - {$mybb->settings[\'bbname\']}</title>
         {$headerinclude}
-        </head>
-        <body>
+    </head>
+    <body>
         {$header}
         <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
-        <thead>
-        <tr>
-        <th class="thead" colspan="1">
-        <strong>Recent Alerts</strong>
-        </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        <td class="trow1" id="latestAlertsListing">
-        {$alertsListing}
-        </td>
-        </tr>
-        </tbody>
+            <thead>
+                <tr>
+                    <th class="thead" colspan="1">
+                        <strong>Recent Alerts</strong>
+                     </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="trow1" id="latestAlertsListing">
+                        {$alertsListing}
+                    </td>
+                </tr>
+            </tbody>
         </table>
         <div class="float_right">
-        {$multipage}
+            {$multipage}
         </div>
         <br class="clear" />
         {$footer}
-        </body>
-        </html>',
+    </body>
+    </html>',
         'alert_row' =>  '<div class="alert_row">
-        {$alertinfo}
-        </div>',
+    {$alertinfo}
+</div>',
         )
     );
 }
@@ -243,11 +243,16 @@ function myalerts_addAlert_pm()
 $plugins->add_hook('misc_start', 'myalerts_page');
 function myalerts_page()
 {
-    global $mybb, $db, $theme, $templates, $headerinclude, $header, $footer;
+    global $mybb, $db, $lang, $theme, $templates, $headerinclude, $header, $footer;
 
     if ($mybb->settings['myalerts_enabled'])
     {
         global $Alerts;
+
+        if (!$lang->myalerts)
+        {
+            $lang->load('myalerts');
+        }
 
         if ($mybb->input['action'] == 'myalerts')
         {
@@ -284,11 +289,11 @@ function myalerts_page()
 
                     if ($alert['type'] == 'rep')
                     {
-                        $alert['message'] = $alert['user'].' has given you a reputation. (Received: '.$alert['dateline'].')';
+                        $alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'pm')
                     {
-                        $alert['message'] = $alert['user'].' sent you a new private message titled "<a href="'.$mybb->settings['bburl'].'/private.php?action=read&amp;pmid='.intval($alert['content']['pm_id']).'">'.$alert['content']['pm_title'].'</a>". (Received: '.$alert['dateline'].')';
+                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".$alert['content']['pm_title']."</a>", $alert['dateline']);
                     }
 
                     $alertinfo = $alert['message'];
