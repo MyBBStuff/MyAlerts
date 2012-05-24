@@ -124,7 +124,7 @@ class Alerts
 	/**
 	 *	Mark alerts as read
 	 *
-	 *	@param String - formatted for use in a MySQL IN statement
+	 *	@param String/Array - either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
 	 */
 	public function markRead($alerts = '')
 	{
@@ -140,7 +140,7 @@ class Alerts
 	/**
 	 *	Delete alerts
 	 *
-	 *	@param String - formatted for use in a MySQL IN statement
+	 *	@param String/Array - either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
 	 */
 	public function deleteAlerts($alerts = '')
 	{

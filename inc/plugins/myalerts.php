@@ -139,6 +139,11 @@ function myalerts_activate()
                 'description'   =>  $lang->setting_myalerts_alert_quoted_desc,
                 'value'         =>  '1',
                 ),
+            'alert_post_threadauthor'  =>  array(
+                'title'         =>  $lang->setting_myalerts_alert_post_threadauthor,
+                'description'   =>  $lang->setting_myalerts_alert_post_threadauthor_desc,
+                'value'         =>  '1',
+                ),
             )
     );
 
@@ -316,28 +321,54 @@ function myalerts_alert_quoted()
 
         $users = array_values($matches);
 
-        foreach ($users as $value)
+        if (!empty($users))
         {
-            $queryArray[] = $db->escape_string($value);
+            foreach ($users as $value)
+            {
+                $queryArray[] = $db->escape_string($value);
+            }
+
+            $uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE username IN (\''.my_strtolower(implode("','", $queryArray)).'\')');
+
+            $userList = array();
+
+            while ($uid = $db->fetch_array($uids))
+            {
+                $userList[] = $uid['uid'];
+            }
+
+            $Alerts->addMassAlert($userList, 'quoted', array(
+                'from'      =>  array(
+                    'uid'       =>  $mybb->user['uid'],
+                    'username'  =>  $mybb->user['username'],
+                    ),
+                'tid'       =>  $post['tid'],
+                'pid'       =>  $pid,
+                'subject'   =>  $post['subjct'],
+                ));
         }
+    }
+}
 
-        $uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE username IN (\''.my_strtolower(implode("','", $queryArray)).'\')');
+$plugins->add_hook('datahandler_post_insert_post', 'myalerts_alert_post_threadauthor');
+function myalerts_alert_post_threadauthor(&$post)
+{
+    global $mybb, $db;
 
-        $userList = array();
+    if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_post_threadauthor'])
+    {
+        global $Alerts;
 
-        while ($uid = $db->fetch_array($uids))
-        {
-            $userList[] = $uid['uid'];
-        }
+        $query = $db->simple_select('threads', 'uid,subject', 'tid = '.$post->post_insert_data['tid'], array('limit' => '1'));
+        $thread = $db->fetch_array($query);
 
-        $Alerts->addMassAlert($userList, 'quoted', array(
+        $Alerts->addAlert($thread['uid'], 'post_threadauthor', array(
             'from'      =>  array(
                 'uid'       =>  $mybb->user['uid'],
-                'username'  =>  $mybb->user['username'],
+                'username'  =>  $mybb->user['username']
                 ),
-            'tid'       =>  $post['tid'],
-            'pid'       =>  $pid,
-            'subject'   =>  $post['subjct'],
+            'tid'       =>  $post->post_insert_data['tid'],
+            't_subject' =>  $thread['subject'],
             ));
     }
 }
@@ -407,6 +438,11 @@ function myalerts_page()
                     {
                         $alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
                         $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
+                    }
+                    elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
+                    {
+                        $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
+                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], $alert['content']['t_subject'], $alert['dateline']);
                     }
 
                     $alertinfo = $alert['message'];

@@ -1,7 +1,7 @@
 <?php
-$l['myalerts'] = 'MyAlerts';
-$l['myalerts_pluginlibrary_missing'] = 'The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.';
-$l['myalerts_class_outdated'] = 'It seems the Alerts class is not up to date. Please ensure the /inc/plugins/MyAlerts/ folder is up to date. (MyAlerts version: {1}, MyAlerts Class version: {2})';
+$l['myalerts'] = "MyAlerts";
+$l['myalerts_pluginlibrary_missing'] = "The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.";
+$l['myalerts_class_outdated'] = "It seems the Alerts class is not up to date. Please ensure the /inc/plugins/MyAlerts/ folder is up to date. (MyAlerts version: {1}, MyAlerts Class version: {2})";
 
 $l['setting_group_myalerts'] = "MyAlerts Settings";
 $l['setting_group_myalerts_desc'] = "Settings for the MyAlerts plugin";
@@ -17,4 +17,6 @@ $l['setting_myalerts_alert_buddylist'] = "Alert on Buddy List addition?";
 $l['setting_myalerts_alert_buddylist_desc'] = "Do you wish for users to receive an alert when they are added to another user's buddy list?";
 $l['setting_myalerts_alert_quoted'] = "Alert when quoted in a post?";
 $l['setting_myalerts_alert_quoted_desc'] = "Do you wish for users to receive an alert when they are quoted in a post?";
+$l['setting_myalerts_alert_post_threadauthor'] = "Alert thread authors on reply?";
+$l['setting_myalerts_alert_post_threadauthor_desc'] = "Do you wish for thread authors to receive an alert when somebody responds to their thread?";
 ?>
