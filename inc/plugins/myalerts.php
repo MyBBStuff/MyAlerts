@@ -262,7 +262,7 @@ function myalerts_alert_buddylist()
 
     if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_buddylist'])
     {
-        if ($mybb->input['manage'] != 'ignore') // don't wish to alert when users are added to an ignore list
+        if ($mybb->input['manage'] != 'ignore' && !isset($mybb->input['delete'])) // don't wish to alert when users are added to an ignore list
         {
             global $Alerts;
 
