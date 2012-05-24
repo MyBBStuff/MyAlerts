@@ -128,6 +128,12 @@ class Alerts
 	 */
 	public function markRead($alerts = '')
 	{
+		if (is_array($alerts))
+		{
+			$alerts = array_map('intval', $alerts);
+			$alerts  = "'".my_strtolower(implode("','", $alerts))."'";
+		}
+
 		return $this->db->update_query('alerts', array('unread' => '0'), 'id IN('.$alerts.')');
 	}
 
@@ -138,6 +144,12 @@ class Alerts
 	 */
 	public function deleteAlerts($alerts = '')
 	{
+		if (is_array($alerts))
+		{
+			$alerts = array_map('intval', $alerts);
+			$alerts  ="'".my_strtolower(implode("','", $alerts))."'";
+		}
+
 		return $this->db->delete_query('alerts', 'id IN('.$alerts.')');
 	}
 

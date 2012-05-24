@@ -316,7 +316,12 @@ function myalerts_alert_quoted()
 
         $users = array_values($matches);
 
-        $uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE username IN (\''.$db->escape_string(my_strtolower(implode("','", $users))).'\')');
+        foreach ($users as $value)
+        {
+            $queryArray[] = $db->escape_string($value);
+        }
+
+        $uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE username IN (\''.my_strtolower(implode("','", $queryArray)).'\')');
 
         $userList = array();
 
@@ -377,6 +382,8 @@ function myalerts_page()
 
             $alertsList = $Alerts->getAlerts($start);
 
+            $readAlerts = array();
+
             if ($numAlerts > 0)
             {
                 foreach ($alertsList as $alert)
@@ -396,12 +403,21 @@ function myalerts_page()
                     {
                         $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
                     }
+                    elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
+                    {
+                        $alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
+                        $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
+                    }
 
                     $alertinfo = $alert['message'];
 
                     eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
+
+                    $readAlerts[] = $alert['id'];
                 }
             }
+
+            $Alerts->markRead($readAlerts);
 
             eval("\$content .= \"".$templates->get('myalerts_page')."\";");
             output_page($content);
