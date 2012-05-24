@@ -185,18 +185,17 @@ class Alerts
 	 */
 	public function addMassAlert($uids, $type = '', $content = array())
 	{
+		$sqlString = '';
+		$separator = '';
+
 		foreach ($uids as $uid)
 		{
 			$content = serialize($content);
 
-			$insertArray = array(
-				'uid'		=>	intval($uid),
-				'dateline'	=>	TIME_NOW,
-				'type'		=>	$this->db->escape_string($type),
-				'content'	=>	$this->db->escape_string($content)
-				);
-
-			$this->db->insert_query('alerts', $insertArray);
+			$sqlString .= $separator.'('.intval($uid).','.intval(TIME_NOW).', \''.$this->db->escape_string($type).'\', \''.$this->db->escape_string($content).'\')';
+			$separator = ",\n";
 		}
+
+		$this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (uid, dateline, type, content) VALUES '.$sqlString.';');
 	}
 }
