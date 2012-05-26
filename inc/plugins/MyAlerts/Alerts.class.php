@@ -134,7 +134,7 @@ class Alerts
 			$alerts  = "'".my_strtolower(implode("','", $alerts))."'";
 		}
 
-		return $this->db->update_query('alerts', array('unread' => '0'), 'id IN('.$alerts.')');
+		return $this->db->update_query('alerts', array('unread' => '0'), 'id IN('.$alerts.') AND uid = '.$this->mybb->user['uid']);
 	}
 
 	/**
@@ -150,7 +150,7 @@ class Alerts
 			$alerts  ="'".my_strtolower(implode("','", $alerts))."'";
 		}
 
-		return $this->db->delete_query('alerts', 'id IN('.$alerts.')');
+		return $this->db->delete_query('alerts', 'id IN('.$alerts.') AND uid = '.$this->mybb->user['uid']);
 	}
 
 	/**
