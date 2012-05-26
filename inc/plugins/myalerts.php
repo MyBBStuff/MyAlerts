@@ -119,6 +119,12 @@ function myalerts_activate()
                 'value'         =>  '10',
                 'optionscode'   =>  'text',
                 ),
+            'autorefresh'   =>  array(
+                'title'         =>  $lang->setting_myalerts_autorefresh,
+                'description'   =>  $lang->setting_myalerts_autorefresh_desc,
+                'value'         =>  '0',
+                'optionscode'   =>  'text',
+                ),
             'alert_rep' =>  array(
                 'title'         =>  $lang->setting_myalerts_alert_rep,
                 'description'   =>  $lang->setting_myalerts_alert_rep_desc,
@@ -153,6 +159,11 @@ $PL->templates('myalerts',
         'page'      =>  '<html>
     <head>
         <title>{$lang->myalerts_page_title} - {$mybb->settings[\'bbname\']}</title>
+        <script type="text/javascript">
+            <!--
+                var myalerts_autorefresh = {$mybb->settings[\'myalerts_autorefresh\']};
+            // -->
+        </script>
         {$headerinclude}
     </head>
     <body>
