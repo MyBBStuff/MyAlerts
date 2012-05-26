@@ -108,11 +108,11 @@ function myalerts_activate()
     	$lang->setting_group_myalerts,
     	$lang->setting_group_myalerts_desc,
     	array(
-    		'enabled'	=>	array(
-    			'title'			=>	$lang->setting_myalerts_enabled,
-    			'description'	=>	$lang->setting_myalerts_enabled_desc,
-    			'value'			=>	'1',
-    			),
+            'enabled'	=>	array(
+                'title'			=>	$lang->setting_myalerts_enabled,
+                'description'	=>	$lang->setting_myalerts_enabled_desc,
+                'value'			=>	'1',
+                ),
             'perpage'   =>  array(
                 'title'         =>  $lang->setting_myalerts_perpage,
                 'description'   =>  $lang->setting_myalerts_perpage_desc,
@@ -251,13 +251,36 @@ function myalerts_addAlert_rep()
 $plugins->add_hook('private_do_send_end', 'myalerts_addAlert_pm');
 function myalerts_addAlert_pm()
 {
-    global $mybb, $pm, $pmhandler;
+    global $mybb, $db, $pm, $pmhandler;
 
     if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_pm'])
     {
         global $Alerts;
 
-        $Alerts->addAlert($pm['to'], 'pm', array(
+        $pmUsers = array_map("trim", $pm['to']);
+        $pmUsers = array_unique($pmUsers);
+
+        $users = array();
+        $userArray = array();
+
+        foreach ($pmUsers as $user)
+        {
+            $users[] = $db->escape_string($user);
+        }
+
+        if (count($users) > 0)
+        {
+            $query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
+        }
+
+        $users = array();
+
+        while ($user = $db->fetch_array($query))
+        {
+            $users[] = $user['uid'];
+        }
+
+        $Alerts->addMassAlert($users, 'pm', array(
             'from'      =>  array(
                 'uid'       =>  intval($mybb->user['uid']),
                 'username'  =>  $mybb->user['username'],
@@ -280,16 +303,24 @@ function myalerts_alert_buddylist()
         {
             global $Alerts;
 
-            $users = explode(",", $mybb->input['add_username']);
-            $users = array_map("trim", $users);
-            $users = array_unique($users);
+            $addUsers = explode(",", $mybb->input['add_username']);
+            $addUsers = array_map("trim", $addUsers);
+            $addUsers = array_unique($addUsers);
 
+            $users = array();
             $userArray = array();
+
+            foreach ($addUsers as $user)
+            {
+                $users[] = $db->escape_string($user);
+            }
 
             if (count($users) > 0)
             {
-                $query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".$db->escape_string(my_strtolower(implode("','", $users)))."')");
+                $query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
             }
+
+            $user = array();
 
             while($user = $db->fetch_array($query))
             {
