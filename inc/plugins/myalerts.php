@@ -499,7 +499,7 @@ function myalerts_page()
             }
             else
             {
-                $alert['message'] = $lang->myalerts_no_alerts;
+                $alertinfo = $lang->myalerts_no_alerts;
                 eval("\$alertsListing = \"".$templates->get('myalerts_alert_row')."\";");
             }
 
