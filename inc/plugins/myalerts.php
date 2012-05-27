@@ -497,6 +497,11 @@ function myalerts_page()
                     $readAlerts[] = $alert['id'];
                 }
             }
+            else
+            {
+                $alert['message'] = $lang->myalerts_no_alerts;
+                eval("\$alertsListing = \"".$templates->get('myalerts_alert_row')."\";");
+            }
 
             $Alerts->markRead($readAlerts);
 
