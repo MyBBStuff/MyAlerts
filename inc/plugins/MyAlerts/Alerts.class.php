@@ -65,7 +65,7 @@ class Alerts
 	{
 		if (intval($this->mybb->user['uid']) > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->simple_select('alerts', '*', 'uid = '.intval($this->mybb->user['uid']), array('limit' => $start.', '.$this->mybb->settings['myalerts_perpage'], 'order_by' => 'id', 'order_dir' => 'DESC'));
+			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".intval($this->mybb->user['uid'])." ORDER BY a.id DESC LIMIT ".$start.", ".$this->mybb->settings['myalerts_perpage'].";");
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
@@ -98,7 +98,7 @@ class Alerts
 	{
 		if (intval($this->mybb->user['uid']) > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->simple_select('alerts', '*', 'uid = '.intval($this->mybb->user['uid']).' AND unread = 1', array('order_by' => 'id', 'order_dir' => 'DESC'));
+			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".intval($this->mybb->user['uid'])." AND unread = '1' ORDER BY a.id DESC;");
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
@@ -161,7 +161,7 @@ class Alerts
 	 *	@param Array - content
 	 *	@return boolean
 	 */
-	public function addAlert($uid, $type = '', $content = array())
+	public function addAlert($uid, $type = '', $from = 0, $content = array())
 	{
 		$content = serialize($content);
 
@@ -169,6 +169,7 @@ class Alerts
 			'uid'		=>	intval($uid),
 			'dateline'	=>	TIME_NOW,
 			'type'		=>	$this->db->escape_string($type),
+			'from'		=>	intval($from),
 			'content'	=>	$this->db->escape_string($content)
 			);
 
@@ -183,7 +184,7 @@ class Alerts
 	 *	@param Array - content
 	 *	@return boolean
 	 */
-	public function addMassAlert($uids, $type = '', $content = array())
+	public function addMassAlert($uids, $type = '', $from = 0, $content = array())
 	{
 		$sqlString = '';
 		$separator = '';
@@ -192,10 +193,10 @@ class Alerts
 		{
 			$content = serialize($content);
 
-			$sqlString .= $separator.'('.intval($uid).','.intval(TIME_NOW).', \''.$this->db->escape_string($type).'\', \''.$this->db->escape_string($content).'\')';
+			$sqlString .= $separator.'('.intval($uid).','.intval(TIME_NOW).', \''.$this->db->escape_string($type).'\', '.intval($from).',\''.$this->db->escape_string($content).'\')';
 			$separator = ",\n";
 		}
 
-		$this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (uid, dateline, type, content) VALUES '.$sqlString.';');
+		$this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (`uid`, `dateline`, `type`, `from`, `content`) VALUES '.$sqlString.';');
 	}
 }
