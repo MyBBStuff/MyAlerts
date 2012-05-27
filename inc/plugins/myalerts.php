@@ -220,7 +220,7 @@ function myalerts_deactivate()
 $plugins->add_hook('global_start', 'myalerts_global');
 function myalerts_global()
 {
-	global $db, $mybb;
+	global $db, $mybb, $templatelist;
 
 	if ($mybb->settings['myalerts_enabled'])
 	{
@@ -228,6 +228,11 @@ function myalerts_global()
 		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
 		$Alerts = new Alerts($mybb, $db);
 	}
+
+    if (THIS_SCRIPT == 'misc.php' && $mybb->input['action'] == 'myalerts')
+    {
+        $templatelist .= ',myalerts_page,myalerts_alert_row';
+    }
 }
 
 $plugins->add_hook('reputation_do_add_process', 'myalerts_addAlert_rep');
