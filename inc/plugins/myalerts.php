@@ -362,7 +362,7 @@ function myalerts_alert_quoted()
                 $queryArray[] = $db->escape_string($value);
             }
 
-            $uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE username IN (\''.my_strtolower(implode("','", $queryArray)).'\')');
+            $uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE username IN (\''.my_strtolower(implode("','", $queryArray)).'\') AND uid != '.$mybb->user['uid']);
 
             $userList = array();
 
@@ -371,11 +371,14 @@ function myalerts_alert_quoted()
                 $userList[] = $uid['uid'];
             }
 
-            $Alerts->addMassAlert($userList, 'quoted', $mybb->user['uid'], array(
-                'tid'       =>  $post['tid'],
-                'pid'       =>  $pid,
-                'subject'   =>  $post['subjct'],
-                ));
+            if (!empty($userList) && is_array($userList))
+            {
+                $Alerts->addMassAlert($userList, 'quoted', $mybb->user['uid'], array(
+                    'tid'       =>  $post['tid'],
+                    'pid'       =>  $pid,
+                    'subject'   =>  $post['subjct'],
+                    ));
+            }
         }
     }
 }
