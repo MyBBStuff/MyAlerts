@@ -514,7 +514,7 @@ function myalerts_xmlhttp()
 		{
 			$newAlerts = $Alerts->getUnreadAlerts();
 
-            if (count($newAlerts) > 0)
+            if (!empty($newAlerts) AND is_array($newAlerts))
             {
                 $alertsListing = '';
                 $markRead = array();
