@@ -65,7 +65,7 @@ class Alerts
 	{
 		if (intval($this->mybb->user['uid']) > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".intval($this->mybb->user['uid'])." ORDER BY a.id DESC LIMIT ".$start.", ".$this->mybb->settings['myalerts_perpage'].";");
+			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".intval($this->mybb->user['uid'])." ORDER BY a.id DESC LIMIT ".intval($start).", ".$this->mybb->settings['myalerts_perpage'].";");
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
