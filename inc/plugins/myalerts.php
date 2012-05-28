@@ -231,7 +231,7 @@ function myalerts_global()
 
     if (THIS_SCRIPT == 'misc.php' && $mybb->input['action'] == 'myalerts')
     {
-        $templatelist .= ',myalerts_page,myalerts_alert_row';
+        $templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
     }
 }
 
@@ -456,25 +456,25 @@ function myalerts_page()
 
                     if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_rep, htmlentities($alert['user']), $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".$alert['content']['pm_title']."</a>", $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlentities($alert['content']['pm_title'])."</a>", $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, htmlentities($alert['user']), $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
                     {
                         $alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
-                        $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_quoted, htmlentities($alert['user']), $alert['postLink'], $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
                     {
                         $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], $alert['content']['t_subject'], $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, htmlentities($alert['user']), $alert['threadLink'], htmlentities($alert['content']['t_subject']), $alert['dateline']);
                     }
 
                     $alertinfo = $alert['message'];
@@ -529,25 +529,25 @@ function myalerts_xmlhttp()
 
                     if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_rep, htmlentities($alert['user']), $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".$alert['content']['pm_title']."</a>", $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, htmlentities($alert['user']), "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlentities($alert['content']['pm_title'])."</a>", $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, htmlentities($alert['user']), $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
                     {
                         $alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
-                        $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_quoted, htmlentities($alert['user']), $alert['postLink'], $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
                     {
                         $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], $alert['content']['t_subject'], $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, htmlentities($alert['user']), $alert['threadLink'], htmlentities($alert['content']['t_subject']), $alert['dateline']);
                     }
 
                     $alertinfo = $alert['message'];
