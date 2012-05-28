@@ -438,6 +438,16 @@ function myalerts_page()
 
         if ($mybb->input['action'] == 'myalerts')
         {
+            try
+            {
+                $alertsList = $Alerts->getAlerts($start);
+            }
+            catch (Exception $e)
+            {
+                error_no_permission();
+                die();
+            }
+
             add_breadcrumb('Alerts', 'misc.php?action=myalerts');
 
             $numAlerts = $Alerts->getNumAlerts();
@@ -459,8 +469,6 @@ function myalerts_page()
                 $page = 1;
             }
             $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "misc.php?action=myalerts");
-
-            $alertsList = $Alerts->getAlerts($start);
 
             $readAlerts = array();
 
