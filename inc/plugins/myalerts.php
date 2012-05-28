@@ -198,6 +198,18 @@ $PL->templates('myalerts',
         'alert_row' =>  '<div class="alert_row">
     {$alertinfo}
 </div>',
+        'unread_alerts_modal'   =>  '<div id="mask"></div>
+<div class="modalBox" id="alertsModalBox">
+    <div class="header">
+        {$lang->myalerts_unread_title}
+    </div>
+    <div class="content">
+        {$unreadAlertsList}
+    </div>
+    <div class="foot">
+        <a href="http://mybb.euantor.com/misc.php?action=myalerts">{$lang->myalerts_view_all}</a>
+    </div>
+</div>',
         )
     );
 }
@@ -220,13 +232,33 @@ function myalerts_deactivate()
 $plugins->add_hook('global_start', 'myalerts_global');
 function myalerts_global()
 {
-	global $db, $mybb, $templatelist;
+	global $db, $mybb, $templatelist, $templates, $lang, $unreadAlertsModal;
 
 	if ($mybb->settings['myalerts_enabled'])
 	{
 		global $Alerts;
 		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
 		$Alerts = new Alerts($mybb, $db);
+
+        $mybb->user['alerts'] = $Alerts->getUnreadAlerts();
+
+        if (is_array($mybb->user['alerts']))
+        {
+            $mybb->user['unreadAlerts'] = count($mybb->user['alerts']);
+        }
+        else
+        {
+            $mybb->user['unreadAlerts'] = 0;
+        }
+
+        if (!$lang->myalerts)
+        {
+            $lang->load('myalerts');
+        }
+
+        $unreadAlertsList = 'Coming soon';
+
+        eval("\$unreadAlertsModal = \"".$templates->get('myalerts_unread_alerts_modal')."\";");
 	}
 
     if (THIS_SCRIPT == 'misc.php' && $mybb->input['action'] == 'myalerts')
