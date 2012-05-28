@@ -200,7 +200,7 @@ $PL->templates('myalerts',
 </div>',
         'unread_alerts_modal'   =>  '<div id="mask"></div>
 <div class="modalBox" id="alertsModalBox">
-    <div class="header">
+    <div class="thead">
         {$lang->myalerts_unread_title}
     </div>
     <div class="content">
@@ -245,7 +245,14 @@ function myalerts_global()
             $lang->load('myalerts');
         }
 
-        $mybb->user['alerts'] = $Alerts->getUnreadAlerts();
+        try
+        {
+            $mybb->user['alerts'] = $Alerts->getUnreadAlerts();
+        }
+        catch (Exception $e)
+        {
+
+        }
 
         if (is_array($mybb->user['alerts']))
         {
@@ -255,6 +262,10 @@ function myalerts_global()
             {
                 $alert['user'] = build_profile_link($alert['username'], $alert['uid']);
                 $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
+                if (!is_array($alert['content']))
+                {
+                    $alert['content'] = unserialize($alert['content']);
+                }
 
                 if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                 {
@@ -459,7 +470,7 @@ function myalerts_alert_quoted()
                 $Alerts->addMassAlert($userList, 'quoted', $mybb->user['uid'], array(
                     'tid'       =>  $post['tid'],
                     'pid'       =>  $pid,
-                    'subject'   =>  $post['subjct'],
+                    'subject'   =>  $post['subject'],
                     ));
             }
         }
@@ -544,6 +555,10 @@ function myalerts_page()
                 {
                     $alert['user'] = build_profile_link($alert['username'], $alert['uid']);
                     $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
+                    if (!is_array($alert['content']))
+                    {
+                        $alert['content'] = unserialize($alert['content']);
+                    }
 
                     if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                     {
@@ -617,6 +632,10 @@ function myalerts_xmlhttp()
                 {
                     $alert['user'] = build_profile_link($alert['username'], $alert['uid']);
                     $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
+                    if (!is_array($alert['content']))
+                    {
+                        $alert['content'] = unserialize($alert['content']);
+                    }
 
                     if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                     {
