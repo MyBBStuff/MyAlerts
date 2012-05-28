@@ -4,6 +4,8 @@ $l['myalerts'] = 'MyAlerts';
 $l['myalerts_page_title'] = 'Recent Alerts';
 $l['myalerts_page_getnew'] = 'Check for new alerts';
 
+$l['myalerts_online_location_listing'] = 'Viewing Alerts';
+
 $l['myalerts_no_alerts'] = 'No alerts to display';
 $l['myalerts_rep'] = '{1} modified your reputation. ({2})';
 $l['myalerts_pm'] = '{1} sent you a new private message titled "{2}". ({3})';

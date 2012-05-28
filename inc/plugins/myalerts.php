@@ -235,6 +235,23 @@ function myalerts_global()
     }
 }
 
+$plugins->add_hook('build_friendly_wol_location_end', 'myalerts_online_location');
+function myalerts_online_location(&$plugin_array)
+{
+    if ($mybb->settings['myalerts_enabled'])
+    {
+        if (!$lang->myalerts)
+        {
+            $lang->load('myalerts');
+        }
+
+        if ($plugin_array['user_activity']['activity'] == 'misc' && my_strpos($plugin_array['user_activity']['location'], 'myalerts'))
+        {
+            $plugin_array['location_name'] = $lang->myalerts_online_location_listing;
+        }
+    }
+}
+
 $plugins->add_hook('reputation_do_add_process', 'myalerts_addAlert_rep');
 function myalerts_addAlert_rep()
 {
