@@ -273,7 +273,7 @@ function myalerts_global()
                 }
                 elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                 {
-                    $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlentities($alert['content']['pm_title'])."</a>", $alert['dateline']);
+                    $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
                 }
                 elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                 {
@@ -287,7 +287,7 @@ function myalerts_global()
                 elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
                 {
                     $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-                    $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlentities($alert['content']['t_subject']), $alert['dateline']);
+                    $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
                 }
 
                 $alertinfo = $alert['message'];
@@ -566,7 +566,7 @@ function myalerts_page()
                     }
                     elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlentities($alert['content']['pm_title'])."</a>", $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                     {
@@ -580,7 +580,7 @@ function myalerts_page()
                     elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
                     {
                         $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlentities($alert['content']['t_subject']), $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
                     }
 
                     $alertinfo = $alert['message'];
@@ -643,7 +643,7 @@ function myalerts_xmlhttp()
                     }
                     elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlentities($alert['content']['pm_title'])."</a>", $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                     {
@@ -657,7 +657,7 @@ function myalerts_xmlhttp()
                     elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
                     {
                         $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlentities($alert['content']['t_subject']), $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
                     }
 
                     $alertinfo = $alert['message'];
