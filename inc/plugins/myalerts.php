@@ -246,11 +246,12 @@ function myalerts_global()
     {
         global $Alerts;
         require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
-        $Alerts = new Alerts($mybb, $db);
-
-        if (!$lang->myalerts)
+        try
         {
-            $lang->load('myalerts');
+            $Alerts = new Alerts($mybb, $db);
+        }
+        catch (Exception $e)
+        {
         }
 
         try
@@ -259,13 +260,36 @@ function myalerts_global()
         }
         catch (Exception $e)
         {
-
         }
 
         if (is_array($mybb->user['alerts']))
         {
             $mybb->user['unreadAlerts'] = count($mybb->user['alerts']);
+        }
+        else
+        {
+            $mybb->user['unreadAlerts'] = 0;
+        }
+    }
+}
 
+//  We need to do this for our global stuff due to how MyBB's template system works D:
+$plugins->add_hook('pre_output_page', 'myalerts_output_parse');
+function myalerts_output_parse(&$contents)
+{
+    global $mybb, $lang, $templates;
+
+    if ($mybb->settings['myalerts_enabled'])
+    {
+        global $Alerts;
+
+        if (!$lang->myalerts)
+        {
+            $lang->load('myalerts');
+        }
+
+        if (is_array($mybb->user['alerts']))
+        {
             $readAlerts = array();
 
             foreach ($mybb->user['alerts'] as $alert)
@@ -316,6 +340,8 @@ function myalerts_global()
         }
 
         eval("\$unreadAlertsModal = \"".$templates->get('myalerts_unread_alerts_modal')."\";");
+
+        return str_replace('{{myalertsModal}}', $unreadAlertsModal, $contents);
     }
 }
 
