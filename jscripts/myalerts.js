@@ -39,6 +39,10 @@ jQuery(document).ready(function($) {
         $('#' + target).css('top', (winH / 2) - ($('#' + target).height() / 2));
         $('#' + target).css('left', (winW / 2) - ($('#' + target).width() / 2));
         $('#' + target).fadeIn(2000);
+
+        $.get('xmlhttp.php?action=getNumUnreadAlerts', function(data) {
+            $('#alertsModal').text(data);
+        });
     });
     
     $('#mask').on('click', function ()
