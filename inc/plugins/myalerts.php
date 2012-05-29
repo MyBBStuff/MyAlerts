@@ -75,6 +75,18 @@ function myalerts_uninstall()
     {
         $db->write_query('DROP TABLE '.TABLE_PREFIX.'alerts');
     }
+
+    if(!file_exists(PLUGINLIBRARY))
+    {
+        flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
+
+    global $PL;
+    $PL or require_once PLUGINLIBRARY;
+
+    $PL->settings_delete('myalerts');
+    $PL->templates_delete('myalerts');
 }
 
 function myalerts_activate()
@@ -216,29 +228,25 @@ $PL->templates('myalerts',
 
 function myalerts_deactivate()
 {
-	if(!file_exists(PLUGINLIBRARY))
-    {
-        flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
-        admin_redirect("index.php?module=config-plugins");
-    }
-
-    global $PL;
-    $PL or require_once PLUGINLIBRARY;
-
-    $PL->settings_delete('myalerts');
-    $PL->templates_delete('myalerts');
 }
 
 $plugins->add_hook('global_start', 'myalerts_global');
 function myalerts_global()
 {
-	global $db, $mybb, $templatelist, $templates, $lang, $unreadAlertsModal, $unreadAlertsList;
+    global $db, $mybb, $templatelist, $templates, $lang, $unreadAlertsModal, $unreadAlertsList;
 
-	if ($mybb->settings['myalerts_enabled'])
-	{
-		global $Alerts;
-		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
-		$Alerts = new Alerts($mybb, $db);
+    $templatelist .= ',myalerts_unread_alerts_modal,myalerts_alert_row';
+
+    if (THIS_SCRIPT == 'misc.php' && $mybb->input['action'] == 'myalerts')
+    {
+        $templatelist .= ',myalerts_page,multipage_page_current,multipage_page,multipage_nextpage,multipage';
+    }
+
+    if ($mybb->settings['myalerts_enabled'])
+    {
+        global $Alerts;
+        require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
+        $Alerts = new Alerts($mybb, $db);
 
         if (!$lang->myalerts)
         {
@@ -308,11 +316,6 @@ function myalerts_global()
         }
 
         eval("\$unreadAlertsModal = \"".$templates->get('myalerts_unread_alerts_modal')."\";");
-	}
-
-    if (THIS_SCRIPT == 'misc.php' && $mybb->input['action'] == 'myalerts')
-    {
-        $templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
     }
 }
 
