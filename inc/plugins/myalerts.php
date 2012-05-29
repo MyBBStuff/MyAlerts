@@ -258,6 +258,8 @@ function myalerts_global()
         {
             $mybb->user['unreadAlerts'] = count($mybb->user['alerts']);
 
+            $readAlerts = array();
+
             foreach ($mybb->user['alerts'] as $alert)
             {
                 $alert['user'] = build_profile_link($alert['username'], $alert['uid']);
@@ -293,7 +295,11 @@ function myalerts_global()
                 $alertinfo = $alert['message'];
 
                 eval("\$unreadAlertsList .= \"".$templates->get('myalerts_alert_row')."\";");
+
+                $readAlerts[] = $alert['id'];
             }
+
+            $Alerts->markRead($readAlerts);
         }
         else
         {
@@ -686,6 +692,11 @@ function myalerts_xmlhttp()
 				echo json_encode(array('response' => 'error'));
 			}
 		}
+
+        if ($mybb->input['action'] == 'getNumUnreadAlerts')
+        {
+            echo $Alerts->getNumUnreadAlerts();
+        }
 	}
 }
 ?>

@@ -55,6 +55,17 @@ class Alerts
 	}
 
 	/**
+	 *	Get the number of unread alerts a user has
+	 *
+	 *	@return int
+	 */
+	public function getNumUnreadAlerts()
+	{
+		$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.intval($this->mybb->user['uid']).' AND unread = 1');
+		return intval($this->db->fetch_field($num, 'count'));
+	}
+
+	/**
 	 *	Fetch all alerts for the currently logged in user
 	 *
 	 *	@param Integer - the start point (used for multipaging alerts)
