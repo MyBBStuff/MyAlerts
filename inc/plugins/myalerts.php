@@ -598,10 +598,6 @@ function myalerts_page()
                 {
                     $alert['user'] = build_profile_link($alert['username'], $alert['uid']);
                     $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
-                    if (!is_array($alert['content']))
-                    {
-                        $alert['content'] = unserialize($alert['content']);
-                    }
 
                     if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                     {
