@@ -82,7 +82,7 @@ class Alerts
 				$return = array();
 				while ($alert = $this->db->fetch_array($alerts))
 				{
-					$alert['content'] = unserialize($alert['content']);
+					$alert['content'] = unserialize(base64_decode($alert['content']));
 					$return[] = $alert;
 				}
 
@@ -115,7 +115,7 @@ class Alerts
 				$return = array();
 				while ($alert = $this->db->fetch_array($alerts))
 				{
-					$alert['content'] = unserialize($alert['content']);
+					$alert['content'] = unserialize(base64_decode($alert['content']));
 					$return[] = $alert;
 				}
 
@@ -172,16 +172,17 @@ class Alerts
 	 *	@param Array - content
 	 *	@return boolean
 	 */
-	public function addAlert($uid, $type = '', $from = 0, $content = array())
+	public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array())
 	{
-		$content = serialize($content);
+		$content = base64_encode(serialize($content));
 
 		$insertArray = array(
 			'uid'		=>	intval($uid),
 			'dateline'	=>	TIME_NOW,
 			'type'		=>	$this->db->escape_string($type),
+			'tid'		=>	(int) $tid,
 			'from'		=>	intval($from),
-			'content'	=>	$this->db->escape_string($content)
+			'content'	=>	$this->db->escape_string($content),
 			);
 
 		$this->db->insert_query('alerts', $insertArray);
@@ -195,19 +196,19 @@ class Alerts
 	 *	@param Array - content
 	 *	@return boolean
 	 */
-	public function addMassAlert($uids, $type = '', $from = 0, $content = array())
+	public function addMassAlert($uids, $type = '', $tid = 0, $from = 0, $content = array())
 	{
 		$sqlString = '';
 		$separator = '';
 
 		foreach ($uids as $uid)
 		{
-			$content = serialize($content);
+			$content = base64_encode(serialize($content));
 
-			$sqlString .= $separator.'('.intval($uid).','.intval(TIME_NOW).', \''.$this->db->escape_string($type).'\', '.intval($from).',\''.$this->db->escape_string($content).'\')';
+			$sqlString .= $separator.'('.(int) $uid.','.(int) TIME_NOW.', \''.$this->db->escape_string($type).'\', '.(int) $tid.','.(int) $from.',\''.$this->db->escape_string($content).'\')';
 			$separator = ",\n";
 		}
 
-		$this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (`uid`, `dateline`, `type`, `from`, `content`) VALUES '.$sqlString.';');
+		$this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (`uid`, `dateline`, `type`, `tid`, `from`, `content`) VALUES '.$sqlString.';');
 	}
 }

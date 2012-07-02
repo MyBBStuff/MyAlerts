@@ -55,6 +55,7 @@ function myalerts_install()
             `unread` TINYINT(4) NOT NULL DEFAULT \'1\',
             `dateline` BIGINT(30) NOT NULL,
             `type` VARCHAR(25) NOT NULL,
+            `tid` INT(10),
             `from` INT(10),
             `content` TEXT
             ) ENGINE=MyISAM '.$db->build_create_table_collation().';');
@@ -373,7 +374,7 @@ function myalerts_addAlert_rep()
     {
         global $Alerts;
 
-        $Alerts->addAlert($reputation['uid'], 'rep', $mybb->user['uid'], array());
+        $Alerts->addAlert($reputation['uid'], 'rep', 0, $mybb->user['uid'], array());
     }
 }
 
@@ -409,7 +410,7 @@ function myalerts_addAlert_pm()
             $users[] = $user['uid'];
         }
 
-        $Alerts->addMassAlert($users, 'pm', $mybb->user['uid'], array(
+        $Alerts->addMassAlert($users, 'pm', 0, $mybb->user['uid'], array(
             'pm_title'  =>  $pm['subject'],
             'pm_id'     =>  $pmhandler->pmid,
             )
@@ -452,7 +453,7 @@ function myalerts_alert_buddylist()
                 $userArray[] = $user['uid'];
             }
 
-            $Alerts->addMassAlert($userArray, 'buddylist', $mybb->user['uid'], array());
+            $Alerts->addMassAlert($userArray, 'buddylist', 0, $mybb->user['uid'], array());
         }
     }
 }
@@ -502,7 +503,7 @@ function myalerts_alert_quoted()
 
             if (!empty($userList) && is_array($userList))
             {
-                $Alerts->addMassAlert($userList, 'quoted', $mybb->user['uid'], array(
+                $Alerts->addMassAlert($userList, 'quoted', 0, $mybb->user['uid'], array(
                     'tid'       =>  $post['tid'],
                     'pid'       =>  $pid,
                     'subject'   =>  $post['subject'],
@@ -526,10 +527,17 @@ function myalerts_alert_post_threadauthor(&$post)
 
         if ($thread['uid'] != $mybb->user['uid'])
         {
-            $Alerts->addAlert($thread['uid'], 'post_threadauthor', $mybb->user['uid'], array(
-                'tid'       =>  $post->post_insert_data['tid'],
-                't_subject' =>  $thread['subject'],
-                ));
+            //check if alerted for this thread already
+
+            $query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1');
+
+            if ($db->num_rows($query) < 1)
+            {
+                $Alerts->addAlert($thread['uid'], 'post_threadauthor', (int) $post->post_insert_data['tid'], $mybb->user['uid'], array(
+                    'tid'       =>  $post->post_insert_data['tid'],
+                    't_subject' =>  $thread['subject'],
+                    ));
+            }
         }
     }
 }
