@@ -308,7 +308,7 @@ function myalerts_output_parse(&$contents)
                 }
                 elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                 {
-                    $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
+                    $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
                 }
                 elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                 {
@@ -561,7 +561,7 @@ function myalerts_page()
             add_breadcrumb('Alerts', 'misc.php?action=myalerts');
 
             $numAlerts = $Alerts->getNumAlerts();
-            $page = intval($mybb->input['page']);
+            $page = (int) $mybb->input['page'];
             $pages = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
 
             if ($page > $pages OR $page <= 0)
@@ -605,7 +605,7 @@ function myalerts_page()
                     }
                     elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                     {
@@ -682,7 +682,7 @@ function myalerts_xmlhttp()
                     }
                     elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
                     {
-                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".intval($alert['content']['pm_id'])."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
+                        $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\".{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
                     }
                     elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
                     {

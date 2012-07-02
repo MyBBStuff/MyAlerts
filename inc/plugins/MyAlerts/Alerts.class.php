@@ -50,8 +50,8 @@ class Alerts
 	 */
 	public function getNumAlerts()
 	{
-		$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.intval($this->mybb->user['uid']));
-		return intval($this->db->fetch_field($num, 'count'));
+		$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid']);
+		return (int) $this->db->fetch_field($num, 'count');
 	}
 
 	/**
@@ -61,8 +61,8 @@ class Alerts
 	 */
 	public function getNumUnreadAlerts()
 	{
-		$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.intval($this->mybb->user['uid']).' AND unread = 1');
-		return intval($this->db->fetch_field($num, 'count'));
+		$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1');
+		return (int) $this->db->fetch_field($num, 'count');
 	}
 
 	/**
@@ -74,9 +74,9 @@ class Alerts
 	 */
 	public function getAlerts($start = 0)
 	{
-		if (intval($this->mybb->user['uid']) > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
+		if ((int) $this->mybb->user['uid'] > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".intval($this->mybb->user['uid'])." ORDER BY a.id DESC LIMIT ".intval($start).", ".$this->mybb->settings['myalerts_perpage'].";");
+			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." ORDER BY a.id DESC LIMIT ".(int) $start.", ".$this->mybb->settings['myalerts_perpage'].";");
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
@@ -107,9 +107,9 @@ class Alerts
 	 */
 	public function getUnreadAlerts()
 	{
-		if (intval($this->mybb->user['uid']) > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
+		if ((int) $this->mybb->user['uid'] > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".intval($this->mybb->user['uid'])." AND unread = '1' ORDER BY a.id DESC;");
+			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND unread = '1' ORDER BY a.id DESC;");
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
@@ -177,11 +177,11 @@ class Alerts
 		$content = base64_encode(serialize($content));
 
 		$insertArray = array(
-			'uid'		=>	intval($uid),
+			'uid'		=>	(int) $uid,
 			'dateline'	=>	TIME_NOW,
 			'type'		=>	$this->db->escape_string($type),
 			'tid'		=>	(int) $tid,
-			'from'		=>	intval($from),
+			'from'		=>	(int) $from,
 			'content'	=>	$this->db->escape_string($content),
 			);
 
