@@ -220,7 +220,7 @@ $PL->templates('myalerts',
         {$unreadAlertsList}
     </div>
     <div class="foot">
-        <a href="http://mybb.euantor.com/misc.php?action=myalerts">{$lang->myalerts_view_all}</a>
+        <a href="{$mybb->settings[\'bburl\']}/misc.php?action=myalerts">{$lang->myalerts_view_all}</a>
     </div>
 </div>',
         )
