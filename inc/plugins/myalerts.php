@@ -243,7 +243,7 @@ function myalerts_global()
         $templatelist .= ',myalerts_page,multipage_page_current,multipage_page,multipage_nextpage,multipage';
     }
 
-    if ($mybb->settings['myalerts_enabled'])
+    if ($mybb->settings['myalerts_enabled'] && $mybb->user['uid'])
     {
         global $Alerts;
         require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';

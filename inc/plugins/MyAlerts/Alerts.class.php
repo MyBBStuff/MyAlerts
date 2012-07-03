@@ -200,11 +200,10 @@ class Alerts
 	{
 		$sqlString = '';
 		$separator = '';
+		$content = base64_encode(serialize($content));
 
 		foreach ($uids as $uid)
 		{
-			$content = base64_encode(serialize($content));
-
 			$sqlString .= $separator.'('.(int) $uid.','.(int) TIME_NOW.', \''.$this->db->escape_string($type).'\', '.(int) $tid.','.(int) $from.',\''.$this->db->escape_string($content).'\')';
 			$separator = ",\n";
 		}
