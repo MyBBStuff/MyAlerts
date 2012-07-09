@@ -498,7 +498,7 @@ function myalerts_alert_quoted()
 
             while ($uid = $db->fetch_array($uids))
             {
-                $userList[] = $uid['uid'];
+                $userList[] = (int) $uid['uid'];
             }
 
             if (!empty($userList) && is_array($userList))

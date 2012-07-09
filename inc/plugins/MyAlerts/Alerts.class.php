@@ -82,7 +82,7 @@ class Alerts
 				$return = array();
 				while ($alert = $this->db->fetch_array($alerts))
 				{
-					$alert['content'] = json_decode(base64_decode($alert['content']));
+					$alert['content'] = json_decode($alert['content'], true);
 					$return[] = $alert;
 				}
 
@@ -115,7 +115,7 @@ class Alerts
 				$return = array();
 				while ($alert = $this->db->fetch_array($alerts))
 				{
-					$alert['content'] = json_decode(base64_decode($alert['content']));
+					$alert['content'] = json_decode($alert['content'], true);
 					$return[] = $alert;
 				}
 
@@ -174,7 +174,7 @@ class Alerts
 	 */
 	public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array())
 	{
-		$content = base64_encode(json_encode($content));
+		$content = json_encode($content);
 
 		$insertArray = array(
 			'uid'		=>	(int) $uid,
@@ -200,7 +200,7 @@ class Alerts
 	{
 		$sqlString = '';
 		$separator = '';
-		$content = base64_encode(json_encode($content));
+		$content = json_encode($content);
 
 		foreach ($uids as $uid)
 		{
