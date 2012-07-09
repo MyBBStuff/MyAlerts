@@ -82,8 +82,7 @@ class Alerts
 				$return = array();
 				while ($alert = $this->db->fetch_array($alerts))
 				{
-					$alert['content'] = html_entity_decode($alert['content'], ENT_QUOTES);
-					$alert['content'] = unserialize($alert['content']);
+					$alert['content'] = json_decode(base64_decode($alert['content']));
 					$return[] = $alert;
 				}
 
@@ -116,8 +115,7 @@ class Alerts
 				$return = array();
 				while ($alert = $this->db->fetch_array($alerts))
 				{
-					$alert['content'] = html_entity_decode($alert['content'], ENT_QUOTES);
-					$alert['content'] = unserialize($alert['content']);
+					$alert['content'] = json_decode(base64_decode($alert['content']));
 					$return[] = $alert;
 				}
 
@@ -160,7 +158,7 @@ class Alerts
 		if (is_array($alerts))
 		{
 			$alerts = array_map('intval', $alerts);
-			$alerts  ="'".my_strtolower(implode("','", $alerts))."'";
+			$alerts = "'".my_strtolower(implode("','", $alerts))."'";
 		}
 
 		return $this->db->delete_query('alerts', 'id IN('.$alerts.') AND uid = '.$this->mybb->user['uid']);
@@ -176,8 +174,7 @@ class Alerts
 	 */
 	public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array())
 	{
-		$content = serialize($content);
-		$content = htmlentities($content, ENT_QUOTES);
+		$content = base64_encode(json_encode($content));
 
 		$insertArray = array(
 			'uid'		=>	(int) $uid,
@@ -203,8 +200,7 @@ class Alerts
 	{
 		$sqlString = '';
 		$separator = '';
-		$content = serialize($content);
-		$content = htmlentities($content, ENT_QUOTES);
+		$content = base64_encode(json_encode($content));
 
 		foreach ($uids as $uid)
 		{
