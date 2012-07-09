@@ -82,7 +82,8 @@ class Alerts
 				$return = array();
 				while ($alert = $this->db->fetch_array($alerts))
 				{
-					$alert['content'] = unserialize(base64_decode($alert['content']));
+					$alert['content'] = html_entity_decode($alert['content'], ENT_QUOTES);
+					$alert['content'] = unserialize($alert['content']);
 					$return[] = $alert;
 				}
 
@@ -115,7 +116,8 @@ class Alerts
 				$return = array();
 				while ($alert = $this->db->fetch_array($alerts))
 				{
-					$alert['content'] = unserialize(base64_decode($alert['content']));
+					$alert['content'] = html_entity_decode($alert['content'], ENT_QUOTES);
+					$alert['content'] = unserialize($alert['content']);
 					$return[] = $alert;
 				}
 
@@ -174,7 +176,8 @@ class Alerts
 	 */
 	public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array())
 	{
-		$content = base64_encode(serialize($content));
+		$content = serialize($content);
+		$content = htmlentities($content, ENT_QUOTES);
 
 		$insertArray = array(
 			'uid'		=>	(int) $uid,
@@ -200,7 +203,8 @@ class Alerts
 	{
 		$sqlString = '';
 		$separator = '';
-		$content = base64_encode(serialize($content));
+		$content = serialize($content);
+		$content = htmlentities($content, ENT_QUOTES);
 
 		foreach ($uids as $uid)
 		{
