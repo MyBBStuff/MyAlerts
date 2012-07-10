@@ -13,7 +13,7 @@ jQuery(document).ready(function($)
                 if (!data)
                 {
                     $('#unreadAlerts_menu_popup').html(myalerts_empty_listing);
-                    unreadAlertsList = 'No Alerts';
+                    unreadAlertsList = myalerts_empty_listing;
                 }
                 else
                 {
