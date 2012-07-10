@@ -211,17 +211,8 @@ $PL->templates('myalerts',
         'alert_row' =>  '<div class="alert_row">
     {$alertinfo}
 </div>',
-        'unread_alerts_modal'   =>  '<div id="mask"></div>
-<div class="modalBox" id="alertsModalBox">
-    <div class="thead">
-        {$lang->myalerts_unread_title}
-    </div>
-    <div class="content">
-        {$unreadAlertsList}
-    </div>
-    <div class="foot">
-        <a href="{$mybb->settings[\'bburl\']}/misc.php?action=myalerts">{$lang->myalerts_view_all}</a>
-    </div>
+        'alert_row_popup' =>  '<div class="popup_item_container">
+    {$alertinfo}
 </div>',
         )
     );
@@ -234,7 +225,7 @@ function myalerts_deactivate()
 $plugins->add_hook('global_start', 'myalerts_global');
 function myalerts_global()
 {
-    global $db, $mybb, $templatelist, $templates, $lang, $unreadAlertsModal, $unreadAlertsList;
+    global $db, $mybb, $templatelist, $lang;
 
     $templatelist .= ',myalerts_unread_alerts_modal,myalerts_alert_row';
 
@@ -255,94 +246,12 @@ function myalerts_global()
         {
         }
 
-        try
-        {
-            $mybb->user['alerts'] = $Alerts->getUnreadAlerts();
-        }
-        catch (Exception $e)
-        {
-        }
-
-        if (is_array($mybb->user['alerts']))
-        {
-            $mybb->user['unreadAlerts'] = count($mybb->user['alerts']);
-        }
-        else
-        {
-            $mybb->user['unreadAlerts'] = 0;
-        }
-    }
-}
-
-//  We need to do this for our global stuff due to how MyBB's template system works D:
-$plugins->add_hook('pre_output_page', 'myalerts_output_parse');
-function myalerts_output_parse(&$contents)
-{
-    global $mybb, $lang, $templates;
-
-    if ($mybb->settings['myalerts_enabled'])
-    {
-        global $Alerts;
-
         if (!$lang->myalerts)
         {
             $lang->load('myalerts');
         }
 
-        if (is_array($mybb->user['alerts']))
-        {
-            $readAlerts = array();
-
-            foreach ($mybb->user['alerts'] as $alert)
-            {
-                $alert['user'] = build_profile_link($alert['username'], $alert['uid']);
-                $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
-                if (!is_array($alert['content']))
-                {
-                    $alert['content'] = unserialize($alert['content']);
-                }
-
-                if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
-                {
-                    $alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
-                }
-                elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
-                {
-                    $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
-                }
-                elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
-                {
-                    $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
-                }
-                elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
-                {
-                    $alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
-                    $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
-                }
-                elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
-                {
-                    $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-                    $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
-                }
-
-                $alertinfo = $alert['message'];
-
-                eval("\$unreadAlertsList .= \"".$templates->get('myalerts_alert_row')."\";");
-
-                $readAlerts[] = $alert['id'];
-            }
-
-            $Alerts->markRead($readAlerts);
-        }
-        else
-        {
-            $mybb->user['unreadAlerts'] = 0;
-            $unreadAlertsList = $lang->myalerts_no_alerts;
-        }
-
-        eval("\$unreadAlertsModal = \"".$templates->get('myalerts_unread_alerts_modal')."\";");
-
-        return str_replace('{{myalertsModal}}', $unreadAlertsModal, $contents);
+        $mybb->user['unreadAlerts'] = $Alerts->getNumUnreadAlerts();
     }
 }
 
@@ -528,7 +437,6 @@ function myalerts_alert_post_threadauthor(&$post)
         if ($thread['uid'] != $mybb->user['uid'])
         {
             //check if alerted for this thread already
-
             $query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1');
 
             if ($db->num_rows($query) < 1)
@@ -701,7 +609,14 @@ function myalerts_xmlhttp()
 
                     $alertinfo = $alert['message'];
 
-                    eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
+                    if ($mybb->input['method'] == 'ajax')
+                    {
+                        eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row_popup')."\";");
+                    }
+                    else
+                    {
+                        eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
+                    }
 
                     $markRead[] = $alert['id'];
                 }
