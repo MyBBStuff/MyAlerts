@@ -1,21 +1,27 @@
 jQuery.noConflict();
 
-jQuery(document).ready(function($) {
-    //  Manual alerts refresh
+jQuery(document).ready(function($)
+{
+    var unreadAlertsList = null;
     $('#unreadAlerts_menu').on('click', function(event) {
         event.preventDefault();
 
-        $.get('xmlhttp.php?action=getNewAlerts&method=ajax', function(data)
+        if (!unreadAlertsList)
         {
-            if (!data)
+            $.get('xmlhttp.php?action=getNewAlerts&method=ajax', function(data)
             {
-                $('#unreadAlerts_menu_popup').html(myalerts_empty_listing);
-            }
-            else
-            {
-                $('#unreadAlerts_menu_popup').html(data);
-            }
-        });
+                unreadAlertsList = data;
+                if (!data)
+                {
+                    $('#unreadAlerts_menu_popup').html(myalerts_empty_listing);
+                }
+                else
+                {
+                    $('#unreadAlerts_menu_popup').html(data);
+                }
+            });
+            $(this).html('0');
+        }
     });
 
     //  Automatic alerts refresh
