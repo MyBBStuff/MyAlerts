@@ -10,14 +10,15 @@ jQuery(document).ready(function($)
         {
             $.get('xmlhttp.php?action=getNewAlerts&method=ajax', function(data)
             {
-                unreadAlertsList = data;
                 if (!data)
                 {
                     $('#unreadAlerts_menu_popup').html(myalerts_empty_listing);
+                    unreadAlertsList = 'No Alerts';
                 }
                 else
                 {
                     $('#unreadAlerts_menu_popup').html(data);
+                    unreadAlertsList = data;
                 }
             });
             $(this).html('0');
