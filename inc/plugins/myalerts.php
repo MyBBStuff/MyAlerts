@@ -21,9 +21,9 @@ if(!defined("PLUGINLIBRARY"))
     define("PLUGINLIBRARY", MYBB_ROOT."inc/plugins/pluginlibrary.php");
 }
 
-function myalerts_info()
+function myalerts_info($key='')
 {
-    return array(
+    $info = array(
         'name'          =>  'MyAlerts',
         'description'   =>  'A simple notifications/alerts system for MyBB',
         'website'       =>  'http://euantor.com',
@@ -33,22 +33,30 @@ function myalerts_info()
         'guid'          =>  '',
         'compatibility' =>  '16*',
         );
+	if($key != '')
+	{
+		if(isset($info[$key]))
+		{
+			return $info[$key];
+		}
+		return false;
+	}
+	return $info;
 }
 
 function myalerts_install()
 {
     global $db, $cache;
+	myalerts_uninstall();
 
-    $plugin_info = myalerts_info();
+    $version = myalerts_info('version');
     $euantor_plugins = $cache->read('euantor_plugins');
     $euantor_plugins['myalerts'] = array(
         'title'     =>  'MyAlerts',
-        'version'   =>  $plugin_info['version'],
+        'version'   =>  $version,
         );
     $cache->update('euantor_plugins', $euantor_plugins);
 
-    if (!$db->table_exists('alerts'))
-    {
         $db->write_query('CREATE TABLE `'.TABLE_PREFIX.'alerts` (
             `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
             `uid` INT(10) NOT NULL,
@@ -59,7 +67,6 @@ function myalerts_install()
             `from` INT(10),
             `content` TEXT
             ) ENGINE=MyISAM '.$db->build_create_table_collation().';');
-    }
 }
 
 function myalerts_is_installed()
@@ -72,15 +79,15 @@ function myalerts_uninstall()
 {
     global $db;
 
-    if ($db->table_exists('alerts'))
-    {
-        $db->write_query('DROP TABLE '.TABLE_PREFIX.'alerts');
-    }
-
     if(!file_exists(PLUGINLIBRARY))
     {
         flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
         admin_redirect("index.php?module=config-plugins");
+    }
+
+    if ($db->table_exists('alerts'))
+    {
+        $db->write_query('DROP TABLE '.TABLE_PREFIX.'alerts');
     }
 
     global $PL;
@@ -92,21 +99,20 @@ function myalerts_uninstall()
 
 function myalerts_activate()
 {
-    global $mybb, $db, $lang;
-
-    if (!$lang->myalerts)
-    {
-        $lang->load('myalerts');
-    }
-
     if(!file_exists(PLUGINLIBRARY))
     {
         flash_message($lang->myalerts_pluginlibrary_missing, "error");
         admin_redirect("index.php?module=config-plugins");
     }
 
-    $this_version = myalerts_info();
-    $this_version = $this_version['version'];
+    global $lang;
+
+    if (!isset($lang->myalerts))
+    {
+        $lang->load('myalerts');
+    }
+
+    $this_version = myalerts_info('version');
     require_once MYALERTS_PLUGIN_PATH.'/Alerts.class.php';
 
     if (Alerts::getVersion() != $this_version)
@@ -225,14 +231,17 @@ function myalerts_deactivate()
 $plugins->add_hook('global_start', 'myalerts_global');
 function myalerts_global()
 {
-    global $db, $mybb, $templatelist, $lang;
+    global $mybb, $templatelist;
 
-    $templatelist .= ',myalerts_unread_alerts_modal,myalerts_alert_row';
+	if(isset($templatelist))
+	{
+		$templatelist .= ',myalerts_unread_alerts_modal,myalerts_alert_row';
 
-    if (THIS_SCRIPT == 'misc.php' && $mybb->input['action'] == 'myalerts')
-    {
-        $templatelist .= ',myalerts_page,multipage_page_current,multipage_page,multipage_nextpage,multipage';
-    }
+		if (THIS_SCRIPT == 'misc.php' && $mybb->input['action'] == 'myalerts')
+		{
+			$templatelist .= ',myalerts_page,multipage_page_current,multipage_page,multipage_nextpage,multipage';
+		}
+	}
 
     if ($mybb->settings['myalerts_enabled'] && $mybb->user['uid'])
     {
@@ -240,13 +249,14 @@ function myalerts_global()
         require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
         try
         {
-            $Alerts = new Alerts($mybb, $db);
+            $Alerts = new Alerts($mybb, $GLOBALS['db']);
         }
         catch (Exception $e)
         {
         }
 
-        if (!$lang->myalerts)
+		global $lang;
+        if (!isset($lang->myalerts))
         {
             $lang->load('myalerts');
         }
@@ -258,17 +268,18 @@ function myalerts_global()
 $plugins->add_hook('build_friendly_wol_location_end', 'myalerts_online_location');
 function myalerts_online_location(&$plugin_array)
 {
-    global $mybb, $lang;
+    global $settings;
 
-    if ($mybb->settings['myalerts_enabled'])
+    if ($settings['myalerts_enabled'])
     {
-        if (!$lang->myalerts)
-        {
-            $lang->load('myalerts');
-        }
-
         if ($plugin_array['user_activity']['activity'] == 'misc' AND my_strpos($plugin_array['user_activity']['location'], 'myalerts'))
         {
+			global $lang;
+			if (!isset($lang->myalerts))
+			{
+				$lang->load('myalerts');
+			}
+
             $plugin_array['location_name'] = $lang->myalerts_online_location_listing;
         }
     }
@@ -277,11 +288,11 @@ function myalerts_online_location(&$plugin_array)
 $plugins->add_hook('reputation_do_add_process', 'myalerts_addAlert_rep');
 function myalerts_addAlert_rep()
 {
-    global $mybb, $reputation;
+    global $mybb;
 
     if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_rep'])
     {
-        global $Alerts;
+        global $Alerts, $reputation;
 
         $Alerts->addAlert($reputation['uid'], 'rep', 0, $mybb->user['uid'], array());
     }
@@ -290,11 +301,11 @@ function myalerts_addAlert_rep()
 $plugins->add_hook('private_do_send_end', 'myalerts_addAlert_pm');
 function myalerts_addAlert_pm()
 {
-    global $mybb, $db, $pm, $pmhandler;
+    global $mybb;
 
     if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_pm'])
     {
-        global $Alerts;
+        global $Alerts, $db, $pm, $pmhandler;
 
         $pmUsers = array_map("trim", $pm['to']);
         $pmUsers = array_unique($pmUsers);
@@ -330,13 +341,13 @@ function myalerts_addAlert_pm()
 $plugins->add_hook('usercp_do_editlists_end', 'myalerts_alert_buddylist');
 function myalerts_alert_buddylist()
 {
-    global $mybb, $db;
+    global $mybb;
 
     if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_buddylist'])
     {
         if ($mybb->input['manage'] != 'ignore' && !isset($mybb->input['delete'])) // don't wish to alert when users are added to an ignore list
         {
-            global $Alerts;
+            global $Alerts, $db;
 
             $addUsers = explode(",", $mybb->input['add_username']);
             $addUsers = array_map("trim", $addUsers);
@@ -370,11 +381,11 @@ function myalerts_alert_buddylist()
 $plugins->add_hook('newreply_do_newreply_end', 'myalerts_alert_quoted');
 function myalerts_alert_quoted()
 {
-    global $mybb, $db, $pid, $post;
+    global $mybb;
 
     if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_quoted'])
     {
-        global $Alerts;
+        global $Alerts, $db, $pid, $post;
 
         $message = $post['message'];
 
@@ -425,11 +436,11 @@ function myalerts_alert_quoted()
 $plugins->add_hook('datahandler_post_insert_post', 'myalerts_alert_post_threadauthor');
 function myalerts_alert_post_threadauthor(&$post)
 {
-    global $mybb, $db;
+    global $mybb;
 
     if ($mybb->settings['myalerts_enabled'] AND $mybb->settings['myalerts_alert_post_threadauthor'])
     {
-        global $Alerts;
+        global $Alerts, $db;
 
         $query = $db->simple_select('threads', 'uid,subject', 'tid = '.$post->post_insert_data['tid'], array('limit' => '1'));
         $thread = $db->fetch_array($query);
@@ -453,19 +464,19 @@ function myalerts_alert_post_threadauthor(&$post)
 $plugins->add_hook('misc_start', 'myalerts_page');
 function myalerts_page()
 {
-    global $mybb, $db, $lang, $theme, $templates, $headerinclude, $header, $footer;
+    global $mybb;
 
     if ($mybb->settings['myalerts_enabled'])
     {
-        global $Alerts;
-
-        if (!$lang->myalerts)
-        {
-            $lang->load('myalerts');
-        }
-
         if ($mybb->input['action'] == 'myalerts')
         {
+			global $Alerts, $db, $lang, $theme, $templates, $headerinclude, $header, $footer;
+
+			if (!isset($lang->myalerts))
+			{
+				$lang->load('myalerts');
+			}
+
             add_breadcrumb('Alerts', 'misc.php?action=myalerts');
 
             $numAlerts = $Alerts->getNumAlerts();
@@ -547,6 +558,7 @@ function myalerts_page()
 
             eval("\$content .= \"".$templates->get('myalerts_page')."\";");
             output_page($content);
+			exit;
         }
     }
 }
@@ -554,14 +566,15 @@ function myalerts_page()
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp');
 function myalerts_xmlhttp()
 {
-	global $mybb, $db, $lang, $templates;
+	global $mybb;
 
 	if ($mybb->settings['myalerts_enabled'])
 	{
+		global $lang, $templates;
         require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
-        $Alerts = new Alerts($mybb, $db);
+        $Alerts = new Alerts($mybb, $GLOBALS['db']);
 
-        if (!$lang->myalerts)
+        if (!isset($lang->myalerts))
         {
             $lang->load('myalerts');
         }
@@ -629,7 +642,7 @@ function myalerts_xmlhttp()
 
 		if ($mybb->input['action'] == 'deleteAlerts')
 		{
-			if ($Alerts->deleteAlerts($db->escape_string($mybb->input['alertsList'])))
+			if ($Alerts->deleteAlerts($GLOBALS['db']->escape_string($mybb->input['alertsList'])))
 			{
 				header('Content-Type: text/javascript');
 				echo json_encode(array('response' => 'success'));
