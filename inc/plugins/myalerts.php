@@ -557,7 +557,7 @@ function myalerts_page()
 
     if ($mybb->input['action'] == 'myalerts')
     {
-        global $Alerts, $db, $lang, $theme, $templates, $headerinclude, $header, $footer;
+        global $Alerts, $db, $lang, $theme, $templates, $headerinclude, $header, $footer, $plugins;
 
         if (!$lang->myalerts)
         {
@@ -605,6 +605,8 @@ function myalerts_page()
                 $alert['user'] = build_profile_link($alert['username'], $alert['uid']);
                 $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
 
+                $plugins->run_hooks('myalerts_page_output_start');
+
                 if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                 {
                     $alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
@@ -627,6 +629,8 @@ function myalerts_page()
                     $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
                     $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
                 }
+
+                $plugins->run_hooks('myalerts_page_output_end');
 
                 $alertinfo = $alert['message'];
 
@@ -654,7 +658,7 @@ if ($settings['myalerts_enabled'])
 }
 function myalerts_xmlhttp()
 {
-    global $mybb, $db, $lang, $templates;
+    global $mybb, $db, $lang, $templates, $plugins;
 
     require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
     $Alerts = new Alerts($mybb, $db);
@@ -677,10 +681,8 @@ function myalerts_xmlhttp()
             {
                 $alert['user'] = build_profile_link($alert['username'], $alert['uid']);
                 $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
-                if (!is_array($alert['content']))
-                {
-                    $alert['content'] = unserialize($alert['content']);
-                }
+
+                $plugins->run_hooks('myalerts_xmlhttp_output_start');
 
                 if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
                 {
@@ -704,6 +706,8 @@ function myalerts_xmlhttp()
                     $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
                     $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
                 }
+
+                $plugins->run_hooks('myalerts_xmlhttp_output_end');
 
                 $alertinfo = $alert['message'];
 
