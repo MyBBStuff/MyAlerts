@@ -9,6 +9,7 @@ $l['myalerts_online_location_listing'] = 'Viewing Alerts';
 $l['myalerts_unread_title'] = 'Unread Alerts';
 $l['myalerts_view_all'] = 'View All Alerts';
 
+$l['myalerts_loading'] = 'Loading...';
 $l['myalerts_no_alerts'] = 'No alerts to display';
 $l['myalerts_rep'] = '{1} modified your reputation. ({2})';
 $l['myalerts_pm'] = '{1} sent you a new private message titled "{2}". ({3})';

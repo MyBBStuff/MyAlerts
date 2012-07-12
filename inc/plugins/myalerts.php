@@ -216,10 +216,106 @@ function myalerts_activate()
 </div>',
         )
     );
+
+    //  Add our stylesheet to make our alerts notice look nicer. Making use of CSS3 gradients here because I'm lazy. based on the default theme's colours
+
+    $stylesheet = '.unreadAlerts {
+    -webkit-border-radius: 4em;
+    -moz-border-radius: 4em;
+    border-radius: 4em;
+    color: #ffffff !important;
+    text-shadow: 1px 1px 0 rgb(0,29,47);
+    border: 1px solid rgb(0,29,47);
+    width: 2em;
+    height: 2em;
+    line-height:2em;
+    vertical-align:middle;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-block;
+    background:#026CB1 url(images/thead_bg.gif) top left repeat-x;
+    background:-webkit-linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
+    background:-moz-linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
+    background:-o-linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
+    background:-ms-linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
+    background:linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
+    box-shadow:inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+    margin:5px;
+    text-decoration:none;
+}
+    .unreadAlerts:hover,.unreadAlerts:active{
+        text-decoration:none;
+    }';
+
+    $insertArray = array(
+        'name'          => 'Alerts.css',
+        'tid'           => '1',
+        'stylesheet'    => $db->escape_string($stylesheet),
+        'cachefile'     => 'Alerts.css',
+        'lastmodified'  => TIME_NOW
+    );
+
+    require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
+
+    $sid = $db->insert_query('themestylesheets', $insertArray);
+
+    if(!cache_stylesheet($theme['tid'], 'Alerts.css', $stylesheet))
+    {
+        $db->update_query('themestylesheets', array('cachefile' => "css.php?stylesheet={$sid}"), "sid='{$sid}'", 1);
+    }
+
+    $query = $db->simple_select('themes', 'tid');
+    while($theme = $db->fetch_array($query))
+    {
+        update_theme_stylesheet_list($theme['tid']);
+    }
+
+    require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
+    // Add our JS. We need jQuery and myalerts.js. For jQuery, we check it hasn't already been loaded then load 1.7.2 from google's CDN
+    find_replace_templatesets('headerinclude', "#".preg_quote('{$stylesheets}')."#i", '<script type="text/javascript">
+if (typeof jQuery == \'undefined\')
+{
+    document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
+}
+</script>
+<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
+    find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<a href="{$mybb->settings[\'bburl\']}/misc.php?action=myalerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
+<div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
+    <span class="popup_item">{$lang->myalerts_loading}</span>
+</div>
+<script type="text/javascript">
+// <!--
+if(use_xmlhttprequest == "1")
+{
+new PopupMenu("unreadAlerts_menu");
+}
+// -->
+</script>'."\n");
 }
 
 function myalerts_deactivate()
 {
+    require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
+    find_replace_templatesets('headerinclude', "#".preg_quote('<script type="text/javascript">
+if (typeof jQuery == \'undefined\')
+{
+    document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
+}
+</script>
+<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
+    find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<a href="{$mybb->settings[\'bburl\']}/misc.php?action=myalerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
+<div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
+    <span class="popup_item">{$lang->myalerts_loading}</span>
+</div>
+<script type="text/javascript">
+// <!--
+if(use_xmlhttprequest == "1")
+{
+new PopupMenu("unreadAlerts_menu");
+}
+// -->
+</script>'."\n")."#i", '');
 }
 
 global $settings;
