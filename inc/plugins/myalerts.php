@@ -90,15 +90,15 @@ function myalerts_activate()
 {
     global $mybb, $db, $lang;
 
+    if (!$lang->myalerts)
+    {
+        $lang->load('myalerts');
+    }
+
     if(!file_exists(PLUGINLIBRARY))
     {
         flash_message($lang->myalerts_pluginlibrary_missing, "error");
         admin_redirect("index.php?module=config-plugins");
-    }
-
-    if (!$lang->myalerts)
-    {
-        $lang->load('myalerts');
     }
 
     $this_version = myalerts_info();
