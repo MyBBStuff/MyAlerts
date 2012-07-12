@@ -78,15 +78,11 @@ function myalerts_uninstall()
         admin_redirect("index.php?module=config-plugins");
     }
 
-    if ($db->table_exists('alerts'))
-    {
-        $db->write_query('DROP TABLE '.TABLE_PREFIX.'alerts');
-    }
-
     global $PL;
     $PL or require_once PLUGINLIBRARY;
 
-    $PL->settings_delete('myalerts');
+    $db->drop_table('alerts');
+    $PL->settings_delete('myalerts', true);
     $PL->templates_delete('myalerts');
 }
 
@@ -216,7 +212,7 @@ function myalerts_activate()
     {$alertinfo}
 </div>',
             'alert_row_popup' =>  '<div class="popup_item_container">
-    {$alertinfo}
+    <span class="popup_item">{$alertinfo}</span>
 </div>',
         )
     );
@@ -615,7 +611,7 @@ function myalerts_xmlhttp()
 
                 $alertinfo = $alert['message'];
 
-                if ($mybb->input['method'] == 'ajax')
+                if ($mybb->input['from'] == 'header')
                 {
                     eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row_popup')."\";");
                 }
@@ -628,6 +624,15 @@ function myalerts_xmlhttp()
             }
 
             $Alerts->markRead($markRead);
+        }
+        else
+        {
+            if ($mybb->input['from'] == 'header')
+            {
+                $alertinfo = $lang->myalerts_no_alerts;
+
+                eval("\$alertsListing = \"".$templates->get('myalerts_alert_row_popup')."\";");
+            }
         }
 
 		echo $alertsListing;

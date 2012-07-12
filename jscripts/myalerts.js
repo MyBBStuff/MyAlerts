@@ -8,7 +8,7 @@ jQuery(document).ready(function($)
 
         if (!unreadAlertsList)
         {
-            $.get('xmlhttp.php?action=getNewAlerts&method=ajax', function(data)
+            $.get('xmlhttp.php?action=getNewAlerts&from=header', function(data)
             {
                 if (!data)
                 {
