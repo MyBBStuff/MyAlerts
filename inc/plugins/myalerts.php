@@ -385,16 +385,16 @@ function myalerts_alert_quoted()
         $pattern = "#\[quote=([\"']|&quot;|)(.*?)(?:\\1)(.*?)(?:[\"']|&quot;)?\](.*?)\[/quote\](\r\n?|\n?)#esi";
 
         preg_match_all($pattern, $message, $match);
-    
+
         $matches = array_merge($match[2], $match[3]);
 
         foreach($matches as $key => $value)
-        { 
+        {
             if (empty($value))
-            { 
-                unset($matches[$key]); 
-            } 
-        } 
+            {
+                unset($matches[$key]);
+            }
+        }
 
         $users = array_values($matches);
 
@@ -461,6 +461,12 @@ function myalerts_page()
 
     if ($mybb->settings['myalerts_enabled'])
     {
+        if ($mybb->user['uid'] == 0 )
+        {
+            error_no_permission();
+            die();
+        }
+
         if ($mybb->input['action'] == 'myalerts')
         {
             global $Alerts, $db, $lang, $theme, $templates, $headerinclude, $header, $footer;
@@ -549,7 +555,7 @@ function myalerts_page()
 
             $Alerts->markRead($readAlerts);
 
-            eval("\$content .= \"".$templates->get('myalerts_page')."\";");
+            eval("\$content = \"".$templates->get('myalerts_page')."\";");
             output_page($content);
         }
     }
