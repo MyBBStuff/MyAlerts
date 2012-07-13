@@ -21,4 +21,13 @@ $l['setting_myalerts_alert_quoted'] = "Alert when quoted in a post?";
 $l['setting_myalerts_alert_quoted_desc'] = "Do you wish for users to receive an alert when they are quoted in a post?";
 $l['setting_myalerts_alert_post_threadauthor'] = "Alert thread authors on reply?";
 $l['setting_myalerts_alert_post_threadauthor_desc'] = "Do you wish for thread authors to receive an alert when somebody responds to their thread?";
+
+$l['myalerts_helpsection_name'] = 'User Alerts';
+$l['myalerts_helpsection_desc'] = 'Basic information relating to the user alerts system in place on this site.';
+
+$l['myalerts_help_info'] = 'Basic Information';
+$l['myalerts_help_info_desc'] = 'Basic information about the user alerts system and how it works.';
+$l['myalerts_help_info_document'] = 'The alerts system on this site provides you with a simple way to see what\'s been happening recently aroudn the site by the way of a simple notification.
+
+Alerts can be configured via the User Control Panel\'s Alerts Settings and you can see your most recent unread alerts within the site\'s header.';
 ?>

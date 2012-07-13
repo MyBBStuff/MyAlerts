@@ -178,33 +178,40 @@ function myalerts_activate()
     </head>
     <body>
         {$header}
-        <div class="float_right">
-            {$multipage}
-        </div>
-        <br class="clear" />
-        <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
-            <thead>
-                <tr>
-                    <th class="thead" colspan="1">
-                        <strong>{$lang->myalerts_page_title}</strong>
-                        <div class="float_right">
-                            <a id="getUnreadAlerts" href="{$mybb->settings[\'bburl\']}/misc.php?action=myalerts">{$lang->myalerts_page_getnew}</a>
-                        </div>
-                     </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="trow1" id="latestAlertsListing">
-                        {$alertsListing}
-                    </td>
-                </tr>
-            </tbody>
+        <table width="100%" border="0" align="center">
+            <tr>
+                {$usercpnav}
+                <td valign="top">
+                    <div class="float_right">
+                        {$multipage}
+                    </div>
+                    <div class="clear"></div>
+                    <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+                        <thead>
+                            <tr>
+                                <th class="thead" colspan="1">
+                                    <strong>{$lang->myalerts_page_title}</strong>
+                                    <div class="float_right">
+                                        <a id="getUnreadAlerts" href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts">{$lang->myalerts_page_getnew}</a>
+                                    </div>
+                                 </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="trow1" id="latestAlertsListing">
+                                    {$alertsListing}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="float_right">
+                        {$multipage}
+                    </div>
+                    <br class="clear" />
+                </td>
+            </tr>
         </table>
-        <div class="float_right">
-            {$multipage}
-        </div>
-        <br class="clear" />
         {$footer}
     </body>
     </html>',
@@ -214,6 +221,25 @@ function myalerts_activate()
             'alert_row_popup' =>  '<div class="popup_item_container">
     <span class="popup_item">{$alertinfo}</span>
 </div>',
+            'usercp_nav' => '<tr>
+    <td class="tcat">
+        <div class="expcolimage">
+            <img src="{$theme[\'imgdir\']}/collapse{$collapsedimg[\'usercpalerts\']}.gif" id="usercpalerts_img" class="expander" alt="[-]" title="[-]" />
+        </div>
+        <div>
+            <span class="smalltext">
+                <strong>{$lang->myalerts_usercp_nav}</strong>
+            </span>
+        </div>
+    </td>
+</tr>
+<tbody style="{$collapsed[\'usercpalerts_e\']}" id="usercpalerts_e">
+    <tr>
+        <td class="trow1 smalltext">
+            <a href="usercp.php?action=alerts" class="usercp_nav_item usercp_nav_myalerts">{$lang->myalerts_usercp_nav_alerts}</a>
+        </td>
+    </tr>
+</tbody>',
         )
     );
 
@@ -280,7 +306,7 @@ if (typeof jQuery == \'undefined\')
 }
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
-    find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<a href="{$mybb->settings[\'bburl\']}/misc.php?action=myalerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
+    find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
 <div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
     <span class="popup_item">{$lang->myalerts_loading}</span>
 </div>
@@ -292,6 +318,32 @@ new PopupMenu("unreadAlerts_menu");
 }
 // -->
 </script>'."\n");
+
+    // Helpdocs
+    $helpsection = $db->insert_query('helpsections', array(
+        'name'              =>  $lang->myalerts_helpsection_name,
+        'description'       =>  $lang->myalerts_helpsection_desc,
+        'usetranslation'    =>  1,
+        'enabled'           =>  1,
+        'disporder'         =>  3,
+        ));
+
+    $helpDocuments = array(
+        0   =>  array(
+            'sid'               =>  (int) $helpsection,
+            'name'              =>  $db->escape_string($lang->myalerts_help_info),
+            'description'       =>  $db->escape_string($lang->myalerts_help_info_desc),
+            'document'          =>  $db->escape_string($lang->myalerts_help_info_document),
+            'usetranslation'    =>  1,
+            'enabled'           =>  1,
+            'disporder'         =>  1,
+            ),
+        );
+
+    foreach ($helpDocuments as $document)
+    {
+        $db->insert_query('helpdocs', $document);
+    }
 }
 
 function myalerts_deactivate()
@@ -304,7 +356,7 @@ if (typeof jQuery == \'undefined\')
 }
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
-    find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<a href="{$mybb->settings[\'bburl\']}/misc.php?action=myalerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
+    find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
 <div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
     <span class="popup_item">{$lang->myalerts_loading}</span>
 </div>
@@ -328,9 +380,14 @@ function myalerts_global()
 {
     global $mybb, $templatelist;
 
-    if (THIS_SCRIPT == 'misc.php' && $mybb->input['action'] == 'myalerts')
+    if (THIS_SCRIPT == 'usercp.php')
     {
-        $templatelist .= ',myalerts_page,multipage_page_current,multipage_page,multipage_nextpage,multipage';
+        $templatelist .= ',myalerts_usercp_nav';
+    }
+
+    if (THIS_SCRIPT == 'usercp.php' AND $mybb->input['action'] == 'alerts')
+    {
+        $templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
     }
 
     if ($mybb->user['uid'])
@@ -367,7 +424,7 @@ function myalerts_online_location(&$plugin_array)
         $lang->load('myalerts');
     }
 
-    if ($plugin_array['user_activity']['activity'] == 'misc' AND my_strpos($plugin_array['user_activity']['location'], 'myalerts'))
+    if ($plugin_array['user_activity']['activity'] == 'usercp' AND my_strpos($plugin_array['user_activity']['location'], 'alerts'))
     {
         $plugin_array['location_name'] = $lang->myalerts_online_location_listing;
     }
@@ -543,28 +600,38 @@ function myalerts_alert_post_threadauthor(&$post)
 
 if ($settings['myalerts_enabled'])
 {
-    $plugins->add_hook('misc_start', 'myalerts_page');
+    $plugins->add_hook('usercp_menu', 'myalerts_usercp_menu', 20);
+}
+function myalerts_usercp_menu()
+{
+    global $mybb, $templates, $theme, $usercpmenu, $lang, $collapsed, $collapsedimg;
+
+    if (!$lang->myalerts)
+    {
+        $lang->load('myalerts');
+    }
+
+    eval("\$usercpmenu .= \"".$templates->get('myalerts_usercp_nav')."\";");
+}
+
+if ($settings['myalerts_enabled'])
+{
+    $plugins->add_hook('usercp_start', 'myalerts_page');
 }
 function myalerts_page()
 {
     global $mybb;
 
-    if ($mybb->user['uid'] == 0 )
+    if ($mybb->input['action'] == 'alerts')
     {
-        error_no_permission();
-        die();
-    }
-
-    if ($mybb->input['action'] == 'myalerts')
-    {
-        global $Alerts, $db, $lang, $theme, $templates, $headerinclude, $header, $footer, $plugins;
+        global $Alerts, $db, $lang, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
 
         if (!$lang->myalerts)
         {
             $lang->load('myalerts');
         }
 
-        add_breadcrumb('Alerts', 'misc.php?action=myalerts');
+        add_breadcrumb('Alerts', 'usercp.php?action=alerts');
 
         $numAlerts = $Alerts->getNumAlerts();
         $page = (int) $mybb->input['page'];
@@ -584,7 +651,7 @@ function myalerts_page()
             $start = 0;
             $page = 1;
         }
-        $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "misc.php?action=myalerts");
+        $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "usercp.php?action=alerts");
 
         try
         {
