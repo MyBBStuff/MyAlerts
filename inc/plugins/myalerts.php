@@ -338,6 +338,15 @@ new PopupMenu("unreadAlerts_menu");
             'enabled'           =>  1,
             'disporder'         =>  1,
             ),
+        1   =>  array(
+            'sid'               =>  (int) $helpsection,
+            'name'              =>  $db->escape_string($lang->myalerts_help_alert_types),
+            'description'       =>  $db->escape_string($lang->myalerts_help_alert_types_desc),
+            'document'          =>  $db->escape_string($lang->myalerts_help_alert_types_document),
+            'usetranslation'    =>  1,
+            'enabled'           =>  1,
+            'disporder'         =>  2,
+            ),
         );
 
     foreach ($helpDocuments as $document)
@@ -348,6 +357,17 @@ new PopupMenu("unreadAlerts_menu");
 
 function myalerts_deactivate()
 {
+    global $db, $lang;
+
+    if (!$lang->myalerts)
+    {
+        $lang->load('myalerts');
+    }
+
+    $sid = (int) $db->fetch_field($db->simple_select('helpsections', 'sid', 'name = \''.$db->escape_string($lang->myalerts_helpsection_name).'\''), 'sid');
+    $db->delete_query('helpsections', 'sid = '.$sid);
+    $db->delete_query('helpdocs', 'sid = '.$sid);
+
     require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
     find_replace_templatesets('headerinclude', "#".preg_quote('<script type="text/javascript">
 if (typeof jQuery == \'undefined\')
@@ -427,6 +447,48 @@ function myalerts_online_location(&$plugin_array)
     if ($plugin_array['user_activity']['activity'] == 'usercp' AND my_strpos($plugin_array['user_activity']['location'], 'alerts'))
     {
         $plugin_array['location_name'] = $lang->myalerts_online_location_listing;
+    }
+}
+
+if ($settings['myalerts_enabled'])
+{
+    $plugins->add_hook('misc_help_helpdoc_start', 'myalerts_helpdoc');
+}
+function myalerts_helpdoc()
+{
+    global $helpdoc, $lang, $mybb;
+
+    if (!$lang->myalerts)
+    {
+        $lang->load('myalerts');
+    }
+
+    if ($helpdoc['name'] == $lang->myalerts_help_alert_types)
+    {
+        if ($mybb->settings['myalerts_alert_rep'])
+        {
+            $helpdoc['document'] .= $lang->myalerts_help_alert_types_rep;
+        }
+
+        if ($mybb->settings['myalerts_alert_pm'])
+        {
+            $helpdoc['document'] .= $lang->myalerts_help_alert_types_pm;
+        }
+
+        if ($mybb->settings['myalerts_alert_buddylist'])
+        {
+            $helpdoc['document'] .= $lang->myalerts_help_alert_types_buddylist;
+        }
+
+        if ($mybb->settings['myalerts_alert_quoted'])
+        {
+            $helpdoc['document'] .= $lang->myalerts_help_alert_types_quoted;
+        }
+
+        if ($mybb->settings['myalerts_alert_post_threadauthor'])
+        {
+            $helpdoc['document'] .= $lang->myalerts_help_alert_types_post_threadauthor;
+        }
     }
 }
 
@@ -631,7 +693,8 @@ function myalerts_page()
             $lang->load('myalerts');
         }
 
-        add_breadcrumb('Alerts', 'usercp.php?action=alerts');
+        add_breadcrumb($lang->nav_usercp, 'usercp.php');
+        add_breadcrumb($lang->myalerts_page_title, 'usercp.php?action=alerts');
 
         $numAlerts = $Alerts->getNumAlerts();
         $page = (int) $mybb->input['page'];

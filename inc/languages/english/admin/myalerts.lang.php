@@ -30,4 +30,9 @@ $l['myalerts_help_info_desc'] = 'Basic information about the user alerts system 
 $l['myalerts_help_info_document'] = 'The alerts system on this site provides you with a simple way to see what\'s been happening recently aroudn the site by the way of a simple notification.
 
 Alerts can be configured via the User Control Panel\'s Alerts Settings and you can see your most recent unread alerts within the site\'s header.';
+
+$l['myalerts_help_alert_types'] = 'Alert Types';
+$l['myalerts_help_alert_types_desc'] = 'Information about the different types of alerts that can be received.';
+$l['myalerts_help_alert_types_document'] = 'There are many types of alerts that you can receive based on different actions around the forum. These are:
+<br /><br />';
 ?>
