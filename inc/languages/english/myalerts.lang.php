@@ -37,7 +37,7 @@ $l['myalerts_help_alert_types_quoted'] = '<strong>Quoted in a post</strong>
 <p>
     This alert type is received whenever another member of the site quotes you within a post anywhere on the site.
 </p>';
-$l['myalerts_help_alert_types_qpost_threadauthor'] = '<strong>New reply to your thread</strong>
+$l['myalerts_help_alert_types_post_threadauthor'] = '<strong>New reply to your thread</strong>
 <p>
     This alert type is received whenever another member of the site replies to one of your threads. This alert is only received for the first new post to the thread rather than being duplicated for each reply.
 </p>';
