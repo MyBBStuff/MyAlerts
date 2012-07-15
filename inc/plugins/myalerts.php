@@ -107,7 +107,7 @@ function myalerts_activate()
 
 	if (Alerts::version != $this_version)
 	{
-		flash_message($lang->sprintf($lang->myalerts_class_outdated, $this_version, Alerts::getVersion()), "error");
+		flash_message($lang->sprintf($lang->myalerts_class_outdated, $this_version, Alerts::version), "error");
 		admin_redirect("index.php?module=config-plugins");
 	}
 
