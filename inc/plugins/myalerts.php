@@ -105,7 +105,7 @@ function myalerts_activate()
 	$this_version = $this_version['version'];
 	require_once MYALERTS_PLUGIN_PATH.'/Alerts.class.php';
 
-	if (Alerts::getVersion() != $this_version)
+	if (Alerts::version != $this_version)
 	{
 		flash_message($lang->sprintf($lang->myalerts_class_outdated, $this_version, Alerts::getVersion()), "error");
 		admin_redirect("index.php?module=config-plugins");
