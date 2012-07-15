@@ -29,10 +29,10 @@ $l['myalerts_help_info'] = 'Basic Information';
 $l['myalerts_help_info_desc'] = 'Basic information about the user alerts system and how it works.';
 $l['myalerts_help_info_document'] = 'The alerts system on this site provides you with a simple way to see what\'s been happening recently around the site by the way of a simple notification.
 <p>
-There is a simple count of your oustanding unread alerts found within the header of the site. Clicking upon this count will open a dropdown list of your unread alerts from which you can then progress to the alerts listing page if you so desire.
+	There is a simple count of your oustanding unread alerts found within the header of the site. Clicking upon this count will open a dropdown list of your unread alerts from which you can then progress to the alerts listing page if you so desire.
 </p>
 <p>
-The alerts listing page can be <a href="usercp.php?action=alerts">found here</a> and contains a list of all the alerts you\'ve received, both unread and read. You can also delete old alerts that you don\'t wish to retain from this page.
+	The alerts listing page can be <a href="usercp.php?action=alerts">found here</a> and contains a list of all the alerts you\'ve received, both unread and read. You can also delete old alerts that you don\'t wish to retain from this page.
 </p>';
 
 $l['myalerts_help_alert_types'] = 'Alert Types';
