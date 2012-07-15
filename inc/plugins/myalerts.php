@@ -161,91 +161,91 @@ function myalerts_activate()
                 'value'         =>  '1',
                 ),
             )
-    );
+);
 
-    $PL->templates('myalerts',
-        'MyAlerts',
-        array(
-            'page'      =>  '<html>
-    <head>
+$PL->templates('myalerts',
+    'MyAlerts',
+    array(
+        'page'      =>  '<html>
+        <head>
         <title>{$lang->myalerts_page_title} - {$mybb->settings[\'bbname\']}</title>
         <script type="text/javascript">
-            <!--
-                var myalerts_autorefresh = {$mybb->settings[\'myalerts_autorefresh\']};
+        <!--
+        var myalerts_autorefresh = {$mybb->settings[\'myalerts_autorefresh\']};
             // -->
         </script>
         {$headerinclude}
-    </head>
-    <body>
+        </head>
+        <body>
         {$header}
         <table width="100%" border="0" align="center">
-            <tr>
-                {$usercpnav}
-                <td valign="top">
-                    <div class="float_right">
-                        {$multipage}
-                    </div>
-                    <div class="clear"></div>
-                    <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
-                        <thead>
-                            <tr>
-                                <th class="thead" colspan="1">
-                                    <strong>{$lang->myalerts_page_title}</strong>
-                                    <div class="float_right">
-                                        <a id="getUnreadAlerts" href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts">{$lang->myalerts_page_getnew}</a>
-                                    </div>
-                                 </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="trow1" id="latestAlertsListing">
-                                    {$alertsListing}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="float_right">
-                        {$multipage}
-                    </div>
-                    <br class="clear" />
-                </td>
-            </tr>
+        <tr>
+        {$usercpnav}
+        <td valign="top">
+        <div class="float_right">
+        {$multipage}
+        </div>
+        <div class="clear"></div>
+        <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+        <thead>
+        <tr>
+        <th class="thead" colspan="1">
+        <strong>{$lang->myalerts_page_title}</strong>
+        <div class="float_right">
+        <a id="getUnreadAlerts" href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts">{$lang->myalerts_page_getnew}</a>
+        </div>
+        </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td class="trow1" id="latestAlertsListing">
+        {$alertsListing}
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        <div class="float_right">
+        {$multipage}
+        </div>
+        <br class="clear" />
+        </td>
+        </tr>
         </table>
         {$footer}
-    </body>
-    </html>',
-            'alert_row' =>  '<div class="alert_row">
-    {$alertinfo}
-</div>',
-            'alert_row_popup' =>  '<div class="popup_item_container">
-    <span class="popup_item">{$alertinfo}</span>
-</div>',
-            'usercp_nav' => '<tr>
-    <td class="tcat">
+        </body>
+        </html>',
+        'alert_row' =>  '<div class="alert_row">
+        {$alertinfo}
+        </div>',
+        'alert_row_popup' =>  '<div class="popup_item_container">
+        <span class="popup_item">{$alertinfo}</span>
+        </div>',
+        'usercp_nav' => '<tr>
+        <td class="tcat">
         <div class="expcolimage">
-            <img src="{$theme[\'imgdir\']}/collapse{$collapsedimg[\'usercpalerts\']}.gif" id="usercpalerts_img" class="expander" alt="[-]" title="[-]" />
+        <img src="{$theme[\'imgdir\']}/collapse{$collapsedimg[\'usercpalerts\']}.gif" id="usercpalerts_img" class="expander" alt="[-]" title="[-]" />
         </div>
         <div>
-            <span class="smalltext">
-                <strong>{$lang->myalerts_usercp_nav}</strong>
-            </span>
+        <span class="smalltext">
+        <strong>{$lang->myalerts_usercp_nav}</strong>
+        </span>
         </div>
-    </td>
-</tr>
-<tbody style="{$collapsed[\'usercpalerts_e\']}" id="usercpalerts_e">
-    <tr>
-        <td class="trow1 smalltext">
-            <a href="usercp.php?action=alerts" class="usercp_nav_item usercp_nav_myalerts">{$lang->myalerts_usercp_nav_alerts}</a>
         </td>
-    </tr>
-</tbody>',
+        </tr>
+        <tbody style="{$collapsed[\'usercpalerts_e\']}" id="usercpalerts_e">
+        <tr>
+        <td class="trow1 smalltext">
+        <a href="usercp.php?action=alerts" class="usercp_nav_item usercp_nav_myalerts">{$lang->myalerts_usercp_nav_alerts}</a>
+        </td>
+        </tr>
+        </tbody>',
         )
-    );
+);
 
     //  Add our stylesheet to make our alerts notice look nicer. Making use of CSS3 gradients here because I'm lazy. based on the default theme's colours
 
-    $stylesheet = '.unreadAlerts {
+$stylesheet = '.unreadAlerts {
     -webkit-border-radius: 4em;
     -moz-border-radius: 4em;
     border-radius: 4em;
@@ -270,94 +270,106 @@ function myalerts_activate()
     margin:5px;
     text-decoration:none;
 }
-    .unreadAlerts:hover,.unreadAlerts:active{
-        text-decoration:none;
-    }';
+.unreadAlerts:hover,.unreadAlerts:active{
+    text-decoration:none;
+}
 
-    $insertArray = array(
-        'name'          => 'Alerts.css',
-        'tid'           => '1',
-        'stylesheet'    => $db->escape_string($stylesheet),
-        'cachefile'     => 'Alerts.css',
-        'lastmodified'  => TIME_NOW
+.usercp_nav_myalerts {
+    background: url(\'images/usercp/bell.png\') no-repeat left center;
+}';
+
+$insertArray = array(
+    'name'          => 'Alerts.css',
+    'tid'           => '1',
+    'stylesheet'    => $db->escape_string($stylesheet),
+    'cachefile'     => 'Alerts.css',
+    'lastmodified'  => TIME_NOW
     );
 
-    require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
+require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
 
-    $sid = $db->insert_query('themestylesheets', $insertArray);
+$sid = $db->insert_query('themestylesheets', $insertArray);
 
-    if(!cache_stylesheet($theme['tid'], 'Alerts.css', $stylesheet))
-    {
-        $db->update_query('themestylesheets', array('cachefile' => "css.php?stylesheet={$sid}"), "sid='{$sid}'", 1);
-    }
+if(!cache_stylesheet($theme['tid'], 'Alerts.css', $stylesheet))
+{
+    $db->update_query('themestylesheets', array('cachefile' => "css.php?stylesheet={$sid}"), "sid='{$sid}'", 1);
+}
 
-    $query = $db->simple_select('themes', 'tid');
-    while($theme = $db->fetch_array($query))
-    {
-        update_theme_stylesheet_list($theme['tid']);
-    }
+$query = $db->simple_select('themes', 'tid');
+while($theme = $db->fetch_array($query))
+{
+    update_theme_stylesheet_list($theme['tid']);
+}
 
-    require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
+require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
     // Add our JS. We need jQuery and myalerts.js. For jQuery, we check it hasn't already been loaded then load 1.7.2 from google's CDN
-    find_replace_templatesets('headerinclude', "#".preg_quote('{$stylesheets}')."#i", '<script type="text/javascript">
-if (typeof jQuery == \'undefined\')
-{
-    document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
-}
-</script>
-<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
-    find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
-<div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
+find_replace_templatesets('headerinclude', "#".preg_quote('{$stylesheets}')."#i", '<script type="text/javascript">
+    if (typeof jQuery == \'undefined\')
+    {
+        document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
+    }
+    </script>
+    <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
+find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
+    <div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
     <span class="popup_item">{$lang->myalerts_loading}</span>
-</div>
-<script type="text/javascript">
+    </div>
+    <script type="text/javascript">
 // <!--
-if(use_xmlhttprequest == "1")
-{
-new PopupMenu("unreadAlerts_menu");
-}
+    if(use_xmlhttprequest == "1")
+    {
+        new PopupMenu("unreadAlerts_menu");
+    }
 // -->
-</script>'."\n");
+    </script>'."\n");
 
     // Helpdocs
-    $helpsection = $db->insert_query('helpsections', array(
-        'name'              =>  $lang->myalerts_helpsection_name,
-        'description'       =>  $lang->myalerts_helpsection_desc,
+$helpsection = $db->insert_query('helpsections', array(
+    'name'              =>  $lang->myalerts_helpsection_name,
+    'description'       =>  $lang->myalerts_helpsection_desc,
+    'usetranslation'    =>  1,
+    'enabled'           =>  1,
+    'disporder'         =>  3,
+    ));
+
+$helpDocuments = array(
+    0   =>  array(
+        'sid'               =>  (int) $helpsection,
+        'name'              =>  $db->escape_string($lang->myalerts_help_info),
+        'description'       =>  $db->escape_string($lang->myalerts_help_info_desc),
+        'document'          =>  $db->escape_string($lang->myalerts_help_info_document),
         'usetranslation'    =>  1,
         'enabled'           =>  1,
-        'disporder'         =>  3,
-        ));
+        'disporder'         =>  1,
+        ),
+    1   =>  array(
+        'sid'               =>  (int) $helpsection,
+        'name'              =>  $db->escape_string($lang->myalerts_help_alert_types),
+        'description'       =>  $db->escape_string($lang->myalerts_help_alert_types_desc),
+        'document'          =>  $db->escape_string($lang->myalerts_help_alert_types_document),
+        'usetranslation'    =>  1,
+        'enabled'           =>  1,
+        'disporder'         =>  2,
+        ),
+    );
 
-    $helpDocuments = array(
-        0   =>  array(
-            'sid'               =>  (int) $helpsection,
-            'name'              =>  $db->escape_string($lang->myalerts_help_info),
-            'description'       =>  $db->escape_string($lang->myalerts_help_info_desc),
-            'document'          =>  $db->escape_string($lang->myalerts_help_info_document),
-            'usetranslation'    =>  1,
-            'enabled'           =>  1,
-            'disporder'         =>  1,
-            ),
-        1   =>  array(
-            'sid'               =>  (int) $helpsection,
-            'name'              =>  $db->escape_string($lang->myalerts_help_alert_types),
-            'description'       =>  $db->escape_string($lang->myalerts_help_alert_types_desc),
-            'document'          =>  $db->escape_string($lang->myalerts_help_alert_types_document),
-            'usetranslation'    =>  1,
-            'enabled'           =>  1,
-            'disporder'         =>  2,
-            ),
-        );
-
-    foreach ($helpDocuments as $document)
-    {
-        $db->insert_query('helpdocs', $document);
-    }
+foreach ($helpDocuments as $document)
+{
+    $db->insert_query('helpdocs', $document);
+}
 }
 
 function myalerts_deactivate()
 {
     global $db, $lang;
+
+    require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
+    $db->delete_query('themestylesheets', 'name = \'Alerts.css\'');
+    $query = $db->simple_select('themes', 'tid');
+    while($theme = $db->fetch_array($query))
+    {
+        update_theme_stylesheet_list($theme['tid']);
+    }
 
     if (!$lang->myalerts)
     {
@@ -370,24 +382,24 @@ function myalerts_deactivate()
 
     require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
     find_replace_templatesets('headerinclude', "#".preg_quote('<script type="text/javascript">
-if (typeof jQuery == \'undefined\')
-{
-    document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
-}
-</script>
-<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
+        if (typeof jQuery == \'undefined\')
+        {
+            document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
+        }
+        </script>
+        <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
     find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
-<div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
-    <span class="popup_item">{$lang->myalerts_loading}</span>
-</div>
-<script type="text/javascript">
+        <div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
+        <span class="popup_item">{$lang->myalerts_loading}</span>
+        </div>
+        <script type="text/javascript">
 // <!--
-if(use_xmlhttprequest == "1")
-{
-new PopupMenu("unreadAlerts_menu");
-}
+        if(use_xmlhttprequest == "1")
+        {
+            new PopupMenu("unreadAlerts_menu");
+        }
 // -->
-</script>'."\n")."#i", '');
+        </script>'."\n")."#i", '');
 }
 
 global $settings;
@@ -420,6 +432,7 @@ function myalerts_global()
         }
         catch (Exception $e)
         {
+            die($e->getMessage());
         }
 
         if (!$lang->myalerts)
@@ -722,8 +735,7 @@ function myalerts_page()
         }
         catch (Exception $e)
         {
-            error_no_permission();
-            die();
+            die($e->getMessage());
         }
 
         $readAlerts = array();
@@ -791,16 +803,30 @@ function myalerts_xmlhttp()
     global $mybb, $db, $lang, $templates, $plugins;
 
     require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
-    $Alerts = new Alerts($mybb, $db);
+    try
+    {
+        $Alerts = new Alerts($mybb, $db);
+    }
+    catch (Exception $e)
+    {
+        die($e->getMessage());
+    }
 
     if (!$lang->myalerts)
     {
         $lang->load('myalerts');
     }
 
-	if ($mybb->input['action'] == 'getNewAlerts')
-	{
-		$newAlerts = $Alerts->getUnreadAlerts();
+    if ($mybb->input['action'] == 'getNewAlerts')
+    {
+        try
+        {
+            $newAlerts = $Alerts->getUnreadAlerts();
+        }
+        catch (Exception $e)
+        {
+            die($e->getMessage());
+        }
 
         if (!empty($newAlerts) AND is_array($newAlerts))
         {
@@ -865,26 +891,26 @@ function myalerts_xmlhttp()
             }
         }
 
-		echo $alertsListing;
-	}
-
-	if ($mybb->input['action'] == 'deleteAlerts')
-	{
-		if ($Alerts->deleteAlerts($db->escape_string($mybb->input['alertsList'])))
-		{
-			header('Content-Type: text/javascript');
-			echo json_encode(array('response' => 'success'));
-		}
-		else
-		{
-			header('Content-Type: text/javascript');
-			echo json_encode(array('response' => 'error'));
-		}
-	}
-
-    if ($mybb->input['action'] == 'getNumUnreadAlerts')
-    {
-        echo $Alerts->getNumUnreadAlerts();
+        echo $alertsListing;
     }
+
+    if ($mybb->input['action'] == 'deleteAlerts')
+    {
+      if ($Alerts->deleteAlerts($db->escape_string($mybb->input['alertsList'])))
+      {
+         header('Content-Type: text/javascript');
+         echo json_encode(array('response' => 'success'));
+     }
+     else
+     {
+         header('Content-Type: text/javascript');
+         echo json_encode(array('response' => 'error'));
+     }
+ }
+
+ if ($mybb->input['action'] == 'getNumUnreadAlerts')
+ {
+    echo $Alerts->getNumUnreadAlerts();
+}
 }
 ?>

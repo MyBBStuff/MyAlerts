@@ -9,7 +9,7 @@
 
 class Alerts
 {
-	private static $version = '0.01';
+	const $version = '0.01';
 	private $mybb = null;
 	private $db = null;
 
@@ -19,28 +19,17 @@ class Alerts
 	 *	@param MyBB Object
 	 *	@param MyBB Database Object
 	 */
-	function __construct($mybbIn = null, $dbIn = null)
+	function __construct($mybbIn, $dbIn)
 	{
-		if (is_object($mybbIn) AND is_object($dbIn))
+		if ($mybbIn instanceof MyBB AND ($dbIn instanceof DB_MySQL OR $dbIn instanceof DB_MySQLi OR $dbIn instanceof DB_PgSQL OR $dbIn instanceof DB_SQLite))
 		{
 			$this->mybb = $mybbIn;
 			$this->db = $dbIn;
 		}
 		else
 		{
-			throw new Exception('You must pass $mybb and $db as parameters to the Alerts class');
-			return false;
+			throw new Exception('You must pass valid $mybb and $db objects as parameters to the Alerts class');
 		}
-	}
-
-	/**
-	 *	Get the current version number of the class - handy for upgrading etc
-	 *
-	 *	@return String
-	 */
-	public static function getVersion()
-	{
-		return self::$version;
 	}
 
 	/**
