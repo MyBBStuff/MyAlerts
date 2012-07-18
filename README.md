@@ -1,7 +1,7 @@
 MyAlerts: Alerts System for MyBB
 ==========================
 
-*Important:* _MyAlerts is still in *BETA*. It is NOT meant for use on live forums until we exit the beta stage. Currently MyAlerts is available to everyone to test for and report bugs, contribute to the code, and see what the features are and how they're implimented._
+**Important:** _MyAlerts is still in **BETA**. It is NOT meant for use on live forums until we exit the beta stage. Currently MyAlerts is available to everyone to test for and report bugs, contribute to the code, and see what the features are and how they're implimented._
 
 Current Version: Beta 1
 Dependencies:  Plugin Library
