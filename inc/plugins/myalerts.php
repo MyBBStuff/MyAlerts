@@ -697,6 +697,11 @@ function myalerts_usercp_menu()
 		$lang->load('myalerts');
 	}
 
+	if ($mybb->user['unreadAlerts'] > 0)
+	{
+		$lang->myalerts_usercp_nav_alerts = '<strong>'.$lang->myalerts_usercp_nav_alerts.' ('.$mybb->user['unreadAlerts'].')</strong>';
+	}
+
 	eval("\$usercpmenu .= \"".$templates->get('myalerts_usercp_nav')."\";");
 }
 
