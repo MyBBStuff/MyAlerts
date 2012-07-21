@@ -215,6 +215,18 @@ function myalerts_activate()
 		{$footer}
 	</body>
 	</html>',
+			'headericon'	=>	'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
+<div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
+	<span class="popup_item">{$lang->myalerts_loading}</span>
+</div>
+<script type="text/javascript">
+// <!--
+if(use_xmlhttprequest == "1")
+{
+new PopupMenu("unreadAlerts_menu");
+}
+// -->
+</script>',
 			'alert_row' =>  '<div class="alert_row {$alertRowType}">
 	{$alertinfo}
 </div>',
@@ -310,18 +322,7 @@ if (typeof jQuery == \'undefined\')
 }
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
-	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
-<div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
-	<span class="popup_item">{$lang->myalerts_loading}</span>
-</div>
-<script type="text/javascript">
-// <!--
-if(use_xmlhttprequest == "1")
-{
-new PopupMenu("unreadAlerts_menu");
-}
-// -->
-</script>'."\n");
+	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<myalerts_headericon>'."\n");
 
 	// Helpdocs
 	$helpsection = $db->insert_query('helpsections', array(
@@ -388,21 +389,30 @@ if (typeof jQuery == \'undefined\')
 }
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
-	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
-<div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
-	<span class="popup_item">{$lang->myalerts_loading}</span>
-</div>
-<script type="text/javascript">
-// <!--
-if(use_xmlhttprequest == "1")
-{
-new PopupMenu("unreadAlerts_menu");
-}
-// -->
-</script>'."\n")."#i", '');
+	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<myalerts_headericon>'."\n")."#i", '');
 }
 
 global $settings;
+
+if ($settings['myalerts_enabled'])
+{
+	$plugins->add_hook('pre_output_page', 'myalerts_pre_output_page');
+}
+function myalerts_pre_output_page(&$contents)
+{
+	global $templates, $mybb, $lang, $myalerts_headericon;
+
+	if (!$lang->myalerts)
+	{
+		$lang->load('myalerts');
+	}
+
+	eval("\$myalerts_headericon = \"".$templates->get('myalerts_headericon')."\";");
+
+	$contents = str_replace('<myalerts_headericon>', $myalerts_headericon, $contents);
+
+	return $contents;
+}
 
 if ($settings['myalerts_enabled'])
 {
@@ -411,6 +421,8 @@ if ($settings['myalerts_enabled'])
 function myalerts_global()
 {
 	global $mybb, $templatelist;
+
+	$templatelist .= ',myalerts_headericon';
 
 	if (THIS_SCRIPT == 'usercp.php')
 	{
