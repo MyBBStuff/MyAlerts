@@ -23,10 +23,11 @@ function task_myalerts($task)
 		$lang->load('myalerts');
 	}
 
-	require_once MYBB_ROOT.'inc/plugins/MyAlerts/Alerts.class.php';
-	$Alerts = new Alerts($mybb, $db);
-	else {
-		add_task_log($task, $lang->myxbl_task_xml_not_loaded);
+	$dateline = time() - 604800;
+
+	if ($db->delete_query('alerts', 'unread = 0 AND dateline <= '.(int) $dateline))
+	{
+		add_task_log($task, 'Unread alerts over a week old have been deleted.');
 	}
 }
 ?>
