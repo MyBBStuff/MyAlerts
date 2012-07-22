@@ -39,4 +39,7 @@ $l['myalerts_help_alert_types'] = 'Alert Types';
 $l['myalerts_help_alert_types_desc'] = 'Information about the different types of alerts that can be received.';
 $l['myalerts_help_alert_types_document'] = 'There are many types of alerts that you can receive based on different actions performed around this site. These are the current different actions that cause an alert to be received:
 <br /><br />';
+
+$l['myalerts_task_cleanup_ran'] = 'Read alerts over a week old were deleted successfully!';
+$l['myalerts_task_cleanup_error'] = 'Something went wrong while cleaning up the alerts...';
 ?>

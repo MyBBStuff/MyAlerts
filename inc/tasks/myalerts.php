@@ -27,7 +27,11 @@ function task_myalerts($task)
 
 	if ($db->delete_query('alerts', 'unread = 0 AND dateline <= '.(int) $dateline))
 	{
-		add_task_log($task, 'Unread alerts over a week old have been deleted.');
+		add_task_log($task, $lang->myalerts_task_cleanup_ran);
+	}
+	else
+	{
+		add_task_log($task, $lang->myalerts_task_cleanup_error);
 	}
 }
 ?>
