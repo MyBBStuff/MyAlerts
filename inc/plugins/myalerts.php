@@ -227,8 +227,8 @@ new PopupMenu("unreadAlerts_menu");
 }
 // -->
 </script>',
-			'alert_row' =>  '<div class="alert_row {$alertRowType}">
-	{$alertinfo}
+			'alert_row' =>  '<div class="alert_row {$alertRowType}Row">
+	<img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /> {$alert[\'message\']}
 </div>',
 			'alert_row_popup' =>  '<div class="popup_item_container">
 	<span class="popup_item">{$alertinfo}</span>
@@ -365,7 +365,7 @@ function myalerts_deactivate()
 	global $db, $lang;
 
 	require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
-	$db->delete_query('themestylesheets', 'name = \'Alerts.css\'');
+	$db->delete_query('themestylesheets', 'name = \'Alerts.css\' AND tid = 1');
 	$query = $db->simple_select('themes', 'tid');
 	while($theme = $db->fetch_array($query))
 	{
@@ -807,8 +807,6 @@ function myalerts_page()
 
 				$plugins->run_hooks('myalerts_page_output_end');
 
-				$alertinfo = $alert['message'];
-
 				eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
 
 				$readAlerts[] = $alert['id'];
@@ -918,27 +916,13 @@ function myalerts_xmlhttp()
 		{
 			if ($mybb->input['from'] == 'header')
 			{
-				$alertinfo = $lang->myalerts_no_alerts;
+				$alertinfo = $lang->myalerts_no_new_alerts;
 
 				eval("\$alertsListing = \"".$templates->get('myalerts_alert_row_popup')."\";");
 			}
 		}
 
 		echo $alertsListing;
-	}
-
-	if ($mybb->input['action'] == 'deleteAlerts')
-	{
-		if ($Alerts->deleteAlerts($db->escape_string($mybb->input['alertsList'])))
-		{
-			header('Content-Type: text/javascript');
-			echo json_encode(array('response' => 'success'));
-		}
-		else
-		{
-			header('Content-Type: text/javascript');
-			echo json_encode(array('response' => 'error'));
-		}
 	}
 
 	if ($mybb->input['action'] == 'getNumUnreadAlerts')
