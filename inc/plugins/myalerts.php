@@ -230,6 +230,9 @@ new PopupMenu("unreadAlerts_menu");
 			'alert_row' =>  '<div class="alert_row {$alertRowType}Row">
 	<img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /> {$alert[\'message\']}
 </div>',
+			'alert_row_no_alerts' =>  '<div class="alert_row noAlertsRow">
+	{$lang->myalerts_no_alerts}
+</div>',
 			'alert_row_popup' =>  '<div class="popup_item_container">
 	<span class="popup_item">{$alertinfo}</span>
 </div>',
@@ -814,8 +817,7 @@ function myalerts_page()
 		}
 		else
 		{
-			$alertinfo = $lang->myalerts_no_alerts;
-			eval("\$alertsListing = \"".$templates->get('myalerts_alert_row')."\";");
+			eval("\$alertsListing = \"".$templates->get('myalerts_alert_row_no_alerts')."\";");
 		}
 
 		$Alerts->markRead($readAlerts);
