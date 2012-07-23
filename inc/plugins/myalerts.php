@@ -205,7 +205,7 @@ function myalerts_activate()
 						</thead>
 						<tbody>
 							<tr>
-								<td class="trow1" id="latestAlertsListing">
+								<td class="trow1" id="latestAlertsListing" style="padding:0 !important">
 									<ol class="alertsList">
 										{$alertsListing}
 									</ol>
@@ -321,6 +321,10 @@ new PopupMenu("unreadAlerts_menu");
 	.alertsList li .alertContent {
 		float:left;
 		margin-left:4px;
+	}
+	.alertsList .unreadAlert {
+		font-weight:bold;
+		background:#FFFBD9;
 	}';
 
 	$insertArray = array(
