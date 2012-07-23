@@ -135,6 +135,12 @@ function myalerts_activate()
 				'value'         =>  '0',
 				'optionscode'   =>  'text',
 				),
+			'cleanup_time' =>  array(
+				'title'         =>  $lang->setting_myalerts_cleanup_timep,
+				'description'   =>  $lang->setting_myalerts_cleanup_time_desc,
+				'value'         =>  '604800',
+				'optionscode'	=>	'text',
+				),
 			'alert_rep' =>  array(
 				'title'         =>  $lang->setting_myalerts_alert_rep,
 				'description'   =>  $lang->setting_myalerts_alert_rep_desc,
@@ -200,7 +206,9 @@ function myalerts_activate()
 						<tbody>
 							<tr>
 								<td class="trow1" id="latestAlertsListing">
-									{$alertsListing}
+									<ol class="alertsList">
+										{$alertsListing}
+									</ol>
 								</td>
 							</tr>
 						</tbody>
@@ -227,12 +235,15 @@ new PopupMenu("unreadAlerts_menu");
 }
 // -->
 </script>',
-			'alert_row' =>  '<div class="alert_row {$alertRowType}Row">
-	<img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /> {$alert[\'message\']}
-</div>',
-			'alert_row_no_alerts' =>  '<div class="alert_row noAlertsRow">
+			'alert_row' =>  '<li class="alert_row {$alertRowType}Row{$unreadAlert}">
+	<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /></a>
+	<div class="alertContent">
+		{$alert[\'message\']}
+	</div>
+</li>',
+			'alert_row_no_alerts' =>  '<li class="alert_row noAlertsRow">
 	{$lang->myalerts_no_alerts}
-</div>',
+</li>',
 			'alert_row_popup' =>  '<div class="popup_item_container">
 	<span class="popup_item">{$alertinfo}</span>
 </div>',
@@ -290,8 +301,27 @@ new PopupMenu("unreadAlerts_menu");
 	}
 
 .usercp_nav_myalerts {
-	background: url(\'images/usercp/bell.png\') no-repeat left center;
-}';
+	background:url(\'images/usercp/bell.png\') no-repeat left center;
+}
+
+.alertsList {
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+	.alertsList li {
+		height:48px;
+		padding:4px 8px;
+	}
+	.alertsList li .avatar {
+		float:left;
+		height:48px;
+		width:48px;
+	}
+	.alertsList li .alertContent {
+		float:left;
+		margin-left:4px;
+	}';
 
 	$insertArray = array(
 		'name'          => 'Alerts.css',
@@ -368,7 +398,7 @@ function myalerts_deactivate()
 	global $db, $lang;
 
 	require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
-	$db->delete_query('themestylesheets', 'name = \'Alerts.css\' AND tid = 1');
+	$db->delete_query('themestylesheets', 'name = \'Alerts.css\'');
 	$query = $db->simple_select('themes', 'tid');
 	while($theme = $db->fetch_array($query))
 	{
@@ -775,8 +805,18 @@ function myalerts_page()
 		{
 			foreach ($alertsList as $alert)
 			{
+				$alert['userLink'] = get_profile_link($alert['uid']);
 				$alert['user'] = build_profile_link($alert['username'], $alert['uid']);
 				$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
+
+				if ($alert['unread'] == 1)
+				{
+					$unreadAlert = ' unreadAlert';
+				}
+				else
+				{
+					$unreadAlert = '';
+				}
 
 				$plugins->run_hooks('myalerts_page_output_start');
 

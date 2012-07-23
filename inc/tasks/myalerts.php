@@ -23,15 +23,18 @@ function task_myalerts($task)
 		$lang->load('myalerts');
 	}
 
-	$dateline = time() - 604800;
+	if ($mybb->settings['myalerts_cleanup_time'] != 0)
+	{
+		$dateline = time() - (int) $mybb->settings['myalerts_cleanup_time'];
 
-	if ($db->delete_query('alerts', 'unread = 0 AND dateline <= '.(int) $dateline))
-	{
-		add_task_log($task, $lang->myalerts_task_cleanup_ran);
-	}
-	else
-	{
-		add_task_log($task, $lang->myalerts_task_cleanup_error);
+		if ($db->delete_query('alerts', 'unread = 0 AND dateline <= '.(int) $dateline))
+		{
+			add_task_log($task, $lang->myalerts_task_cleanup_ran);
+		}
+		else
+		{
+			add_task_log($task, $lang->myalerts_task_cleanup_error);
+		}
 	}
 }
 ?>
