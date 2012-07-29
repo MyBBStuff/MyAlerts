@@ -61,11 +61,16 @@ class Alerts
 	 *	@return Array
 	 *	@return boolean - if the user has no new alerts
 	 */
-	public function getAlerts($start = 0)
+	public function getAlerts($start = 0, $limit = 0)
 	{
 		if ((int) $this->mybb->user['uid'] > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." ORDER BY a.id DESC LIMIT ".(int) $start.", ".$this->mybb->settings['myalerts_perpage'].";");
+			if ($limit == 0)
+			{
+				$limit = $this->mybb->settings['myalerts_perpage'];
+			}
+
+			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." ORDER BY a.id DESC LIMIT ".(int) $start.", ".(int) $limit.";");
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();

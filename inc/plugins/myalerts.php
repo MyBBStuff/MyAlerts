@@ -129,6 +129,12 @@ function myalerts_activate()
 				'value'         =>  '10',
 				'optionscode'   =>  'text',
 				),
+			'dropdown_limit'  =>  array(
+				'title'         =>  $lang->setting_myalerts_dropdown_limit,
+				'description'   =>  $lang->setting_myalerts_dropdown_limit_desc,
+				'value'         =>  '5',
+				'optionscode'	=>	'text',
+				),
 			'autorefresh'   =>  array(
 				'title'         =>  $lang->setting_myalerts_autorefresh,
 				'description'   =>  $lang->setting_myalerts_autorefresh_desc,
@@ -224,17 +230,11 @@ function myalerts_activate()
 	</body>
 	</html>',
 			'headericon'	=>	'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
-<div id="unreadAlerts_menu_popup" class="popup_menu" style="display: none;">
-	<span class="popup_item">{$lang->myalerts_loading}</span>
-</div>
-<script type="text/javascript">
-// <!--
-if(use_xmlhttprequest == "1")
-{
-new PopupMenu("unreadAlerts_menu");
-}
-// -->
-</script>',
+<div id="unreadAlerts_menu_popup" class="myalerts_popup">
+	<div class="popupTitle">{$lang->myalerts_page_title}</div>
+	{$alerts}
+	<div class="popupFooter"><a href="usercp.php?action=alerts">{$lang->myalerts_usercp_nav_alerts}</div>
+</div>',
 			'alert_row' =>  '<li class="alert_row {$alertRowType}Row{$unreadAlert}">
 	<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /></a>
 	<div class="alertContent">
@@ -244,9 +244,12 @@ new PopupMenu("unreadAlerts_menu");
 			'alert_row_no_alerts' =>  '<li class="alert_row noAlertsRow">
 	{$lang->myalerts_no_alerts}
 </li>',
-			'alert_row_popup' =>  '<div class="popup_item_container">
-	<span class="popup_item">{$alertinfo}</span>
-</div>',
+			'alert_row_popup' =>  '<li class="alert_row {$alertRowType}Row{$unreadAlert}">
+	<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="24" height="24" /></a>
+	<div class="alertContent">
+		{$alert[\'message\']}
+	</div>
+</li>',
 			'usercp_nav' => '<tr>
 	<td class="tcat">
 		<div class="expcolimage">
@@ -301,10 +304,10 @@ new PopupMenu("unreadAlerts_menu");
 	}
 
 .usercp_nav_myalerts {
-	background:url(\'images/usercp/bell.png\') no-repeat left center;
+	background:url('images/usercp/bell.png') no-repeat left center;
 }
 
-.alertsList {
+.alertsList, .myalerts_popup ol {
 	list-style:none;
 	margin:0;
 	padding:0;
@@ -313,18 +316,48 @@ new PopupMenu("unreadAlerts_menu");
 		height:48px;
 		padding:4px 8px;
 	}
-	.alertsList li .avatar {
+	.myalerts_popup li {
+		height:24px;
+		padding:2px 4px;
+		border-bottom:1px solid #D4D4D4;
+	}
+	.alertsList li .avatar, {
 		float:left;
 		height:48px;
 		width:48px;
 	}
-	.alertsList li .alertContent {
+	.myalerts_popup li .avatar {
 		float:left;
-		margin-left:4px;
+		height:24px;
+		width:24px;
 	}
-	.alertsList .unreadAlert {
+	.alertsList li .alertContent {
+		margin-left:54px;
+	}
+	.myalerts_popup li .alertContent {
+		margin-left:30px;
+		font-size:11px;
+	}
+	.alertsList .unreadAlert, .myalerts_popup .unreadAlert {
 		font-weight:bold;
 		background:#FFFBD9;
+	}
+
+.myalerts_popup {
+	background:#fff;
+	max-width:350px;
+	box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+	.myalerts_popup .popupTitle {
+		font-weight:bold;
+		margin:0 2px;
+		padding:2px;
+		border-bottom:1px solid #D4D4D4;
+	}
+	.myalerts_popup .popupFooter {
+		padding:4px;
+		background:#EFEFEF;
+		box-shadow:inset 0 1px 0 0 rgba(255,255,255,0.2);
 	}';
 
 	$insertArray = array(
@@ -437,11 +470,81 @@ if ($settings['myalerts_enabled'])
 }
 function myalerts_pre_output_page(&$contents)
 {
-	global $templates, $mybb, $lang, $myalerts_headericon;
+	global $templates, $mybb, $lang, $myalerts_headericon, $Alerts, $plugins;
 
 	if (!$lang->myalerts)
 	{
 		$lang->load('myalerts');
+	}
+
+	try
+	{
+		$userAlerts = $Alerts->getAlerts(0, $mybb->settings['myalerts_dropdown_limit']);
+	}
+	catch (Exception $e)
+	{
+	}
+
+	$alerts = '';
+
+	if (is_array($userAlerts) AND count($userAlerts) > 0)
+	{
+		foreach ($userAlerts as $alert)
+		{
+			$alert['userLink'] = get_profile_link($alert['uid']);
+			$alert['user'] = build_profile_link($alert['username'], $alert['uid']);
+			$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
+
+			if ($alert['unread'] == 1)
+			{
+				$unreadAlert = ' unreadAlert';
+			}
+			else
+			{
+				$unreadAlert = '';
+			}
+
+			$plugins->run_hooks('myalerts_popup_output_start');
+
+			if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
+			{
+				$alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
+				$alertRowType = 'reputationAlert';
+			}
+			elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
+			{
+				$alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
+				$alertRowType = 'pmAlert';
+			}
+			elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
+			{
+				$alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
+				$alertRowType = 'buddylistAlert';
+			}
+			elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
+			{
+				$alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
+				$alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
+				$alertRowType = 'quotedAlert';
+			}
+			elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
+			{
+				$alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
+				$alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
+				$alertRowType = 'postAlert';
+			}
+
+			$plugins->run_hooks('myalerts_popup_output_end');
+
+			eval("\$alerts .= \"".$templates->get('myalerts_alert_row_popup')."\";");
+
+			$readAlerts[] = $alert['id'];
+		}
+		$Alerts->markRead($readAlerts);
+	}
+	else
+	{
+		eval("\$alerts = \"".$templates->get('myalerts_alert_row_no_alerts')."\";");
 	}
 
 	eval("\$myalerts_headericon = \"".$templates->get('myalerts_headericon')."\";");
