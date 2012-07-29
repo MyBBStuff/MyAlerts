@@ -304,7 +304,7 @@ function myalerts_activate()
 	}
 
 .usercp_nav_myalerts {
-	background:url('images/usercp/bell.png') no-repeat left center;
+	background:url(\'images/usercp/bell.png\') no-repeat left center;
 }
 
 .alertsList, .myalerts_popup ol {
