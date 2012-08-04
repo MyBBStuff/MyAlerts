@@ -229,12 +229,16 @@ function myalerts_activate()
 		{$footer}
 	</body>
 	</html>',
-			'headericon'	=>	'<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts" id="unreadAlerts_menu">{$mybb->user[\'unreadAlerts\']}</a>
-<div id="unreadAlerts_menu_popup" class="myalerts_popup">
-	<div class="popupTitle">{$lang->myalerts_page_title}</div>
-	{$alerts}
-	<div class="popupFooter"><a href="usercp.php?action=alerts">{$lang->myalerts_usercp_nav_alerts}</div>
-</div>',
+			'headericon'	=>	'<span class="myalerts_popup_wrapper">
+	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">Alerts{$mybb->user[\'unreadAlerts\']}</a>
+	<div id="unreadAlerts_menu_popup" class="myalerts_popup">
+		<div class="popupTitle">{$lang->myalerts_page_title}</div>
+		<ol>
+		{$alerts}
+		</ol>
+		<div class="popupFooter"><a href="usercp.php?action=alerts">{$lang->myalerts_usercp_nav_alerts}</div>
+	</div>
+</span>',
 			'alert_row' =>  '<li class="alert_row {$alertRowType}Row{$unreadAlert}">
 	<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /></a>
 	<div class="alertContent">
@@ -275,33 +279,8 @@ function myalerts_activate()
 	//  Add our stylesheet to make our alerts notice look nicer. Making use of CSS3 gradients here because I'm lazy. based on the default theme's colours
 
 	$stylesheet = '.unreadAlerts {
-	-webkit-border-radius: 4em;
-	-moz-border-radius: 4em;
-	border-radius: 4em;
-	color: #ffffff !important;
-	text-shadow: 1px 1px 0 rgb(0,29,47);
-	border: 1px solid rgb(0,29,47);
-	width: 2em;
-	height: 2em;
-	line-height:2em;
-	vertical-align:middle;
-	text-align: center;
-	font-size: 11px;
-	font-weight: bold;
 	display: inline-block;
-	background:#026CB1 url(images/thead_bg.gif) top left repeat-x;
-	background:-webkit-linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
-	background:-moz-linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
-	background:-o-linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
-	background:-ms-linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
-	background:linear-gradient(top, rgb(2,108,177) 0%,rgb(3,84,136) 100%);
-	box-shadow:inset 0 0 0 1px rgba(255, 255, 255, 0.3);
-	margin:5px;
-	text-decoration:none;
 }
-	.unreadAlerts:hover,.unreadAlerts:active{
-		text-decoration:none;
-	}
 
 .usercp_nav_myalerts {
 	background:url(\'images/usercp/bell.png\') no-repeat left center;
@@ -343,10 +322,18 @@ function myalerts_activate()
 		background:#FFFBD9;
 	}
 
-.myalerts_popup {
+.myalerts_popup_wrapper{
+	position:relative;
+}
+
+.myalerts_popup_wrapper .myalerts_popup {
 	background:#fff;
+	width:350px;
 	max-width:350px;
 	box-shadow:0 0 10px rgba(0,0,0,0.2);
+	position:absolute;
+	left:0;
+	display:none;
 }
 	.myalerts_popup .popupTitle {
 		font-weight:bold;
