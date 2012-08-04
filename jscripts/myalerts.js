@@ -2,36 +2,15 @@ jQuery.noConflict();
 
 jQuery(document).ready(function($)
 {
-	var unreadAlertsList = null;
-	$('#unreadAlerts_menu').on('click', function(event) {
-		event.preventDefault();
-
-		if (!unreadAlertsList)
+	$('body').on({
+		click: function(event)
 		{
-			$.get('xmlhttp.php?action=getNewAlerts&from=header', function(data)
-			{
-				if (!data)
-				{
-					$('#unreadAlerts_menu_popup').html(myalerts_empty_listing);
-					unreadAlertsList = myalerts_empty_listing;
-				}
-				else
-				{
-					$('#unreadAlerts_menu_popup').html(data);
-					unreadAlertsList = data;
-				}
-			});
-			$(this).html('0');
-		}
-	});
+			event.preventDefault();
+			var popup_id = $(this).attr('id') + '_popup';
+			console.log(popup_id);
 
-	//  Automatic alerts refresh
-	if (myalerts_autorefresh && (myalerts_autorefresh !== 0))
-	{
-		window.setInterval(function() {
-			$.get('xmlhttp.php?action=getNewAlerts', function(data) {
-				$('#latestAlertsListing').prepend(data);
-			});
-		}, (myalerts_autorefresh * 1000));
-	}
+			$('#' + popup_id).attr('top', $(this).height() + 'px').slideToggle('slow');
+			return false;
+		}
+	}, '.myalerts_popup_hook');
 });

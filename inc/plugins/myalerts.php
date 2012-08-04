@@ -317,7 +317,7 @@ function myalerts_activate()
 		padding:4px 8px;
 	}
 	.myalerts_popup li {
-		height:24px;
+		min-height:24px;
 		padding:2px 4px;
 		border-bottom:1px solid #D4D4D4;
 	}
