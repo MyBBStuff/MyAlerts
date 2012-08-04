@@ -6,7 +6,6 @@
 
 $$('.myalerts_popup_hook').each(function(elmt)
 {
-
 	elmt.observe('click', function(ev)
 	{
 		Event.stop(ev);
