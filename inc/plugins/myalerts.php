@@ -464,6 +464,19 @@ function myalerts_pre_output_page(&$contents)
 		$lang->load('myalerts');
 	}
 
+	if (!($Alerts instanceof Alerts))
+	{
+		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
+		try
+		{
+			$Alerts = new Alerts($mybb, $db);
+		}
+		catch (Exception $e)
+		{
+			die($e->getMessage());
+		}
+	}
+
 	try
 	{
 		$userAlerts = $Alerts->getAlerts(0, $mybb->settings['myalerts_dropdown_limit']);
