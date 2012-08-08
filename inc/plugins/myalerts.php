@@ -457,7 +457,7 @@ if ($settings['myalerts_enabled'])
 }
 function myalerts_pre_output_page(&$contents)
 {
-	global $templates, $mybb, $lang, $myalerts_headericon, $Alerts, $plugins;
+	global $templates, $mybb, $db, $lang, $myalerts_headericon, $Alerts, $plugins;
 
 	if (!$lang->myalerts)
 	{
