@@ -449,7 +449,7 @@ if (typeof jQuery == \'undefined\')
 	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<myalerts_headericon>'."\n")."#i", '');
 }
 
-global $settings;
+global $settings, $mybb;
 
 if ($settings['myalerts_enabled'])
 {
@@ -457,101 +457,91 @@ if ($settings['myalerts_enabled'])
 }
 function myalerts_pre_output_page(&$contents)
 {
-	global $templates, $mybb, $db, $lang, $myalerts_headericon, $Alerts, $plugins;
+	global $templates, $mybb, $lang, $myalerts_headericon, $Alerts, $plugins;
 
-	if (!$lang->myalerts)
+	if ($mybb->user['uid'])
 	{
-		$lang->load('myalerts');
-	}
+		if (!$lang->myalerts)
+		{
+			$lang->load('myalerts');
+		}
 
-	if (!($Alerts instanceof Alerts))
-	{
-		require_once MYALERTS_PLUGIN_PATH.'Alerts.class.php';
 		try
 		{
-			$Alerts = new Alerts($mybb, $db);
+			$userAlerts = $Alerts->getAlerts(0, $mybb->settings['myalerts_dropdown_limit']);
 		}
 		catch (Exception $e)
 		{
-			die($e->getMessage());
 		}
-	}
 
-	try
-	{
-		$userAlerts = $Alerts->getAlerts(0, $mybb->settings['myalerts_dropdown_limit']);
-	}
-	catch (Exception $e)
-	{
-	}
+		$alerts = '';
 
-	$alerts = '';
-
-	if (is_array($userAlerts) AND count($userAlerts) > 0)
-	{
-		foreach ($userAlerts as $alert)
+		if (is_array($userAlerts) AND count($userAlerts) > 0)
 		{
-			$alert['userLink'] = get_profile_link($alert['uid']);
-			$alert['user'] = build_profile_link($alert['username'], $alert['uid']);
-			$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
+			foreach ($userAlerts as $alert)
+			{
+				$alert['userLink'] = get_profile_link($alert['uid']);
+				$alert['user'] = build_profile_link($alert['username'], $alert['uid']);
+				$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
 
-			if ($alert['unread'] == 1)
-			{
-				$unreadAlert = ' unreadAlert';
-			}
-			else
-			{
-				$unreadAlert = '';
-			}
+				if ($alert['unread'] == 1)
+				{
+					$unreadAlert = ' unreadAlert';
+				}
+				else
+				{
+					$unreadAlert = '';
+				}
 
-			$plugins->run_hooks('myalerts_popup_output_start');
+				$plugins->run_hooks('myalerts_popup_output_start');
 
-			if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
-			{
-				$alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
-				$alertRowType = 'reputationAlert';
-			}
-			elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
-			{
-				$alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
-				$alertRowType = 'pmAlert';
-			}
-			elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
-			{
-				$alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
-				$alertRowType = 'buddylistAlert';
-			}
-			elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
-			{
-				$alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
-				$alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
-				$alertRowType = 'quotedAlert';
-			}
-			elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
-			{
-				$alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-				$alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
-				$alertRowType = 'postAlert';
-			}
+				if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
+				{
+					$alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
+					$alertRowType = 'reputationAlert';
+				}
+				elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
+				{
+					$alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
+					$alertRowType = 'pmAlert';
+				}
+				elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
+				{
+					$alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
+					$alertRowType = 'buddylistAlert';
+				}
+				elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
+				{
+					$alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
+					$alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
+					$alertRowType = 'quotedAlert';
+				}
+				elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
+				{
+					$alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
+					$alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
+					$alertRowType = 'postAlert';
+				}
 
-			$plugins->run_hooks('myalerts_popup_output_end');
+				$plugins->run_hooks('myalerts_popup_output_end');
 
-			eval("\$alerts .= \"".$templates->get('myalerts_alert_row_popup')."\";");
+				eval("\$alerts .= \"".$templates->get('myalerts_alert_row_popup')."\";");
 
-			$readAlerts[] = $alert['id'];
+				$readAlerts[] = $alert['id'];
+			}
+			$Alerts->markRead($readAlerts);
 		}
-		$Alerts->markRead($readAlerts);
+		else
+		{
+			eval("\$alerts = \"".$templates->get('myalerts_alert_row_no_alerts')."\";");
+		}
+
+		eval("\$myalerts_headericon = \"".$templates->get('myalerts_headericon')."\";");
+
+		$contents = str_replace('<myalerts_headericon>', $myalerts_headericon, $contents);
+
+		return $contents;
 	}
-	else
-	{
-		eval("\$alerts = \"".$templates->get('myalerts_alert_row_no_alerts')."\";");
-	}
-
-	eval("\$myalerts_headericon = \"".$templates->get('myalerts_headericon')."\";");
-
-	$contents = str_replace('<myalerts_headericon>', $myalerts_headericon, $contents);
-
-	return $contents;
 }
 
 if ($settings['myalerts_enabled'])
