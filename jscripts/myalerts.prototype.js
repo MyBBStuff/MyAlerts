@@ -1,19 +1,12 @@
-/*
- *    Prototype version of the MyAlerts JS - just for LeeFish :)
- *
- *    @author Euan T. <euan@euantor.com>
- */
+Event.observe(window, 'load', function() {
+	Event.observe('unreadAlerts_menu', 'click', function(e) {
+		Event.stop(e);
 
-$$('.myalerts_popup_hook').each(function(elmt)
-{
-	elmt.observe('click', function(ev)
-	{
-		Event.stop(ev);
-		var popup_id = ev.target.identify() + '_popup';
+		var popup_id = e.target.identify() + '_popup';
+
+		console.log(popup_id);
 
 		Effect.toggle(popup_id, 'blind');
-
-		return false;
 	});
 });
 
