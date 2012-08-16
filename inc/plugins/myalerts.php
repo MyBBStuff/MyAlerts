@@ -231,7 +231,7 @@ function myalerts_activate()
 	</html>',
 			'headericon'	=>	'<span class="myalerts_popup_wrapper">
 	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">Alerts{$mybb->user[\'unreadAlerts\']}</a>
-	<div id="unreadAlerts_menu_popup" class="myalerts_popup">
+	<div id="unreadAlerts_menu_popup" class="myalerts_popup" style="display:none;">
 		<div class="popupTitle">{$lang->myalerts_page_title}</div>
 		<ol>
 		{$alerts}
@@ -333,7 +333,6 @@ function myalerts_activate()
 	box-shadow:0 0 10px rgba(0,0,0,0.2);
 	position:absolute;
 	left:0;
-	display:none;
 }
 	.myalerts_popup .popupTitle {
 		font-weight:bold;
