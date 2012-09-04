@@ -13,6 +13,13 @@ jQuery(document).ready(function($)
 		}
 	}, '.myalerts_popup_hook');
 
+	$('#getUnreadAlerts').on('click', function(event) {
+		event.preventDefault();
+		$.get('xmlhttp.php?action=getNewAlerts', function(data) {
+  			$('#latestAlertsListing').prepend(data);
+		});
+	})
+
 	if (typeof unreadAlerts !== 'undefined')
 	{
     	if (unreadAlerts > 0)

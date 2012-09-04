@@ -201,7 +201,7 @@ function myalerts_activate()
 					<table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
 						<thead>
 							<tr>
-								<th class="thead" colspan="1">
+								<th class="thead" colspan="2">
 									<strong>{$lang->myalerts_page_title}</strong>
 									<div class="float_right">
 										<a id="getUnreadAlerts" href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts">{$lang->myalerts_page_getnew}</a>
@@ -209,14 +209,8 @@ function myalerts_activate()
 								 </th>
 							</tr>
 						</thead>
-						<tbody>
-							<tr>
-								<td class="trow1" id="latestAlertsListing" style="padding:0 !important">
-									<ol class="alertsList">
-										{$alertsListing}
-									</ol>
-								</td>
-							</tr>
+						<tbody id="latestAlertsListing">
+							{$alertsListing}
 						</tbody>
 					</table>
 					<div class="float_right">
@@ -230,7 +224,7 @@ function myalerts_activate()
 	</body>
 	</html>',
 			'headericon'	=>	'<span class="myalerts_popup_wrapper">
-	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">Alerts{$mybb->user[\'unreadAlerts\']}</a>
+	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">Alerts ({$mybb->user[\'unreadAlerts\']})</a>
 	<div id="unreadAlerts_menu_popup" class="myalerts_popup" style="display:none;">
 		<div class="popupTitle">{$lang->myalerts_page_title}</div>
 		<ol>
@@ -239,20 +233,27 @@ function myalerts_activate()
 		<div class="popupFooter"><a href="usercp.php?action=alerts">{$lang->myalerts_usercp_nav_alerts}</div>
 	</div>
 </span>',
-			'alert_row' =>  '<li class="alert_row {$alertRowType}Row{$unreadAlert}">
-	<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /></a>
-	<div class="alertContent">
+			'alert_row' =>  '<tr class="alert_row {$alertRowType}Row{$unreadAlert}" id="alert_row_{$alert[\'id\']}">
+	<td class="{$altbg}" width="50">
+		<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /></a>
+	</td>
+	<td class="{$altbg}">
 		{$alert[\'message\']}
-	</div>
-</li>',
-			'alert_row_no_alerts' =>  '<li class="alert_row noAlertsRow">
-	{$lang->myalerts_no_alerts}
-</li>',
+	</td>
+</tr>',
+			'alert_row_no_alerts' =>  '<tr class="alert_row noAlertsRow">
+	<td class="{$altbg}" colspan="2" style="text-align:center;">
+		{$lang->myalerts_no_alerts}
+	</td>
+</tr>',
 			'alert_row_popup' =>  '<li class="alert_row {$alertRowType}Row{$unreadAlert}">
 	<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="24" height="24" /></a>
 	<div class="alertContent">
 		{$alert[\'message\']}
 	</div>
+</li>',
+			'alert_row_popup_no_alerts' =>  '<li class="alert_row noAlertsRow">
+	{$lang->myalerts_no_alerts}
 </li>',
 			'usercp_nav' => '<tr>
 	<td class="tcat">
@@ -286,38 +287,26 @@ function myalerts_activate()
 	background:url(\'images/usercp/bell.png\') no-repeat left center;
 }
 
-.alertsList, .myalerts_popup ol {
+.myalerts_popup ol {
 	list-style:none;
 	margin:0;
 	padding:0;
 }
-	.alertsList li {
-		height:48px;
-		padding:4px 8px;
-	}
 	.myalerts_popup li {
 		min-height:24px;
 		padding:2px 4px;
 		border-bottom:1px solid #D4D4D4;
-	}
-	.alertsList li .avatar, {
-		float:left;
-		height:48px;
-		width:48px;
 	}
 	.myalerts_popup li .avatar {
 		float:left;
 		height:24px;
 		width:24px;
 	}
-	.alertsList li .alertContent {
-		margin-left:54px;
-	}
 	.myalerts_popup li .alertContent {
 		margin-left:30px;
 		font-size:11px;
 	}
-	.alertsList .unreadAlert, .myalerts_popup .unreadAlert {
+	.unreadAlert {
 		font-weight:bold;
 		background:#FFFBD9;
 	}
@@ -376,6 +365,9 @@ if (typeof jQuery == \'undefined\')
 {
 	document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
 }
+</script>
+<script type="text/javascript">
+	var unreadAlerts = {$mybb->user[\'unreadAlerts\']}
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
 	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<myalerts_headericon>'."\n");
@@ -551,7 +543,12 @@ function myalerts_global()
 {
 	global $mybb, $templatelist;
 
-	$templatelist .= ',myalerts_headericon';
+	if (isset($templatelist))
+	{
+		$templatelist .= ',';
+	}
+
+	$templatelist .= 'myalerts_headericon';
 
 	if (THIS_SCRIPT == 'usercp.php')
 	{
@@ -901,6 +898,7 @@ function myalerts_page()
 		{
 			foreach ($alertsList as $alert)
 			{
+				$altbg = alt_trow();
 				$alert['userLink'] = get_profile_link($alert['uid']);
 				$alert['user'] = build_profile_link($alert['username'], $alert['uid']);
 				$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
@@ -1004,6 +1002,8 @@ function myalerts_xmlhttp()
 
 			foreach ($newAlerts as $alert)
 			{
+				$altbg = alt_trow();
+				$alert['userLink'] = get_profile_link($alert['uid']);
 				$alert['user'] = build_profile_link($alert['username'], $alert['uid']);
 				$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
 
@@ -1036,7 +1036,7 @@ function myalerts_xmlhttp()
 
 				$alertinfo = $alert['message'];
 
-				if ($mybb->input['from'] == 'header')
+				if (isset($mybb->input['from']) AND $mybb->input['from'] == 'header')
 				{
 					eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row_popup')."\";");
 				}
