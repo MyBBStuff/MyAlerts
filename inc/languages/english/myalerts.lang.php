@@ -4,6 +4,8 @@ $l['myalerts'] = 'MyAlerts';
 $l['myalerts_page_title'] = 'Recent Alerts';
 $l['myalerts_page_getnew'] = 'Check for new alerts';
 
+$l['myalerts_settings_page_title'] = 'Alert Settings';
+
 $l['myalerts_online_location_listing'] = 'Viewing Alerts';
 
 $l['myalerts_unread_title'] = 'Unread Alerts';
@@ -18,8 +20,16 @@ $l['myalerts_buddylist'] = '{1} added you to their buddy list. ({2})';
 $l['myalerts_quoted'] = '{1} quoted you in <a href="{2}">a post</a>. ({3})';
 $l['myalerts_post_threadauthor'] = '{1} replied to your thread "<a href="{2}">{3}</a>". There may be more posts after this. ({4})';
 
+$l['myalerts_setting_reputation'] = 'Recieve alert for reputation?';
+$l['myalerts_setting_pm'] = 'Recieve alert for Private Message (PM)?';
+$l['myalerts_setting_buddylist'] = 'Recieve alert when added to buddylist?';
+$l['myalerts_setting_quoted'] = 'Recieve alert when quoted in a post?';
+$l['myalerts_setting_thread_reply'] = 'Recieve alert when somebody replies to your thread?';
+$l['myalerts_settings_save'] = 'Save Settings';
+
 $l['myalerts_usercp_nav'] = 'Alerts';
 $l['myalerts_usercp_nav_alerts'] = 'View Alerts';
+$l['myalerts_usercp_nav_settings'] = 'Alert Settings';
 
 $l['myalerts_help_alert_types'] = 'Alert Types';
 $l['myalerts_help_alert_types_rep'] = '<strong>Reputation</strong>

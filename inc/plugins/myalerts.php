@@ -60,6 +60,16 @@ function myalerts_install()
 			`content` TEXT
 			) ENGINE=MyISAM '.$db->build_create_table_collation().';');
 	}
+
+	$db->add_column('users', 'myalerts_settings', 'TEXT NULL');
+	$myalertsSettings = array(
+		'reputation'	=>	1,
+		'pm'			=>	1,
+		'buddylist'		=>	1,
+		'quoted'		=>	1,
+		'thread_reply'	=>	1,
+		);
+	$db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))), '1');
 }
 
 function myalerts_is_installed()
@@ -84,6 +94,7 @@ function myalerts_uninstall()
 	$db->drop_table('alerts');
 	$PL->settings_delete('myalerts', true);
 	$PL->templates_delete('myalerts');
+	$db->drop_column('users', 'myalerts_settings');
 }
 
 function myalerts_activate()
@@ -217,6 +228,45 @@ function myalerts_activate()
 		{$footer}
 	</body>
 	</html>',
+			'settings_page'      =>  '<html>
+	<head>
+		<title>{$lang->myalerts_settings_page_title} - {$mybb->settings[\'bbname\']}</title>
+		{$headerinclude}
+	</head>
+	<body>
+		{$header}
+		<table width="100%" border="0" align="center">
+			<tr>
+				{$usercpnav}
+				<td valign="top">
+					<form action="usercp.php?action=myalerts_settings" method="post">
+						<table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+							<thead>
+								<tr>
+									<th class="thead" colspan="1">
+										<strong>{$lang->myalerts_settings_page_title}</strong>
+									 </th>
+								</tr>
+							</thead>
+							<tbody>
+								{$alertSettings}
+							</tbody>
+						</table>
+						<div style="text-align:center;">
+							<input type="submit" value="{$lang->myalerts_settings_save}" />
+						</div>
+					</form>
+				</td>
+			</tr>
+		</table>
+		{$footer}
+	</body>
+	</html>',
+			'setting_row'	=>	'<tr>
+	<td class="{$altbg}">
+		<label for="input_{$key}"><input type="checkbox" name="{$key}" id="input_{$key}" checked="{$value}" /> &nbsp; {$langline}</label>
+	</td>
+</tr>',
 			'headericon'	=>	'<span class="myalerts_popup_wrapper">
 	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">Alerts ({$mybb->user[\'unreadAlerts\']})</a>
 	<div id="unreadAlerts_menu_popup" class="myalerts_popup" style="display:none;">
@@ -265,6 +315,11 @@ function myalerts_activate()
 	<tr>
 		<td class="trow1 smalltext">
 			<a href="usercp.php?action=alerts" class="usercp_nav_item usercp_nav_myalerts">{$lang->myalerts_usercp_nav_alerts}</a>
+		</td>
+	</tr>
+	<tr>
+		<td class="trow1 smalltext">
+			<a href="usercp.php?action=alert_settings" class="usercp_nav_item usercp_nav_options">{$lang->myalerts_usercp_nav_settings}</a>
 		</td>
 	</tr>
 </tbody>',
@@ -514,7 +569,6 @@ function myalerts_pre_output_page(&$contents)
 
 				$readAlerts[] = $alert['id'];
 			}
-			$Alerts->markRead($readAlerts);
 		}
 		else
 		{
@@ -952,6 +1006,38 @@ function myalerts_page()
 
 		eval("\$content = \"".$templates->get('myalerts_page')."\";");
 		output_page($content);
+	}
+
+	if ($mybb->input['action'] == 'alert_settings')
+	{
+		global $db, $lang, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
+
+		if (!$lang->myalerts)
+		{
+			$lang->load('myalerts');
+		}
+
+		if ($mybb->request_method == 'post')
+		{
+
+		}
+		else
+		{
+			$settings = $db->fetch_field($db->simple_select('users', 'myalerts_settings', 'uid = '.(int) $mybb->user['uid'], array('limit' => 1)), 'myalerts_settings');
+			$settings = json_decode($settings);
+
+			foreach ($settings as $key => $value)
+			{
+				$altbg = alt_trow();
+				//	variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
+				$tempkey = 'myalerts_setting_'.$key;
+				$langline = $lang->$tempkey;
+				eval("\$alertSettings .= \"".$templates->get('myalerts_setting_row')."\";");
+			}
+
+			eval("\$content = \"".$templates->get('myalerts_settings_page')."\";");
+			output_page($content);
+		}
 	}
 }
 
