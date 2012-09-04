@@ -11,6 +11,13 @@ General:
 -----------
 MyAlerts is a plugin for MyBB created and maintained by Euantor. It is a system that provides visual alerts for events in a forum on a user-by-user basis. 
 
+jQuery or Prototype:
+-----------
+As we all know, MyBB ships with Prototype as it's core JS framework (unless you've somehow got hold of a 1.8 build...). I personally prefer to use jQuery and as such it's the default library of choice for MyAlerts. I understand, however, that a few people don't want to load jQuery too (lloking at you Leefish). As such, I've included a Prototype version of the MyAlerts JS. To make use of prototype, edit the headerinclude and remove any mentions of MyAlerts then add the following below your other JavaScript inclusions:
+
+	<script type="text/javascript" src="{$mybb->settings['bburl']}/jscripts/scriptaculous.js?load=effects"></script>
+	<script type="text/javascript" src="{$mybb->settings['bburl']}/jscripts/myalerts.prototype.js"></script>
+
 Events:
 ----------
 The currently suppoerted events are:
