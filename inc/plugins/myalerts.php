@@ -5,7 +5,7 @@
  *	A simple notification/alert system for MyBB
  *
  *	@author Euan T. <euan@euantor.com>
- *	@version 0.01
+ *	@version 1.00
  *	@package MyAlerts
  */
 
@@ -26,10 +26,10 @@ function myalerts_info()
 	return array(
 		'name'          =>  'MyAlerts',
 		'description'   =>  'A simple notifications/alerts system for MyBB',
-		'website'       =>  'http://euantor.com',
+		'website'       =>  '',
 		'author'        =>  'euantor',
-		'authorsite'    =>  '',
-		'version'       =>  '0.01',
+		'authorsite'    =>  'http://euantor.com',
+		'version'       =>  '1.00',
 		'guid'          =>  '',
 		'compatibility' =>  '16*',
 		);
