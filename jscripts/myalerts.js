@@ -18,14 +18,16 @@ jQuery(document).ready(function($)
 		$.get('xmlhttp.php?action=getNewAlerts', function(data) {
   			$('#latestAlertsListing').prepend(data);
 		});
-	})
+	});
 
-	if (typeof unreadAlerts !== 'undefined')
+	if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0)
 	{
-    	if (unreadAlerts > 0)
-    	{
-    		document.title = document.title + ' (' + unreadAlerts + ')';
-    	}
+
+	}
+
+	if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0)
+	{
+    	document.title = document.title + ' (' + unreadAlerts + ')';
 	}
 
 });

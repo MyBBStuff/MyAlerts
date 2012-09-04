@@ -16,12 +16,23 @@ Event.observe(window, 'load', function() {
 			onFailure: function() {}
   		});
 	});
-});
 
-if (typeof unreadAlerts !== 'undefined')
-{
-	if (unreadAlerts > 0)
+	if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0)
 	{
-		document.title = document.title + ' (' + unreadAlerts + ')';
+		window.setInterval(function() {
+			new Ajax.Request('xmlhttp.php?action=getNewAlerts',
+	  		{
+	    		method:'get',
+				onSuccess: function(transport) {
+	  				Element.insert('latestAlertsListing', { 'top': transport.responseText })
+				},
+				onFailure: function() {}
+	  		});
+		}, myalerts_autorefresh * 1000);
 	}
-}
+
+	if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0)
+	{
+    	document.title = document.title + ' (' + unreadAlerts + ')';
+	}
+});

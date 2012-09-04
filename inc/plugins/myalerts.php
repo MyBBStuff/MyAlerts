@@ -224,7 +224,7 @@ function myalerts_activate()
 		<ol>
 		{$alerts}
 		</ol>
-		<div class="popupFooter"><a href="usercp.php?action=alerts">{$lang->myalerts_usercp_nav_alerts}</div>
+		<div class="popupFooter"><a href="usercp.php?action=alerts">{$lang->myalerts_usercp_nav_alerts}</a></div>
 	</div>
 </span>',
 			'alert_row' =>  '<tr class="alert_row {$alertRowType}Row{$unreadAlert}" id="alert_row_{$alert[\'id\']}">
