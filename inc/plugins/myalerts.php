@@ -239,7 +239,8 @@ function myalerts_activate()
 			<tr>
 				{$usercpnav}
 				<td valign="top">
-					<form action="usercp.php?action=myalerts_settings" method="post">
+					<form action="usercp.php?action=alert_settings" method="post">
+						<input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
 						<table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
 							<thead>
 								<tr>
@@ -264,7 +265,7 @@ function myalerts_activate()
 	</html>',
 			'setting_row'	=>	'<tr>
 	<td class="{$altbg}">
-		<label for="input_{$key}"><input type="checkbox" name="{$key}" id="input_{$key}" checked="{$value}" /> &nbsp; {$langline}</label>
+		<label for="input_{$key}"><input type="checkbox" name="{$key}" id="input_{$key}"{$checked} /> &nbsp; {$langline}</label>
 	</td>
 </tr>',
 			'headericon'	=>	'<span class="myalerts_popup_wrapper">
@@ -1019,7 +1020,38 @@ function myalerts_page()
 
 		if ($mybb->request_method == 'post')
 		{
+			verify_post_check($mybb->input['my_post_key']);
 
+			$temp_settings = $mybb->input;
+			$allowed_settings = array(
+				'reputation',
+				'pm',
+				'buddylist',
+				'quoted',
+				'thread_reply'
+				);
+			$plugins->run_hooks('myalerts_allowed_settings');
+
+			$settings = array_intersect_key($temp_settings, array_flip($allowed_settings));
+
+			//	Seeing as unchecked checkboxes just aren't sent, we need an array of all the possible settings, defaulted to 0 (or off) to merge
+			$possible_settings = array(
+				'reputation'	=>	0,
+				'pm'			=>	0,
+				'buddylist'		=>	0,
+				'quoted'		=>	0,
+				'thread_reply'	=>	0,
+				);
+			$plugins->run_hooks('myalerts_possible_settings');
+
+			$settings = array_merge($possible_settings, $settings);
+
+			$settings = json_encode($settings);
+
+			if ($db->update_query('users', array('myalerts_settings' => $db->escape_string($settings)), 'uid = '.(int) $mybb->user['uid']))
+			{
+				redirect('usercp.php?action=alert_settings', $lang->myalerts_settings_updated, $lang->myalerts_settings_updated_title);
+			}
 		}
 		else
 		{
@@ -1032,6 +1064,13 @@ function myalerts_page()
 				//	variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
 				$tempkey = 'myalerts_setting_'.$key;
 				$langline = $lang->$tempkey;
+
+				$checked = '';
+				if ($value)
+				{
+					$checked = ' checked="checked"';
+				}
+
 				eval("\$alertSettings .= \"".$templates->get('myalerts_setting_row')."\";");
 			}
 

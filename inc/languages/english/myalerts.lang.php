@@ -26,6 +26,8 @@ $l['myalerts_setting_buddylist'] = 'Recieve alert when added to buddylist?';
 $l['myalerts_setting_quoted'] = 'Recieve alert when quoted in a post?';
 $l['myalerts_setting_thread_reply'] = 'Recieve alert when somebody replies to your thread?';
 $l['myalerts_settings_save'] = 'Save Settings';
+$l['myalerts_settings_updated'] = 'Alert settings updated successfully. Redirecting back to settings page.';
+$l['myalerts_settings_updated_title'] = 'Alert Settings Updated.';
 
 $l['myalerts_usercp_nav'] = 'Alerts';
 $l['myalerts_usercp_nav_alerts'] = 'View Alerts';
