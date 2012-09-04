@@ -141,12 +141,6 @@ function myalerts_activate()
 				'value'         =>  '0',
 				'optionscode'   =>  'text',
 				),
-			'cleanup_time' =>  array(
-				'title'         =>  $lang->setting_myalerts_cleanup_time,
-				'description'   =>  $lang->setting_myalerts_cleanup_time_desc,
-				'value'         =>  '604800',
-				'optionscode'	=>	'text',
-				),
 			'alert_rep' =>  array(
 				'title'         =>  $lang->setting_myalerts_alert_rep,
 				'description'   =>  $lang->setting_myalerts_alert_rep_desc,
