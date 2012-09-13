@@ -49,16 +49,17 @@ function myalerts_install()
 
 	if (!$db->table_exists('alerts'))
 	{
-		$db->write_query('CREATE TABLE `'.TABLE_PREFIX.'alerts` (
-			`id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			`uid` INT(10) NOT NULL,
-			`unread` TINYINT(4) NOT NULL DEFAULT \'1\',
-			`dateline` BIGINT(30) NOT NULL,
-			`type` VARCHAR(25) NOT NULL,
-			`tid` INT(10),
-			`from` INT(10),
-			`content` TEXT
-			) ENGINE=MyISAM '.$db->build_create_table_collation().';');
+		$collation = $db->build_create_table_collation();
+		$db->write_query("CREATE TABLE ".TABLE_PREFIX."alerts (
+			id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			uid INT(10) NOT NULL,
+			unread TINYINT(4) NOT NULL DEFAULT \'1\',
+			dateline BIGINT(30) NOT NULL,
+			type VARCHAR(25) NOT NULL,
+			tid INT(10),
+			from INT(10),
+			content TEXT
+			) ENGINE=MyISAM{$collation};");
 	}
 
 	$db->add_column('users', 'myalerts_settings', 'TEXT NULL');
@@ -80,7 +81,7 @@ function myalerts_is_installed()
 
 function myalerts_uninstall()
 {
-	global $db;
+	global $db, $lang, $PL;
 
 	if(!file_exists(PLUGINLIBRARY))
 	{
@@ -88,25 +89,34 @@ function myalerts_uninstall()
 		admin_redirect("index.php?module=config-plugins");
 	}
 
-	global $PL;
 	$PL or require_once PLUGINLIBRARY;
 
 	$db->drop_table('alerts');
 	$PL->settings_delete('myalerts', true);
 	$PL->templates_delete('myalerts');
 	$db->drop_column('users', 'myalerts_settings');
-}
-
-function myalerts_activate()
-{
-	global $mybb, $db, $lang;
+	$PL->stylesheet_delete('alerts.css');
 
 	if (!$lang->myalerts)
 	{
 		$lang->load('myalerts');
 	}
 
-	if(!file_exists(PLUGINLIBRARY))
+	$sid = (int) $db->fetch_field($db->simple_select('helpsections', 'sid', 'name = \''.$db->escape_string($lang->myalerts_helpsection_name).'\''), 'sid');
+	$db->delete_query('helpsections', 'sid = '.$sid);
+	$db->delete_query('helpdocs', 'sid = '.$sid);
+}
+
+function myalerts_activate()
+{
+	global $mybb, $db, $lang, $PL;
+
+	if (!$lang->myalerts)
+	{
+		$lang->load('myalerts');
+	}
+
+	if (!file_exists(PLUGINLIBRARY))
 	{
 		flash_message($lang->myalerts_pluginlibrary_missing, "error");
 		admin_redirect("index.php?module=config-plugins");
@@ -122,7 +132,6 @@ function myalerts_activate()
 		admin_redirect("index.php?module=config-plugins");
 	}
 
-	global $PL;
 	$PL or require_once PLUGINLIBRARY;
 
 	$PL->settings('myalerts',
@@ -327,8 +336,6 @@ function myalerts_activate()
 		)
 	);
 
-	//  Add our stylesheet to make our alerts notice look nicer. Making use of CSS3 gradients here because I'm lazy. based on the default theme's colours
-
 	$stylesheet = '.unreadAlerts {
 	display: inline-block;
 }
@@ -385,28 +392,31 @@ function myalerts_activate()
 		box-shadow:inset 0 1px 0 0 rgba(255,255,255,0.2);
 	}';
 
-	$insertArray = array(
-		'name'          => 'Alerts.css',
-		'tid'           => '1',
-		'stylesheet'    => $db->escape_string($stylesheet),
-		'cachefile'     => 'Alerts.css',
-		'lastmodified'  => TIME_NOW
-	);
+	// Hopefully my pull request for commit 699348bfde0cc43373f73aead2e58ee50c4b3830 will be accepted
+	$PL->stylesheet('alerts.css', $stylesheet);
 
-	require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
+	// $insertArray = array(
+	// 	'name'          => 'Alerts.css',
+	// 	'tid'           => '1',
+	// 	'stylesheet'    => $db->escape_string($stylesheet),
+	// 	'cachefile'     => 'Alerts.css',
+	// 	'lastmodified'  => TIME_NOW
+	// );
 
-	$sid = $db->insert_query('themestylesheets', $insertArray);
+	// require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
 
-	if(!cache_stylesheet($theme['tid'], 'Alerts.css', $stylesheet))
-	{
-		$db->update_query('themestylesheets', array('cachefile' => "css.php?stylesheet={$sid}"), "sid='{$sid}'", 1);
-	}
+	// $sid = $db->insert_query('themestylesheets', $insertArray);
 
-	$query = $db->simple_select('themes', 'tid');
-	while($theme = $db->fetch_array($query))
-	{
-		update_theme_stylesheet_list($theme['tid']);
-	}
+	// if(!cache_stylesheet($theme['tid'], 'Alerts.css', $stylesheet))
+	// {
+	// 	$db->update_query('themestylesheets', array('cachefile' => "css.php?stylesheet={$sid}"), "sid='{$sid}'", 1);
+	// }
+
+	// $query = $db->simple_select('themes', 'tid');
+	// while($theme = $db->fetch_array($query))
+	// {
+	// 	update_theme_stylesheet_list($theme['tid']);
+	// }
 
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 	// Add our JS. We need jQuery and myalerts.js. For jQuery, we check it hasn't already been loaded then load 1.7.2 from google's CDN
@@ -423,13 +433,28 @@ if (typeof jQuery == \'undefined\')
 	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<myalerts_headericon>'."\n");
 
 	// Helpdocs
-	$helpsection = $db->insert_query('helpsections', array(
-		'name'              =>  $lang->myalerts_helpsection_name,
-		'description'       =>  $lang->myalerts_helpsection_desc,
-		'usetranslation'    =>  1,
-		'enabled'           =>  1,
-		'disporder'         =>  3,
-		));
+	$query = $db->simple_select('helpsections', 'sid', "name = '".$lang->myalerts_helpsection_name."'")
+	if ($db->num_rows($query))
+	{
+		$helpsection = $db->insert_query('helpsections', array(
+			'name'              =>  $lang->myalerts_helpsection_name,
+			'description'       =>  $lang->myalerts_helpsection_desc,
+			'usetranslation'    =>  1,
+			'enabled'           =>  1,
+			'disporder'         =>  3,
+			));
+	}
+	else
+	{
+		$sid = (int) $db->fetch_field($query, 'sid');
+		$helpsection = $db->update_query('helpsections', array(
+			'name'              =>  $lang->myalerts_helpsection_name,
+			'description'       =>  $lang->myalerts_helpsection_desc,
+			'usetranslation'    =>  1,
+			'enabled'           =>  1,
+			'disporder'         =>  3,
+			), "sid = {$sid}");	
+	}
 
 	$helpDocuments = array(
 		0   =>  array(
@@ -460,25 +485,6 @@ if (typeof jQuery == \'undefined\')
 
 function myalerts_deactivate()
 {
-	global $db, $lang;
-
-	require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
-	$db->delete_query('themestylesheets', 'name = \'Alerts.css\'');
-	$query = $db->simple_select('themes', 'tid');
-	while($theme = $db->fetch_array($query))
-	{
-		update_theme_stylesheet_list($theme['tid']);
-	}
-
-	if (!$lang->myalerts)
-	{
-		$lang->load('myalerts');
-	}
-
-	$sid = (int) $db->fetch_field($db->simple_select('helpsections', 'sid', 'name = \''.$db->escape_string($lang->myalerts_helpsection_name).'\''), 'sid');
-	$db->delete_query('helpsections', 'sid = '.$sid);
-	$db->delete_query('helpdocs', 'sid = '.$sid);
-
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 	find_replace_templatesets('headerinclude', "#".preg_quote('<script type="text/javascript">
 if (typeof jQuery == \'undefined\')
