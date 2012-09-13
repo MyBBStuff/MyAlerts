@@ -434,7 +434,7 @@ if (typeof jQuery == \'undefined\')
 
 	// Helpdocs
 	$query = $db->simple_select('helpsections', 'sid', "name = '".$lang->myalerts_helpsection_name."'")
-	if ($db->num_rows($query))
+	if (!$db->num_rows($query))
 	{
 		$helpsection = $db->insert_query('helpsections', array(
 			'name'              =>  $lang->myalerts_helpsection_name,
@@ -455,6 +455,8 @@ if (typeof jQuery == \'undefined\')
 			'disporder'         =>  3,
 			), "sid = {$sid}");	
 	}
+
+	unset($query);
 
 	$helpDocuments = array(
 		0   =>  array(
@@ -479,7 +481,16 @@ if (typeof jQuery == \'undefined\')
 
 	foreach ($helpDocuments as $document)
 	{
-		$db->insert_query('helpdocs', $document);
+		$query = $db->simple_select('helpdocs', 'hid', "name = '{$document['name']}'");
+		if (!$db->num_rows($query))
+		{
+			$db->insert_query('helpdocs', $document);
+		}
+		else
+		{
+			$db->update_query('helpdocs', $document, "name = '{$document['name']}'");
+		}
+		unset($query);
 	}
 }
 
