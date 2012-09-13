@@ -488,7 +488,7 @@ if (typeof jQuery == \'undefined\')
 		}
 		else
 		{
-			$db->update_query('helpdocs', $document, "name = '{$document['name']}'");
+			$db->update_query('helpdocs', $document, "name = '{$document['name']}'", 1);
 		}
 		unset($query);
 	}
