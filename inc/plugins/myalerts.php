@@ -528,28 +528,28 @@ function parse_alert($alert)
 
 	$plugins->run_hooks('myalerts_alerts_output_start');
 
-	if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
+	if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'] AND $mybb->user['myalerts_settings']['rep'])
 	{
 		$alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
 		$alert['rowType'] = 'reputationAlert';
 	}
-	elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
+	elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'] AND $mybb->user['myalerts_settings']['pm'])
 	{
 		$alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
 		$alert['rowType'] = 'pmAlert';
 	}
-	elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
+	elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'] AND $mybb->user['myalerts_settings']['buddylist'])
 	{
 		$alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
 		$alert['rowType'] = 'buddylistAlert';
 	}
-	elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
+	elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'] AND $mybb->user['myalerts_settings']['quoted'])
 	{
 		$alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
 		$alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
 		$alert['rowType'] = 'quotedAlert';
 	}
-	elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
+	elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'] AND $mybb->user['myalerts_settings']['post_threadauthor'])
 	{
 		$alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
 		$alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
@@ -592,7 +592,10 @@ function myalerts_pre_output_page(&$contents)
 			{
 				$alert = array_merge($alert, parse_alert($alert));
 
-				eval("\$alerts .= \"".$templates->get('myalerts_alert_row_popup')."\";");
+				if ($alert['message'])
+				{
+					eval("\$alerts .= \"".$templates->get('myalerts_alert_row_popup')."\";");
+				}
 
 				$readAlerts[] = $alert['id'];
 			}
@@ -659,7 +662,7 @@ function myalerts_global()
 		}
 
 		$mybb->user['unreadAlerts'] = $Alerts->getNumUnreadAlerts();
-		$mybb->user['mylerts_settings'] = json_decode($mybb->user['myalerts_settings']);
+		$mybb->user['myalerts_settings'] = json_decode($mybb->user['myalerts_settings'], true);
 	}
 }
 
@@ -983,7 +986,10 @@ function myalerts_page()
 
 				$alert = array_merge($alert, parse_alert($alert));
 
-				eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
+				if ($alert['message'])
+				{
+					eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
+				}
 
 				$readAlerts[] = $alert['id'];
 			}
@@ -1015,7 +1021,7 @@ function myalerts_page()
 
 			$temp_settings = $mybb->input;
 			$allowed_settings = array(
-				'reputation',
+				'rep',
 				'pm',
 				'buddylist',
 				'quoted',
@@ -1027,7 +1033,7 @@ function myalerts_page()
 
 			//	Seeing as unchecked checkboxes just aren't sent, we need an array of all the possible settings, defaulted to 0 (or off) to merge
 			$possible_settings = array(
-				'reputation'	=>	0,
+				'rep'	=>	0,
 				'pm'			=>	0,
 				'buddylist'		=>	0,
 				'quoted'		=>	0,
@@ -1047,7 +1053,7 @@ function myalerts_page()
 		else
 		{
 			$settings = $db->fetch_field($db->simple_select('users', 'myalerts_settings', 'uid = '.(int) $mybb->user['uid'], array('limit' => 1)), 'myalerts_settings');
-			$settings = json_decode($settings);
+			$settings = json_decode($settings, true);
 
 			foreach ($settings as $key => $value)
 			{
@@ -1118,11 +1124,17 @@ function myalerts_xmlhttp()
 
 				if (isset($mybb->input['from']) AND $mybb->input['from'] == 'header')
 				{
-					eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row_popup')."\";");
+					if ($alert['message'])
+					{
+						eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row_popup')."\";");
+					}
 				}
 				else
 				{
-					eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
+					if ($alert['message'])
+					{
+						eval("\$alertsListing .= \"".$templates->get('myalerts_alert_row')."\";");
+					}
 				}
 
 				$markRead[] = $alert['id'];
