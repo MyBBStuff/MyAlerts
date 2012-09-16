@@ -503,6 +503,9 @@ if (typeof jQuery == \'undefined\')
 	document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
 }
 </script>
+<script type="text/javascript">
+	var unreadAlerts = {$mybb->user[\'unreadAlerts\']};
+</script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
 	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<myalerts_headericon>'."\n")."#i", '');
 }
