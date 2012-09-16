@@ -175,7 +175,7 @@ class Alerts
 			'dateline'	=>	TIME_NOW,
 			'type'		=>	$this->db->escape_string($type),
 			'tid'		=>	(int) $tid,
-			'from_d'	=>	(int) $from,
+			'from_id'	=>	(int) $from,
 			'content'	=>	$this->db->escape_string($content),
 			);
 
