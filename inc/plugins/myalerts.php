@@ -427,7 +427,7 @@ if (typeof jQuery == \'undefined\')
 }
 </script>
 <script type="text/javascript">
-	var unreadAlerts = {$mybb->user[\'unreadAlerts\']}
+	var unreadAlerts = {$mybb->user[\'unreadAlerts\']};
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
 	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<myalerts_headericon>'."\n");
@@ -638,7 +638,7 @@ function myalerts_global()
 		$templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
 	}
 
-	if (THIS_SCRIPT == 'usercp.php' AND $mybb->input['action'] == 'alert_setings')
+	if (THIS_SCRIPT == 'usercp.php' AND $mybb->input['action'] == 'alert_settings')
 	{
 		$templatelist .= ',myalerts_setting_row,myalerts_settings_page';
 	}
@@ -1033,7 +1033,7 @@ function myalerts_page()
 
 			//	Seeing as unchecked checkboxes just aren't sent, we need an array of all the possible settings, defaulted to 0 (or off) to merge
 			$possible_settings = array(
-				'rep'	=>	0,
+				'rep'			=>	0,
 				'pm'			=>	0,
 				'buddylist'		=>	0,
 				'quoted'		=>	0,
