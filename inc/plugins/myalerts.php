@@ -50,14 +50,14 @@ function myalerts_install()
 	if (!$db->table_exists('alerts'))
 	{
 		$collation = $db->build_create_table_collation();
-		$db->write_query("CREATE TABLE ".TABLE_PREFIX."alerts (
+		$db->write_query("CREATE TABLE ".TABLE_PREFIX."alerts(
 			id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			uid INT(10) NOT NULL,
-			unread TINYINT(4) NOT NULL DEFAULT \'1\',
+			unread TINYINT(4) NOT NULL DEFAULT '1',
 			dateline BIGINT(30) NOT NULL,
 			type VARCHAR(25) NOT NULL,
 			tid INT(10),
-			from INT(10),
+			from_id INT(10),
 			content TEXT
 			) ENGINE=MyISAM{$collation};");
 	}
@@ -83,7 +83,7 @@ function myalerts_uninstall()
 {
 	global $db, $lang, $PL;
 
-	if(!file_exists(PLUGINLIBRARY))
+	if (!file_exists(PLUGINLIBRARY))
 	{
 		flash_message("The selected plugin could not be uninstalled because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
 		admin_redirect("index.php?module=config-plugins");
@@ -433,7 +433,7 @@ if (typeof jQuery == \'undefined\')
 	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$admincplink}')."#i", '{$admincplink}'."\n".'<myalerts_headericon>'."\n");
 
 	// Helpdocs
-	$query = $db->simple_select('helpsections', 'sid', "name = '".$lang->myalerts_helpsection_name."'")
+	$query = $db->simple_select('helpsections', 'sid', "name = '".$lang->myalerts_helpsection_name."'");
 	if (!$db->num_rows($query))
 	{
 		$helpsection = $db->insert_query('helpsections', array(
@@ -453,7 +453,7 @@ if (typeof jQuery == \'undefined\')
 			'usetranslation'    =>  1,
 			'enabled'           =>  1,
 			'disporder'         =>  3,
-			), "sid = {$sid}");	
+			), "sid = {$sid}");
 	}
 
 	unset($query);

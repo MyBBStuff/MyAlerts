@@ -70,7 +70,7 @@ class Alerts
 				$limit = $this->mybb->settings['myalerts_perpage'];
 			}
 
-			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." ORDER BY a.id DESC LIMIT ".(int) $start.", ".(int) $limit.";");
+			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." ORDER BY a.id DESC LIMIT ".(int) $start.", ".(int) $limit.";");
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
@@ -103,7 +103,7 @@ class Alerts
 	{
 		if ((int) $this->mybb->user['uid'] > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND unread = '1' ORDER BY a.id DESC;");
+			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND unread = '1' ORDER BY a.id DESC;");
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
@@ -175,7 +175,7 @@ class Alerts
 			'dateline'	=>	TIME_NOW,
 			'type'		=>	$this->db->escape_string($type),
 			'tid'		=>	(int) $tid,
-			'from'		=>	(int) $from,
+			'from_d'	=>	(int) $from,
 			'content'	=>	$this->db->escape_string($content),
 			);
 
@@ -202,6 +202,6 @@ class Alerts
 			$separator = ",\n";
 		}
 
-		$this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (`uid`, `dateline`, `type`, `tid`, `from`, `content`) VALUES '.$sqlString.';');
+		$this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (`uid`, `dateline`, `type`, `tid`, `from_id`, `content`) VALUES '.$sqlString.';');
 	}
 }
