@@ -70,7 +70,7 @@ function myalerts_install()
 		'quoted'		=>	1,
 		'thread_reply'	=>	1,
 		);
-	$db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))), '1');
+	$db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))));
 }
 
 function myalerts_is_installed()
@@ -1052,10 +1052,7 @@ function myalerts_page()
 		}
 		else
 		{
-			$settings = $db->fetch_field($db->simple_select('users', 'myalerts_settings', 'uid = '.(int) $mybb->user['uid'], array('limit' => 1)), 'myalerts_settings');
-			$settings = json_decode($settings, true);
-
-			foreach ($settings as $key => $value)
+			foreach ($mybb->user['myalerts_settings'] as $key => $value)
 			{
 				$altbg = alt_trow();
 				//	variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
