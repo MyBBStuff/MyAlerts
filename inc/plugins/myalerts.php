@@ -287,7 +287,7 @@ function myalerts_activate()
 		<div class="popupFooter"><a href="usercp.php?action=alerts">{$lang->myalerts_usercp_nav_alerts}</a></div>
 	</div>
 </span>',
-			'alert_row' =>  '<tr class="alert_row {$alert[\'rowType\']}Row{$unreadAlert}" id="alert_row_{$alert[\'id\']}">
+			'alert_row' =>  '<tr class="alert_row {$alert[\'rowType\']}Row{$alert[\'unreadAlert\']}" id="alert_row_{$alert[\'id\']}">
 	<td class="{$altbg}" width="50">
 		<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="48" height="48" /></a>
 	</td>
@@ -300,7 +300,7 @@ function myalerts_activate()
 		{$lang->myalerts_no_alerts}
 	</td>
 </tr>',
-			'alert_row_popup' =>  '<li class="alert_row {$alert[\'rowType\']}Row{$unreadAlert}">
+			'alert_row_popup' =>  '<li class="alert_row {$alert[\'rowType\']}Row{$alert[\'unreadAlert\']}">
 	<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="24" height="24" /></a>
 	<div class="alertContent">
 		{$alert[\'message\']}
@@ -519,11 +519,11 @@ function parse_alert($alert)
 
 	if ($alert['unread'] == 1)
 	{
-		$unreadAlert = ' unreadAlert';
+		$alert['unreadAlert'] = ' unreadAlert';
 	}
 	else
 	{
-		$unreadAlert = '';
+		$alert['unreadAlert'] = '';
 	}
 
 	$plugins->run_hooks('myalerts_alerts_output_start');
