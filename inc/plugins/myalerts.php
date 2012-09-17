@@ -294,7 +294,7 @@ function myalerts_activate()
 	<td class="{$altbg}">
 		{$alert[\'message\']}
 		<br />
-		<span class="smalltext right">
+		<span class="smalltext float_right">
 			<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=deleteAlert&amp;id={$alert[\'id\']}" class="deleteAlertButton" id="delete_alert_{$alert[\'id\']}">Delete</a>
 		</span>
 		<br class="clear" />
@@ -1122,6 +1122,9 @@ function myalerts_page()
 					eval("\$resp['template'] = \"".$templates->get('myalerts_alert_row_no_alerts')."\";");
 				}
 
+				header('Cache-Control: no-cache, must-revalidate');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+				header('Content-type: application/json');
 				echo json_encode($resp);
 			}
 			else
@@ -1133,6 +1136,9 @@ function myalerts_page()
 		{
 			if ($mybb->input['accessMethod'] == 'js')
 			{
+				header('Cache-Control: no-cache, must-revalidate');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+				header('Content-type: application/json');
 				echo json_encode(array('error' =>	$lang->myalerts_delete_error));
 			}
 			else

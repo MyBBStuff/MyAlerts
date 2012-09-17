@@ -40,6 +40,15 @@ jQuery(document).ready(function($)
 		});
 	});
 
+	if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0)
+	{
+		window.setInterval(function() {
+			$.get('xmlhttp.php?action=getNewAlerts', function(data) {
+				$('#latestAlertsListing').html(data);
+			});
+		}, myalerts_autorefresh * 1000);
+	}
+
 	if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0)
 	{
     	document.title = document.title + ' (' + unreadAlerts + ')';

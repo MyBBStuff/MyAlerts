@@ -17,6 +17,33 @@ Event.observe(window, 'load', function() {
   		});
 	});
 
+	$$('.deleteAlertButton').invoke('observe', 'click', function(e) {
+		Event.stop(e);
+		var deleteButton = $(this);
+		console.log(deleteButton);
+
+		new Ajax.Request(deleteButton.readAttribute('href'),
+		{
+			method: 'get',
+			parameters: {accessMethod: 'js'},
+			onSuccess: function(transport, json) {
+				var data = transport.responseJSON;
+				if (data['success'])
+				{
+					deleteButton.up('tr').remove();
+					if (data['template'])
+					{
+						$('latestAlertsListing').replace(data['template']);
+					}
+				}
+				else
+				{
+					alert(data['error']);
+				}
+			}
+		});
+	});
+
 	if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0)
 	{
 		window.setInterval(function() {
