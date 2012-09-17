@@ -1039,32 +1039,24 @@ function myalerts_page()
 			$lang->load('myalerts');
 		}
 
+		$possible_settings = array(
+			'rep',
+			'pm',
+			'buddylist',
+			'quoted',
+			'thread_reply',
+			);
+		$plugins->run_hooks('myalerts_possible_settings');
+		$possible_settings = array_flip($possible_settings);
+		$possible_settings = array_fill_keys(array_keys($possible_settings), 0);
+
 		if ($mybb->request_method == 'post')
 		{
 			verify_post_check($mybb->input['my_post_key']);
 
-			$temp_settings = $mybb->input;
-			$allowed_settings = array(
-				'rep',
-				'pm',
-				'buddylist',
-				'quoted',
-				'thread_reply'
-				);
-			$plugins->run_hooks('myalerts_allowed_settings');
-
-			$settings = array_intersect_key($temp_settings, array_flip($allowed_settings));
+			$settings = array_intersect_key($mybb->input, $possible_settings);
 
 			//	Seeing as unchecked checkboxes just aren't sent, we need an array of all the possible settings, defaulted to 0 (or off) to merge
-			$possible_settings = array(
-				'rep'			=>	0,
-				'pm'			=>	0,
-				'buddylist'		=>	0,
-				'quoted'		=>	0,
-				'thread_reply'	=>	0,
-				);
-			$plugins->run_hooks('myalerts_possible_settings');
-
 			$settings = array_merge($possible_settings, $settings);
 
 			$settings = json_encode($settings);
@@ -1076,7 +1068,9 @@ function myalerts_page()
 		}
 		else
 		{
-			foreach ($mybb->user['myalerts_settings'] as $key => $value)
+			$settings = array_merge($possible_settings, $mybb->user['myalerts_settings']);
+			$settings = array_intersect_key($settings, $possible_settings);
+			foreach ($settings as $key => $value)
 			{
 				$altbg = alt_trow();
 				//	variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
