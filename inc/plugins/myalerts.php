@@ -554,7 +554,7 @@ function parse_alert($alert)
 
 	if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'] AND $mybb->user['myalerts_settings']['rep'])
 	{
-		$alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $alert['dateline']);
+		$alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $mybb->user['uid'], $alert['dateline']);
 		$alert['rowType'] = 'reputationAlert';
 	}
 	elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'] AND $mybb->user['myalerts_settings']['pm'])
