@@ -64,7 +64,7 @@ function myalerts_install()
 
 	$db->add_column('users', 'myalerts_settings', 'TEXT NULL');
 	$myalertsSettings = array(
-		'reputation'	=>	1,
+		'rep'	=>	1,
 		'pm'			=>	1,
 		'buddylist'		=>	1,
 		'quoted'		=>	1,
