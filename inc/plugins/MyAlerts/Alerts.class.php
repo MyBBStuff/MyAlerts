@@ -16,8 +16,8 @@ class Alerts
 	/**
 	 *	Constructor
 	 *
-	 *	@param MyBB Object
-	 *	@param MyBB Database Object
+	 *	@param Object MyBB Object
+	 *	@param Object MyBB Database Object
 	 */
 	function __construct($mybbIn, $dbIn)
 	{
@@ -35,7 +35,7 @@ class Alerts
 	/**
 	 *	Get the number of alerts a user has
 	 *
-	 *	@return int
+	 *	@return int The total number of alerts the user has
 	 */
 	public function getNumAlerts()
 	{
@@ -46,7 +46,7 @@ class Alerts
 	/**
 	 *	Get the number of unread alerts a user has
 	 *
-	 *	@return int
+	 *	@return int The number of unread alerts
 	 */
 	public function getNumUnreadAlerts()
 	{
@@ -66,9 +66,9 @@ class Alerts
 	/**
 	 *	Fetch all alerts for the currently logged in user
 	 *
-	 *	@param Integer - the start point (used for multipaging alerts)
+	 *	@param Integer The start point (used for multipaging alerts)
 	 *	@return Array
-	 *	@return boolean - if the user has no new alerts
+	 *	@return boolean If the user has no new alerts
 	 */
 	public function getAlerts($start = 0, $limit = 0)
 	{
@@ -105,8 +105,8 @@ class Alerts
 	/**
 	 *	Fetch all unread alerts for the currently logged in user
 	 *
-	 *	@return Array
-	 *	@return boolean - if the user has no new alerts
+	 *	@return Array When the user has unread alerts
+	 *	@return boolean If the user has no new alerts
 	 */
 	public function getUnreadAlerts()
 	{
@@ -140,7 +140,7 @@ class Alerts
 	/**
 	 *	Mark alerts as read
 	 *
-	 *	@param String/Array - either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
+	 *	@param String/Array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
 	 */
 	public function markRead($alerts = '')
 	{
@@ -156,7 +156,7 @@ class Alerts
 	/**
 	 *	Delete alerts
 	 *
-	 *	@param String/Array - either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
+	 *	@param String/Array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
 	 */
 	public function deleteAlerts($alerts = '')
 	{
@@ -187,9 +187,10 @@ class Alerts
 	/**
 	 *	Add an alert
 	 *
-	 *	@param int - UID
-	 *	@param string - the type of alert
-	 *	@param Array - content
+	 *	@param int UID to add Alert for
+	 *	@param string The type of alert
+	 *	@param int The TID - default to 0
+	 *	@param Array Alert content
 	 *	@return boolean
 	 */
 	public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array())
@@ -211,9 +212,10 @@ class Alerts
 	/**
 	 *	Add an alert for multiple users
 	 *
-	 *	@param array - UIDs
-	 *	@param string - the type of alert
-	 *	@param Array - content
+	 *	@param array UIDs to add alert for
+	 *	@param string The type of alert
+	 *	@param int The TID - default to 0
+	 *	@param Array Alert content
 	 *	@return boolean
 	 */
 	public function addMassAlert($uids, $type = '', $tid = 0, $from = 0, $content = array())
