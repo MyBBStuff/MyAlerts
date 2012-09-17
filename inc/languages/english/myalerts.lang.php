@@ -29,9 +29,21 @@ $l['myalerts_settings_save'] = 'Save Settings';
 $l['myalerts_settings_updated'] = 'Alert settings updated successfully. Redirecting back to settings page.';
 $l['myalerts_settings_updated_title'] = 'Alert Settings Updated.';
 
+$l['myalerts_delete_deleted'] = 'Alert deleted successfully.';
+$l['myalerts_delete_error'] = 'Alert cannot be deleted at this time.';
+$l['myalerts_delete_read_confirm'] = 'Really delete all read alerts? This cannot be undone!';
+$l['myalerts_delete_all_confirm'] = 'Really delete all alerts? This cannot be undone!';
+$l['myalerts_delete_mass_deleted'] = 'Alerts Deleted';
+$l['myalerts_delete_mass_error'] = 'Error Deleting Alerts';
+$l['myalerts_delete_mass_error_more'] = 'Sorry, something went wrong while deleting your alerts. Please try again.';
+$l['myalerts_delete_all_read'] = 'All read alerts deleted successfully.';
+$l['myalerts_delete_all'] = 'All alerts deleted successfully.';
+
 $l['myalerts_usercp_nav'] = 'Alerts';
 $l['myalerts_usercp_nav_alerts'] = 'View Alerts';
 $l['myalerts_usercp_nav_settings'] = 'Alert Settings';
+$l['myalerts_usercp_nav_delete_read'] = 'Delete Old Alerts';
+$l['myalerts_usercp_nav_delete_all'] = 'Delete All Alerts';
 
 $l['myalerts_help_alert_types'] = 'Alert Types';
 $l['myalerts_help_alert_types_rep'] = '<strong>Reputation</strong>

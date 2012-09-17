@@ -293,6 +293,11 @@ function myalerts_activate()
 	</td>
 	<td class="{$altbg}">
 		{$alert[\'message\']}
+		<br />
+		<span class="smalltext right">
+			<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=deleteAlert&amp;id={$alert[\'id\']}" class="deleteAlertButton" id="delete_alert_{$alert[\'id\']}">Delete</a>
+		</span>
+		<br class="clear" />
 	</td>
 </tr>',
 			'alert_row_no_alerts' =>  '<tr class="alert_row noAlertsRow">
@@ -332,6 +337,16 @@ function myalerts_activate()
 			<a href="usercp.php?action=alert_settings" class="usercp_nav_item usercp_nav_options">{$lang->myalerts_usercp_nav_settings}</a>
 		</td>
 	</tr>
+	<tr>
+		<td class="trow1 smalltext">
+			<a href="usercp.php?action=deleteReadAlerts" onclick="return confirm(\'{$lang->myalerts_delete_read_confirm}\')" class="usercp_nav_item usercp_nav_myalerts_delete_read">{$lang->myalerts_usercp_nav_delete_read}</a>
+		</td>
+	</tr>
+	<tr>
+		<td class="trow1 smalltext">
+			<a href="usercp.php?action=deleteAllAlerts" onclick="return confirm(\'{$lang->myalerts_delete_all_confirm}\')" class="usercp_nav_item usercp_nav_myalerts_delete_all">{$lang->myalerts_usercp_nav_delete_all}</a>
+		</td>
+	</tr>
 </tbody>',
 		)
 	);
@@ -341,7 +356,13 @@ function myalerts_activate()
 }
 
 .usercp_nav_myalerts {
-	background:url(\'images/usercp/bell.png\') no-repeat left center;
+	background:url(\'images/usercp/transmit_blue.png\') no-repeat left center;
+}
+.usercp_nav_myalerts_delete_all {
+	background:url(\'images/usercp/delete.png\') no-repeat left center;
+}
+.usercp_nav_myalerts_delete_read {
+	background:url(\'images/usercp/bin.png\') no-repeat left center;
 }
 
 .myalerts_popup ol {
@@ -1073,6 +1094,89 @@ function myalerts_page()
 
 			eval("\$content = \"".$templates->get('myalerts_settings_page')."\";");
 			output_page($content);
+		}
+	}
+
+	if ($mybb->input['action'] == 'deleteAlert' AND $mybb->input['id'])
+	{
+		global $Alerts, $lang;
+
+		if (!$lang->myalerts)
+		{
+			$lang->load('myalerts');
+		}
+
+		if ($Alerts->deleteAlerts((int) $mybb->input['id']))
+		{
+			if ($mybb->input['accessMethod'] == 'js')
+			{
+				$resp = array(
+					'success'	=>	$lang->myalerts_delete_deleted,
+					);
+				$numAlerts = $Alerts->getNumAlerts();
+				if ($numAlerts < 1)
+				{
+					global $templates;
+
+					$altbg = 'trow1';
+					eval("\$resp['template'] = \"".$templates->get('myalerts_alert_row_no_alerts')."\";");
+				}
+
+				echo json_encode($resp);
+			}
+			else
+			{
+				redirect('usercp.php?action=alerts', $lang->myalerts_delete_deleted, $lang->myalerts_delete_deleted);
+			}
+		}
+		else
+		{
+			if ($mybb->input['accessMethod'] == 'js')
+			{
+				echo json_encode(array('error' =>	$lang->myalerts_delete_error));
+			}
+			else
+			{
+				redirect('usercp.php?action=alerts', $lang->myalerts_delete_error, $lang->myalerts_delete_error);
+			}
+		}
+	}
+
+	if ($mybb->input['action'] == 'deleteReadAlerts')
+	{
+		global $Alerts, $lang;
+
+		if (!$lang->myalerts)
+		{
+			$lang->load('myalerts');
+		}
+
+		if ($Alerts->deleteAlerts('allRead'))
+		{
+			redirect('usercp.php?action=alerts', $lang->myalerts_delete_all_read, $lang->myalerts_delete_mass_deleted);
+		}
+		else
+		{
+			redirect('usercp.php?action=alerts', $lang->myalerts_delete_mass_error_more, $lang->myalerts_delete_mass_error);
+		}
+	}
+
+	if ($mybb->input['action'] == 'deleteAllAlerts')
+	{
+		global $Alerts, $lang;
+
+		if (!$lang->myalerts)
+		{
+			$lang->load('myalerts');
+		}
+
+		if ($Alerts->deleteAlerts('allAlerts'))
+		{
+			redirect('usercp.php?action=alerts', $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
+		}
+		else
+		{
+			redirect('usercp.php?action=alerts', $lang->myalerts_delete_mass_error_more, $lang->myalerts_delete_mass_error);
 		}
 	}
 }

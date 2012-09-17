@@ -20,10 +20,25 @@ jQuery(document).ready(function($)
 		});
 	});
 
-	if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0)
-	{
+	$('.deleteAlertButton').on('click', function(event) {
+		event.preventDefault();
+		var deleteButton = $(this);
 
-	}
+		$.getJSON(deleteButton.attr('href'), {accessMethod: 'js'}, function(data) {
+			if (data['success'])
+			{
+				deleteButton.parents('tr').get(0).remove();
+				if (data['template'])
+				{
+					$('#latestAlertsListing').html(data['template']);
+				}
+			}
+			else
+			{
+				alert(data['error']);
+			}
+		});
+	});
 
 	if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0)
 	{
