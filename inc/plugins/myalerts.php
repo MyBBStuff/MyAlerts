@@ -685,8 +685,8 @@ function myalerts_global()
 			$lang->load('myalerts');
 		}
 
-		$mybb->user['unreadAlerts'] = $Alerts->getNumUnreadAlerts();
 		$mybb->user['myalerts_settings'] = json_decode($mybb->user['myalerts_settings'], true);
+		$mybb->user['unreadAlerts'] = $Alerts->getNumUnreadAlerts();
 	}
 }
 

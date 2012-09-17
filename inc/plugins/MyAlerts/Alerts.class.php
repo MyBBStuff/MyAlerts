@@ -50,7 +50,16 @@ class Alerts
 	 */
 	public function getNumUnreadAlerts()
 	{
-		$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1');
+		if (is_array($this->mybb->user['myalerts_settings']))
+		{
+			$alertTypes  = "'".my_strtolower(implode("','", array_keys($this->mybb->user['myalerts_settings'])))."'";
+			$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1 AND type IN ('.$alertTypes.')');
+		}
+		else
+		{
+			$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1');
+		}
+
 		return (int) $this->db->fetch_field($num, 'count');
 	}
 
@@ -103,7 +112,9 @@ class Alerts
 	{
 		if ((int) $this->mybb->user['uid'] > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
+
 			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND unread = '1' ORDER BY a.id DESC;");
+
 			if ($this->db->num_rows($alerts) > 0)
 			{
 				$return = array();
