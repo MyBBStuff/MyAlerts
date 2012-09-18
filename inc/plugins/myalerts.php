@@ -556,28 +556,28 @@ function parse_alert($alert)
 
 	$plugins->run_hooks('myalerts_alerts_output_start');
 
-	if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'] AND $mybb->user['myalerts_settings']['rep'])
+	if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
 	{
 		$alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $mybb->user['uid'], $alert['dateline']);
 		$alert['rowType'] = 'reputationAlert';
 	}
-	elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'] AND $mybb->user['myalerts_settings']['pm'])
+	elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
 	{
 		$alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
 		$alert['rowType'] = 'pmAlert';
 	}
-	elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'] AND $mybb->user['myalerts_settings']['buddylist'])
+	elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
 	{
 		$alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
 		$alert['rowType'] = 'buddylistAlert';
 	}
-	elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'] AND $mybb->user['myalerts_settings']['quoted'])
+	elseif ($alert['type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted'])
 	{
 		$alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
 		$alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
 		$alert['rowType'] = 'quotedAlert';
 	}
-	elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'] AND $mybb->user['myalerts_settings']['post_threadauthor'])
+	elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
 	{
 		$alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
 		$alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
