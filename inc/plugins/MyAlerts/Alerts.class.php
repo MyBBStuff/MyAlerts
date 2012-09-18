@@ -164,6 +164,8 @@ class Alerts
 		{
 			$alerts = array_map('intval', $alerts);
 			$alerts = "'".my_strtolower(implode("','", $alerts))."'";
+
+			return $this->db->delete_query('alerts', 'id IN('.$alerts.') AND uid = '.(int) $this->mybb->user['uid']);
 		}
 		else
 		{
@@ -175,13 +177,7 @@ class Alerts
 			{
 				return $this->db->delete_query('alerts', 'uid = '.(int) $this->mybb->user['uid']);
 			}
-			else
-			{
-				$alerts = (int) $alerts;
-			}
 		}
-
-		return $this->db->delete_query('alerts', 'id IN('.$alerts.') AND uid = '.(int) $this->mybb->user['uid']);
 	}
 
 	/**

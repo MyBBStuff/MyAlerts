@@ -1109,7 +1109,7 @@ function myalerts_page()
 			$lang->load('myalerts');
 		}
 
-		if ($Alerts->deleteAlerts((int) $mybb->input['id']))
+		if ($Alerts->deleteAlerts(array($mybb->input['id'])))
 		{
 			if ($mybb->input['accessMethod'] == 'js')
 			{
