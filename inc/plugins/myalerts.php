@@ -614,17 +614,16 @@ function myalerts_pre_output_page(&$contents)
 
 		$alerts = '';
 
+		if ($mybb->user['unreadAlerts'])
+		{
+			$newAlertsIndicator = ' newAlerts';
+		}
+
 		if (is_array($userAlerts) AND count($userAlerts) > 0)
 		{
-			$newAlertsIndicator = '';
 			foreach ($userAlerts as $alert)
 			{
 				$alert = array_merge($alert, parse_alert($alert));
-
-				if ($alert['unread'])
-				{
-					$newAlertsIndicator = ' newAlerts';
-				}
 
 				if ($alert['message'])
 				{
