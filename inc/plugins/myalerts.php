@@ -277,7 +277,7 @@ function myalerts_activate()
 		<label for="input_{$key}"><input type="checkbox" name="{$key}" id="input_{$key}"{$checked} /> &nbsp; {$langline}</label>
 	</td>
 </tr>',
-			'headericon'	=>	'<span class="myalerts_popup_wrapper">
+			'headericon'	=>	'<span class="myalerts_popup_wrapper{$newAlertsIndicator}">
 	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">Alerts ({$mybb->user[\'unreadAlerts\']})</a>
 	<div id="unreadAlerts_menu_popup" class="myalerts_popup" style="display:none;">
 		<div class="popupTitle">{$lang->myalerts_page_title}</div>
@@ -363,6 +363,10 @@ function myalerts_activate()
 }
 .usercp_nav_myalerts_delete_read {
 	background:url(\'images/usercp/bin.png\') no-repeat left center;
+}
+
+.newAlerts {
+	color:red;
 }
 
 .myalerts_popup ol {
@@ -612,9 +616,15 @@ function myalerts_pre_output_page(&$contents)
 
 		if (is_array($userAlerts) AND count($userAlerts) > 0)
 		{
+			$newAlertsIndicator = '';
 			foreach ($userAlerts as $alert)
 			{
 				$alert = array_merge($alert, parse_alert($alert));
+
+				if ($alert['unread'])
+				{
+					$newAlertsIndicator = ' newAlerts';
+				}
 
 				if ($alert['message'])
 				{
@@ -1068,7 +1078,7 @@ function myalerts_page()
 		}
 		else
 		{
-			$settings = array_merge($possible_settings, $mybb->user['myalerts_settings']);
+			$settings = array_merge($possible_settings, (array) $mybb->user['myalerts_settings']);
 			$settings = array_intersect_key($settings, $possible_settings);
 			foreach ($settings as $key => $value)
 			{
