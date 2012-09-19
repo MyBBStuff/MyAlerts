@@ -554,7 +554,7 @@ function parse_alert($alert)
 		$alert['unreadAlert'] = '';
 	}
 
-	$plugins->run_hooks('myalerts_alerts_output_start');
+	$plugins->run_hooks('myalerts_alerts_output_start', $alert);
 
 	if ($alert['type'] == 'rep' AND $mybb->settings['myalerts_alert_rep'])
 	{
@@ -584,7 +584,7 @@ function parse_alert($alert)
 		$alert['rowType'] = 'postAlert';
 	}
 
-	$plugins->run_hooks('myalerts_alerts_output_end');
+	$plugins->run_hooks('myalerts_alerts_output_end', $alert);
 
 	return $alert;
 }
@@ -1055,7 +1055,7 @@ function myalerts_page()
 			'quoted',
 			'thread_reply',
 			);
-		$plugins->run_hooks('myalerts_possible_settings');
+		$plugins->run_hooks('myalerts_possible_settings', $possible_settings);
 		$possible_settings = array_flip($possible_settings);
 		$possible_settings = array_fill_keys(array_keys($possible_settings), 0);
 
