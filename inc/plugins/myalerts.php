@@ -1339,4 +1339,3 @@ function myalerts_xmlhttp()
 		echo $Alerts->getNumUnreadAlerts();
 	}
 }
-?>
