@@ -767,6 +767,13 @@ function myalerts_global()
 		}
 
 		$mybb->user['myalerts_settings'] = json_decode($mybb->user['myalerts_settings'], true);
+
+		// Sanitize the alerts settings here to make life easy in the future
+		foreach ($mybb->user['myalerts_settings'] as $key => $value)
+		{
+			$mybb->user['myalerts_settings'][$key] = $db->escape_string($value);
+		}
+
 		$mybb->user['unreadAlerts'] = my_number_format((int) $Alerts->getNumUnreadAlerts());
 	}
 }
