@@ -871,7 +871,7 @@ function myalerts_alert_buddylist()
 {
 	global $mybb;
 
-	if ($mybb->input['manage'] != 'ignore' && !isset($mybb->input['delete']))
+	if ($mybb->input['manage'] != 'ignore' AND !isset($mybb->input['delete']))
 	{
 		global $Alerts, $db;
 
@@ -917,6 +917,11 @@ function myalerts_alert_quoted()
 
 	preg_match_all($pattern, $message, $match);
 
+	if (!array_key_exists('2', $match))
+	{
+		return;
+	}
+
 	$matches = array_merge($match[2], $match[3]);
 
 	foreach($matches as $key => $value)
@@ -929,14 +934,14 @@ function myalerts_alert_quoted()
 
 	$users = array_values($matches);
 
-	if (!empty($users))
+	if (!empty($users) AND is_array($users))
 	{
 		foreach ($users as $value)
 		{
 			$queryArray[] = $db->escape_string($value);
 		}
 
-		$uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE username IN (\''.my_strtolower(implode("','", $queryArray)).'\') AND uid != '.$mybb->user['uid']);
+		$uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE LOWER(username) IN (\''.my_strtolower(implode("','", $queryArray)).'\') AND uid != '.$mybb->user['uid']);
 
 		$userList = array();
 
@@ -945,7 +950,7 @@ function myalerts_alert_quoted()
 			$userList[] = (int) $uid['uid'];
 		}
 
-		if (!empty($userList) && is_array($userList))
+		if (!empty($userList) AND is_array($userList))
 		{
 			$Alerts->addMassAlert($userList, 'quoted', 0, $mybb->user['uid'], array(
 				'tid'       =>  $post['tid'],
@@ -980,7 +985,7 @@ function myalerts_alert_post_threadauthor(&$post)
 		if ($thread['uid'] != $mybb->user['uid'])
 		{
 			//check if alerted for this thread already
-			$query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1');
+			$query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1 AND LOWER(type) = \'post_threadauthor\'');
 
 			if ($db->num_rows($query) < 1)
 			{
