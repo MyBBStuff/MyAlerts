@@ -295,7 +295,7 @@ function myalerts_activate()
 		{$alert[\'message\']}
 		<br />
 		<span class="smalltext float_right">
-			<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=deleteAlert&amp;id={$alert[\'id\']}" class="deleteAlertButton" id="delete_alert_{$alert[\'id\']}">Delete</a>
+			<a href="{$mybb->settings[\'bburl\']}/usercp.php?action=deleteAlert&amp;id={$alert[\'id\']}&amp;my_post_key={$mybb->post_code}" class="deleteAlertButton" id="delete_alert_{$alert[\'id\']}">Delete</a>
 		</span>
 		<br class="clear" />
 	</td>
@@ -339,12 +339,12 @@ function myalerts_activate()
 	</tr>
 	<tr>
 		<td class="trow1 smalltext">
-			<a href="usercp.php?action=deleteReadAlerts" onclick="return confirm(\'{$lang->myalerts_delete_read_confirm}\')" class="usercp_nav_item usercp_nav_myalerts_delete_read">{$lang->myalerts_usercp_nav_delete_read}</a>
+			<a href="usercp.php?action=deleteReadAlerts&amp;my_post_key={$mybb->post_code}" onclick="return confirm(\'{$lang->myalerts_delete_read_confirm}\')" class="usercp_nav_item usercp_nav_myalerts_delete_read">{$lang->myalerts_usercp_nav_delete_read}</a>
 		</td>
 	</tr>
 	<tr>
 		<td class="trow1 smalltext">
-			<a href="usercp.php?action=deleteAllAlerts" onclick="return confirm(\'{$lang->myalerts_delete_all_confirm}\')" class="usercp_nav_item usercp_nav_myalerts_delete_all">{$lang->myalerts_usercp_nav_delete_all}</a>
+			<a href="usercp.php?action=deleteAllAlerts&amp;my_post_key={$mybb->post_code}" onclick="return confirm(\'{$lang->myalerts_delete_all_confirm}\')" class="usercp_nav_item usercp_nav_myalerts_delete_all">{$lang->myalerts_usercp_nav_delete_all}</a>
 		</td>
 	</tr>
 </tbody>',
@@ -1104,6 +1104,8 @@ function myalerts_page()
 	{
 		global $Alerts, $lang;
 
+		verify_post_check($mybb->input['my_post_key']);
+
 		if (!$lang->myalerts)
 		{
 			$lang->load('myalerts');
@@ -1155,6 +1157,8 @@ function myalerts_page()
 	{
 		global $Alerts, $lang;
 
+		verify_post_check($mybb->input['my_post_key']);
+
 		if (!$lang->myalerts)
 		{
 			$lang->load('myalerts');
@@ -1173,6 +1177,8 @@ function myalerts_page()
 	if ($mybb->input['action'] == 'deleteAllAlerts')
 	{
 		global $Alerts, $lang;
+
+		verify_post_check($mybb->input['my_post_key']);
 
 		if (!$lang->myalerts)
 		{
