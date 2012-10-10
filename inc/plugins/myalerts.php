@@ -131,8 +131,8 @@ function myalerts_activate()
     	admin_redirect('index.php?module=config-plugins');
 	}
 
-	$this_version = myalerts_info();
-	$this_version = $this_version['version'];
+	$plugin_info = myalerts_info();
+	$this_version = (int) $plugin_info['version'];
 	require_once MYALERTS_PLUGIN_PATH.'/Alerts.class.php';
 
 	if (Alerts::version != $this_version)
@@ -141,11 +141,10 @@ function myalerts_activate()
 		admin_redirect("index.php?module=config-plugins");
 	}
 
-	$plugin_info = myalerts_info();
 	$euantor_plugins = $cache->read('euantor_plugins');
 	$euantor_plugins['myalerts'] = array(
 		'title'     =>  'MyAlerts',
-		'version'   =>  $plugin_info['version'],
+		'version'   =>  (int) $plugin_info['version'],
 		);
 	$cache->update('euantor_plugins', $euantor_plugins);
 
@@ -530,7 +529,7 @@ if (typeof jQuery == \'undefined\')
 
 		);
 
-        $new_task['nextrun'] = fetch_next_run($myTask);
+        $myTask['nextrun'] = fetch_next_run($myTask);
         $tid = $db->insert_query("tasks", $myTask);
         $plugins->run_hooks('admin_tools_tasks_add_commit');
         $cache->update_tasks();
