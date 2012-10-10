@@ -9,7 +9,7 @@
 
 class Alerts
 {
-	const version = '1.00';
+	const version = '1.01';
 	private $mybb = null;
 	private $db = null;
 
@@ -39,9 +39,17 @@ class Alerts
 	 */
 	public function getNumAlerts()
 	{
-		$alertTypes  = "'".my_strtolower(implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings']))))."'";
-		$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'type IN ('.$alertTypes.') AND uid = '.(int) $this->mybb->user['uid']);
-		return (int) $this->db->fetch_field($num, 'count');
+		$alertTypes  = "'".$this->db->escape_string(implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings']))))."'";
+
+		static $numAlerts;
+
+		if (!is_int($numAlerts))
+		{
+			$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'type IN ('.$alertTypes.') AND uid = '.(int) $this->mybb->user['uid']);
+			$numAlerts = (int) $this->db->fetch_field($num, 'count');
+		}
+
+		return $numAlerts;
 	}
 
 	/**
@@ -51,17 +59,24 @@ class Alerts
 	 */
 	public function getNumUnreadAlerts()
 	{
-		if (is_array($this->mybb->user['myalerts_settings']))
+		static $numUnreadAlerts;
+
+		if (!is_int($numUnreadAlerts))
 		{
-			$alertTypes  = "'".my_strtolower(implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings']))))."'";
-			$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1 AND type IN ('.$alertTypes.')');
-		}
-		else
-		{
-			$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1');
+			if (is_array($this->mybb->user['myalerts_settings']))
+			{
+				$alertTypes  = "'".$this->db->escape_string(implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings']))))."'";
+				$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1 AND type IN ('.$alertTypes.')');
+			}
+			else
+			{
+				$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1');
+			}
+
+			$numUnreadAlerts = (int) $this->db->fetch_field($num, 'count');
 		}
 
-		return (int) $this->db->fetch_field($num, 'count');
+		return $numUnreadAlerts;
 	}
 
 	/**
@@ -80,7 +95,7 @@ class Alerts
 				$limit = $this->mybb->settings['myalerts_perpage'];
 			}
 
-			$alertTypes  = "'".my_strtolower(implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings']))))."'";
+			$alertTypes  = "'".$this->db->escape_string(implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings']))))."'";
 
 			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND TYPE IN ({$alertTypes}) ORDER BY a.id DESC LIMIT ".(int) $start.", ".(int) $limit.";");
 			if ($this->db->num_rows($alerts) > 0)
@@ -115,7 +130,7 @@ class Alerts
 	{
 		if ((int) $this->mybb->user['uid'] > 0)	// check the user is a user and not a guest - no point wasting queries on guests afterall
 		{
-			$alertTypes  = "'".my_strtolower(implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings']))))."'";
+			$alertTypes  = "'".$this->db->escape_string(implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings']))))."'";
 			$alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND unread = '1' AND a.type IN({$alertTypes}) ORDER BY a.id DESC;");
 
 			if ($this->db->num_rows($alerts) > 0)
@@ -147,10 +162,12 @@ class Alerts
 	 */
 	public function markRead($alerts = '')
 	{
+		$alerts = (array) $alerts;
+
 		if (is_array($alerts))
 		{
 			$alerts = array_map('intval', $alerts);
-			$alerts  = "'".my_strtolower(implode("','", $alerts))."'";
+			$alerts  = "'".$this->db->escape_string(implode("','", $alerts))."'";
 		}
 
 		return $this->db->update_query('alerts', array('unread' => '0'), 'id IN('.$alerts.') AND uid = '.$this->mybb->user['uid']);
@@ -163,10 +180,11 @@ class Alerts
 	 */
 	public function deleteAlerts($alerts = '')
 	{
-		if (is_array($alerts))
+		if (is_array($alerts) OR is_int($alerts))
 		{
+			$alerts = (array) $alerts;
 			$alerts = array_map('intval', $alerts);
-			$alerts = "'".my_strtolower(implode("','", $alerts))."'";
+			$alerts = "'".$this->db->escape_string(implode("','", $alerts))."'";
 
 			return $this->db->delete_query('alerts', 'id IN('.$alerts.') AND uid = '.(int) $this->mybb->user['uid']);
 		}

@@ -5,7 +5,7 @@
  *	A simple notification/alert system for MyBB
  *
  *	@author Euan T. <euan@euantor.com>
- *	@version 1.00
+ *	@version 1.01
  *	@package MyAlerts
  *  @license http://opensource.org/licenses/mit-license.php MIT license
  */
@@ -30,7 +30,7 @@ function myalerts_info()
 		'website'       =>  'http://euantor.com/myalerts',
 		'author'        =>  'euantor',
 		'authorsite'    =>  'http://euantor.com',
-		'version'       =>  '1.00',
+		'version'       =>  '1.01',
 		'guid'          =>  'aba228cf4bd5245ef984ccfde6514ce8',
 		'compatibility' =>  '16*',
 		);
@@ -39,6 +39,20 @@ function myalerts_info()
 function myalerts_install()
 {
 	global $db, $cache;
+
+	if (!file_exists(PLUGINLIBRARY))
+	{
+		flash_message("The selected plugin could not be uninstalled because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
+		admin_redirect("index.php?module=config-plugins");
+	}
+
+	$PL or require_once PLUGINLIBRARY;
+
+	if ($PL->version < 9)
+	{
+    	flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
+    	admin_redirect('index.php?module=config-plugins');
+	}
 
 	$plugin_info = myalerts_info();
 	$euantor_plugins = $cache->read('euantor_plugins');
@@ -567,11 +581,14 @@ if (typeof jQuery == \'undefined\')
 	$db->update_query('tasks', array('enabled' => 0), 'file = \'myalerts\'');
 }
 
-global $settings, $mybb;
+global $settings;
 
 function parse_alert($alert)
 {
 	global $mybb, $lang, $plugins;
+
+	require_once  MYBB_ROOT.'inc/class_parser.php';
+  	$parser = new postParser;
 
 	$alert['userLink'] = get_profile_link($alert['uid']);
 	$alert['user'] = build_profile_link($alert['username'], $alert['uid']);
@@ -595,7 +612,7 @@ function parse_alert($alert)
 	}
 	elseif ($alert['type'] == 'pm' AND $mybb->settings['myalerts_alert_pm'])
 	{
-		$alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($alert['content']['pm_title'])."</a>", $alert['dateline']);
+		$alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($parser->parse_badwords($alert['content']['pm_title']))."</a>", $alert['dateline']);
 		$alert['rowType'] = 'pmAlert';
 	}
 	elseif ($alert['type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist'])
@@ -612,7 +629,7 @@ function parse_alert($alert)
 	elseif ($alert['type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor'])
 	{
 		$alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-		$alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($alert['content']['t_subject']), $alert['dateline']);
+		$alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($parser->parse_badwords($alert['content']['t_subject'])), $alert['dateline']);
 		$alert['rowType'] = 'postAlert';
 	}
 
@@ -714,7 +731,7 @@ function myalerts_global()
 		$templatelist .= ',';
 	}
 
-	$templatelist .= 'myalerts_headericon';
+	$templatelist .= 'myalerts_headericon,myalerts_popup_row';
 
 	if (THIS_SCRIPT == 'usercp.php')
 	{
@@ -750,7 +767,7 @@ function myalerts_global()
 		}
 
 		$mybb->user['myalerts_settings'] = json_decode($mybb->user['myalerts_settings'], true);
-		$mybb->user['unreadAlerts'] = $Alerts->getNumUnreadAlerts();
+		$mybb->user['unreadAlerts'] = my_number_format((int) $Alerts->getNumUnreadAlerts());
 	}
 }
 
@@ -891,16 +908,16 @@ function myalerts_alert_buddylist()
 		if (count($users) > 0)
 		{
 			$query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
+
+			$user = array();
+
+			while($user = $db->fetch_array($query))
+			{
+				$userArray[] = $user['uid'];
+			}
+
+			$Alerts->addMassAlert($userArray, 'buddylist', 0, $mybb->user['uid'], array());
 		}
-
-		$user = array();
-
-		while($user = $db->fetch_array($query))
-		{
-			$userArray[] = $user['uid'];
-		}
-
-		$Alerts->addMassAlert($userArray, 'buddylist', 0, $mybb->user['uid'], array());
 	}
 }
 
@@ -1014,7 +1031,7 @@ function myalerts_usercp_menu()
 
 	if ($mybb->user['unreadAlerts'] > 0)
 	{
-		$lang->myalerts_usercp_nav_alerts = '<strong>'.$lang->myalerts_usercp_nav_alerts.' ('.$mybb->user['unreadAlerts'].')</strong>';
+		$lang->myalerts_usercp_nav_alerts = '<strong>'.$lang->myalerts_usercp_nav_alerts.' ('.my_number_format((int) $mybb->user['unreadAlerts']).')</strong>';
 	}
 
 	eval("\$usercpmenu .= \"".$templates->get('myalerts_usercp_nav')."\";");
@@ -1141,18 +1158,24 @@ function myalerts_page()
 			$settings = array_intersect_key($settings, $possible_settings);
 			foreach ($settings as $key => $value)
 			{
-				$altbg = alt_trow();
-				//	variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
-				$tempkey = 'myalerts_setting_'.$key;
-				$langline = $lang->$tempkey;
+				$temparraykey = 'myalerts_alert_'.$key;
 
-				$checked = '';
-				if ($value)
+				if ($mybb->settings[$temparraykey])
 				{
-					$checked = ' checked="checked"';
-				}
+					$altbg = alt_trow();
+					//	variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
+					$tempkey = 'myalerts_setting_'.$key;
 
-				eval("\$alertSettings .= \"".$templates->get('myalerts_setting_row')."\";");
+					$langline = $lang->$tempkey;
+
+					$checked = '';
+					if ($value)
+					{
+						$checked = ' checked="checked"';
+					}
+
+					eval("\$alertSettings .= \"".$templates->get('myalerts_setting_row')."\";");
+				}
 			}
 
 			eval("\$content = \"".$templates->get('myalerts_settings_page')."\";");
