@@ -147,7 +147,7 @@ function myalerts_activate()
 	}
 
 	$plugin_info = myalerts_info();
-	$this_version = (int) $plugin_info['version'];
+	$this_version = $plugin_info['version'];
 	require_once MYALERTS_PLUGIN_PATH.'/Alerts.class.php';
 
 	if (Alerts::version != $this_version)
