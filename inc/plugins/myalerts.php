@@ -622,6 +622,28 @@ function parse_alert($alert)
 
 if ($settings['myalerts_enabled'])
 {
+	$plugins->add_hook('member_do_register_end', 'myalerts_register_do_end');
+}
+function myalerts_register_do_end()
+{
+	global $user_info, $db;
+
+	$possible_settings = array(
+		'rep',
+		'pm',
+		'buddylist',
+		'quoted',
+		'thread_reply',
+		);
+	$plugins->run_hooks('myalerts_possible_settings', $possible_settings);
+	$possible_settings = array_fill_keys(array_keys($possible_settings), 1);
+	$possible_settings = json_encode($possible_settings);
+
+	$db->update_query('users', array('myalerts_settings' => $db->escape_string($possible_settings)), 'uid = '.(int) $user_info['uid']);
+}
+
+if ($settings['myalerts_enabled'])
+{
 	$plugins->add_hook('pre_output_page', 'myalerts_pre_output_page');
 }
 function myalerts_pre_output_page(&$contents)
@@ -1087,7 +1109,6 @@ function myalerts_page()
 			'thread_reply',
 			);
 		$plugins->run_hooks('myalerts_possible_settings', $possible_settings);
-		$possible_settings = array_flip($possible_settings);
 		$possible_settings = array_fill_keys(array_keys($possible_settings), 0);
 
 		if ($mybb->request_method == 'post')
