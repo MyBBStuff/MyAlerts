@@ -105,12 +105,12 @@ function myalerts_uninstall()
 	$sid = (int) $db->fetch_field($db->simple_select('helpsections', 'sid', 'name = \''.$db->escape_string($lang->myalerts_helpsection_name).'\''), 'sid');
 	$db->delete_query('helpsections', 'sid = '.$sid);
 	$db->delete_query('helpdocs', 'sid = '.$sid);
-	$db->delete_query('tasks', 'file' => 'myalerts');
+	$db->delete_query('tasks', 'file = \'myalerts\'');
 }
 
 function myalerts_activate()
 {
-	global $mybb, $db, $lang, $PL, $plugins;
+	global $mybb, $db, $lang, $PL, $plugins, $cache;
 
 	if (!$lang->myalerts)
 	{
@@ -122,6 +122,8 @@ function myalerts_activate()
 		flash_message($lang->myalerts_pluginlibrary_missing, "error");
 		admin_redirect("index.php?module=config-plugins");
 	}
+
+	$PL or require_once PLUGINLIBRARY;
 
 	if ($PL->version < 9)
 	{
@@ -139,7 +141,13 @@ function myalerts_activate()
 		admin_redirect("index.php?module=config-plugins");
 	}
 
-	$PL or require_once PLUGINLIBRARY;
+	$plugin_info = myalerts_info();
+	$euantor_plugins = $cache->read('euantor_plugins');
+	$euantor_plugins['myalerts'] = array(
+		'title'     =>  'MyAlerts',
+		'version'   =>  $plugin_info['version'],
+		);
+	$cache->update('euantor_plugins', $euantor_plugins);
 
 	$PL->settings('myalerts',
 		$lang->setting_group_myalerts,
@@ -530,7 +538,7 @@ if (typeof jQuery == \'undefined\')
 	else
 	{
 		require_once MYBB_ROOT.'/inc/functions_task.php';
-		$db->update_query('tasks', array('enabled' => 1, 'nextrun' => fetch_next_run($myTask)), 'file' => 'myalerts');
+		$db->update_query('tasks', array('enabled' => 1, 'nextrun' => fetch_next_run($myTask)), 'file = \'myalerts\'');
 		$cache->update_tasks();
 	}
 }
@@ -541,7 +549,7 @@ function myalerts_deactivate()
 
 	$PL or require_once PLUGINLIBRARY;
 
-	$PL->stylesheet_disable('alerts.css');
+	$PL->stylesheet_deactivate('alerts.css');
 
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 	find_replace_templatesets('headerinclude', "#".preg_quote('<script type="text/javascript">
@@ -556,7 +564,7 @@ if (typeof jQuery == \'undefined\')
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
 	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<myalerts_headericon>'."\n")."#i", '');
 
-	$db->update_query('tasks', array('enabled' => 0, 'nextrun' => fetch_next_run($myTask)), 'file' => 'myalerts');
+	$db->update_query('tasks', array('enabled' => 0), 'file = \'myalerts\'');
 }
 
 global $settings, $mybb;
