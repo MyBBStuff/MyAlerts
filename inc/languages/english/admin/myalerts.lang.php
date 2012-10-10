@@ -45,4 +45,7 @@ $l['myalerts_help_alert_types_document'] = 'There are many types of alerts that 
 $l['myalerts_task_cleanup_ran'] = 'Read alerts over a week old were deleted successfully!';
 $l['myalerts_task_cleanup_error'] = 'Something went wrong while cleaning up the alerts...';
 $l['myalerts_task_cleanup_disabled'] = 'The alerts cleanup task has been disabled via the settings.';
-?>
+
+$l['myalerts_task_title'] = 'MyAlerts Cleanup';
+$l['myalerts_task_description'] = 'A task to cleanup old read alerts. THis is required as otherwise the alerts table could swell to massive sizes.';
+

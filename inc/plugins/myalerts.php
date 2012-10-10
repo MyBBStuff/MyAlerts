@@ -105,11 +105,12 @@ function myalerts_uninstall()
 	$sid = (int) $db->fetch_field($db->simple_select('helpsections', 'sid', 'name = \''.$db->escape_string($lang->myalerts_helpsection_name).'\''), 'sid');
 	$db->delete_query('helpsections', 'sid = '.$sid);
 	$db->delete_query('helpdocs', 'sid = '.$sid);
+	$db->delete_query('tasks', 'file' => 'myalerts');
 }
 
 function myalerts_activate()
 {
-	global $mybb, $db, $lang, $PL;
+	global $mybb, $db, $lang, $PL, $plugins;
 
 	if (!$lang->myalerts)
 	{
@@ -120,6 +121,12 @@ function myalerts_activate()
 	{
 		flash_message($lang->myalerts_pluginlibrary_missing, "error");
 		admin_redirect("index.php?module=config-plugins");
+	}
+
+	if ($PL->version < 9)
+	{
+    	flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
+    	admin_redirect('index.php?module=config-plugins');
 	}
 
 	$this_version = myalerts_info();
@@ -356,13 +363,13 @@ function myalerts_activate()
 }
 
 .usercp_nav_myalerts {
-	background:url(\'images/usercp/transmit_blue.png\') no-repeat left center;
+	background:url(images/usercp/transmit_blue.png) no-repeat left center;
 }
 .usercp_nav_myalerts_delete_all {
-	background:url(\'images/usercp/delete.png\') no-repeat left center;
+	background:url(images/usercp/delete.png) no-repeat left center;
 }
 .usercp_nav_myalerts_delete_read {
-	background:url(\'images/usercp/bin.png\') no-repeat left center;
+	background:url(images/usercp/bin.png) no-repeat left center;
 }
 
 .newAlerts {
@@ -417,31 +424,7 @@ function myalerts_activate()
 		box-shadow:inset 0 1px 0 0 rgba(255,255,255,0.2);
 	}';
 
-	// Hopefully my pull request for commit 699348bfde0cc43373f73aead2e58ee50c4b3830 will be accepted
 	$PL->stylesheet('alerts.css', $stylesheet);
-
-	// $insertArray = array(
-	// 	'name'          => 'Alerts.css',
-	// 	'tid'           => '1',
-	// 	'stylesheet'    => $db->escape_string($stylesheet),
-	// 	'cachefile'     => 'Alerts.css',
-	// 	'lastmodified'  => TIME_NOW
-	// );
-
-	// require_once MYBB_ADMIN_DIR.'inc/functions_themes.php';
-
-	// $sid = $db->insert_query('themestylesheets', $insertArray);
-
-	// if(!cache_stylesheet($theme['tid'], 'Alerts.css', $stylesheet))
-	// {
-	// 	$db->update_query('themestylesheets', array('cachefile' => "css.php?stylesheet={$sid}"), "sid='{$sid}'", 1);
-	// }
-
-	// $query = $db->simple_select('themes', 'tid');
-	// while($theme = $db->fetch_array($query))
-	// {
-	// 	update_theme_stylesheet_list($theme['tid']);
-	// }
 
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 	// Add our JS. We need jQuery and myalerts.js. For jQuery, we check it hasn't already been loaded then load 1.7.2 from google's CDN
@@ -517,10 +500,49 @@ if (typeof jQuery == \'undefined\')
 		}
 		unset($query);
 	}
+
+	$taskExists = $db->simple_select('tasks', 'tid', 'file = \'myalerts\'', array('limit' => '1'));
+	if ($db->num_rows($taskExists) == 0) {
+		require_once MYBB_ROOT.'/inc/functions_task.php';
+
+		$myTask = array(
+			'title'			=> $lang->myalerts_task_title,
+			'file'			=> 'myalerts',
+			'description'	=> $lang->myalerts_task_description,
+			'minute'		=> '0',
+			'hour'			=> '1',
+			'day'			=> '*',
+			'weekday'		=> '1',
+			'month'			=> '*',
+			'nextrun'		=> TIME_NOW + 3600,
+			'lastrun'		=> 0,
+			'enabled'		=> 1,
+			'logging'		=> 1,
+			'locked'		=> 0,
+
+		);
+
+        $new_task['nextrun'] = fetch_next_run($myTask);
+        $tid = $db->insert_query("tasks", $myTask);
+        $plugins->run_hooks('admin_tools_tasks_add_commit');
+        $cache->update_tasks();
+	}
+	else
+	{
+		require_once MYBB_ROOT.'/inc/functions_task.php';
+		$db->update_query('tasks', array('enabled' => 1, 'nextrun' => fetch_next_run($myTask)), 'file' => 'myalerts');
+		$cache->update_tasks();
+	}
 }
 
 function myalerts_deactivate()
 {
+	global $Pl, $db;
+
+	$PL or require_once PLUGINLIBRARY;
+
+	$PL->stylesheet_disable('alerts.css');
+
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 	find_replace_templatesets('headerinclude', "#".preg_quote('<script type="text/javascript">
 if (typeof jQuery == \'undefined\')
@@ -533,6 +555,8 @@ if (typeof jQuery == \'undefined\')
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
 	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<myalerts_headericon>'."\n")."#i", '');
+
+	$db->update_query('tasks', array('enabled' => 0, 'nextrun' => fetch_next_run($myTask)), 'file' => 'myalerts');
 }
 
 global $settings, $mybb;

@@ -23,20 +23,13 @@ function task_myalerts($task)
 		$lang->load('myalerts');
 	}
 
-	if ($mybb->settings['myalerts_cleanup_time'] != 0)
+	if ($db->delete_query('alerts', 'unread = 0'))
 	{
-		if ($db->delete_query('alerts', 'unread = 0'))
-		{
-			add_task_log($task, $lang->myalerts_task_cleanup_ran);
-		}
-		else
-		{
-			add_task_log($task, $lang->myalerts_task_cleanup_error);
-		}
+		add_task_log($task, $lang->myalerts_task_cleanup_ran);
 	}
 	else
 	{
-		add_task_log($task, $lang->myalerts_task_cleanup_disabled);
+		add_task_log($task, $lang->myalerts_task_cleanup_error);
 	}
 }
 ?>
