@@ -44,7 +44,7 @@ jQuery(document).ready(function($)
 	{
 		window.setInterval(function() {
 			$.get('xmlhttp.php?action=getNewAlerts', function(data) {
-				$('#latestAlertsListing').html(data);
+				$('#latestAlertsListing').prepend(data);
 			});
 		}, myalerts_autorefresh * 1000);
 	}

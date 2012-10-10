@@ -27,11 +27,11 @@ function myalerts_info()
 	return array(
 		'name'          =>  'MyAlerts',
 		'description'   =>  'A simple notifications/alerts system for MyBB',
-		'website'       =>  '',
+		'website'       =>  'http://euantor.com/myalerts',
 		'author'        =>  'euantor',
 		'authorsite'    =>  'http://euantor.com',
 		'version'       =>  '1.00',
-		'guid'          =>  '',
+		'guid'          =>  'aba228cf4bd5245ef984ccfde6514ce8',
 		'compatibility' =>  '16*',
 		);
 }
