@@ -70,7 +70,7 @@ function myalerts_install()
 			uid INT(10) NOT NULL,
 			unread TINYINT(4) NOT NULL DEFAULT '1',
 			dateline BIGINT(30) NOT NULL,
-			type VARCHAR(25) NOT NULL,
+			alert_type VARCHAR(25) NOT NULL,
 			tid INT(10),
 			from_id INT(10),
 			content TEXT
@@ -79,11 +79,11 @@ function myalerts_install()
 
 	$db->add_column('users', 'myalerts_settings', 'TEXT NULL');
 	$myalertsSettings = array(
-		'rep'	=>	1,
-		'pm'			=>	1,
-		'buddylist'		=>	1,
-		'quoted'		=>	1,
-		'thread_reply'	=>	1,
+		'rep'				=>	1,
+		'pm'				=>	1,
+		'buddylist'			=>	1,
+		'quoted'			=>	1,
+		'post_threadauthor'	=>	1,
 		);
 	$db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))));
 }
@@ -651,7 +651,7 @@ function myalerts_register_do_end()
 		'pm',
 		'buddylist',
 		'quoted',
-		'thread_reply',
+		'post_threadauthor',
 		);
 	$plugins->run_hooks('myalerts_possible_settings', $possible_settings);
 	$possible_settings = array_flip($possible_settings);
@@ -1003,7 +1003,7 @@ function myalerts_alert_post_threadauthor(&$post)
 		if ($thread['uid'] != $mybb->user['uid'])
 		{
 			//check if alerted for this thread already
-			$query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1 AND LOWER(type) = \'post_threadauthor\'');
+			$query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1 AND alert_type = \'post_threadauthor\'');
 
 			if ($db->num_rows($query) < 1)
 			{
@@ -1130,7 +1130,7 @@ function myalerts_page()
 			'pm',
 			'buddylist',
 			'quoted',
-			'thread_reply',
+			'post_threadauthor',
 			);
 		$plugins->run_hooks('myalerts_possible_settings', $possible_settings);
 		$possible_settings = array_flip($possible_settings);
