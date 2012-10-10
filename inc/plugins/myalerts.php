@@ -7,6 +7,7 @@
  *	@author Euan T. <euan@euantor.com>
  *	@version 1.00
  *	@package MyAlerts
+ *  @license http://opensource.org/licenses/mit-license.php MIT license
  */
 
 if (!defined('IN_MYBB'))
@@ -379,8 +380,8 @@ function myalerts_activate()
 	background:url(images/usercp/bin.png) no-repeat left center;
 }
 
-.newAlerts {
-	color:red;
+.newAlerts > a {
+	color:red !important;
 }
 
 .myalerts_popup ol {
