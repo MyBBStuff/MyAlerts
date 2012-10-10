@@ -460,7 +460,7 @@ if (typeof jQuery == \'undefined\')
 	var unreadAlerts = {$mybb->user[\'unreadAlerts\']};
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
-	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$modplink}')."#i", '<myalerts_headericon>{$modcplink}');
+	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$modcplink}')."#i", '<myalerts_headericon>{$modcplink}');
 
 	// Helpdocs
 	$query = $db->simple_select('helpsections', 'sid', "name = '".$lang->myalerts_helpsection_name."'");
