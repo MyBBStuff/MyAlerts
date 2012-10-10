@@ -626,7 +626,7 @@ if ($settings['myalerts_enabled'])
 }
 function myalerts_register_do_end()
 {
-	global $user_info, $db;
+	global $user_info, $db, $plugins;
 
 	$possible_settings = array(
 		'rep',
@@ -636,6 +636,7 @@ function myalerts_register_do_end()
 		'thread_reply',
 		);
 	$plugins->run_hooks('myalerts_possible_settings', $possible_settings);
+	$possible_settings = array_flip($possible_settings);
 	$possible_settings = array_fill_keys(array_keys($possible_settings), 1);
 	$possible_settings = json_encode($possible_settings);
 
@@ -1109,6 +1110,7 @@ function myalerts_page()
 			'thread_reply',
 			);
 		$plugins->run_hooks('myalerts_possible_settings', $possible_settings);
+		$possible_settings = array_flip($possible_settings);
 		$possible_settings = array_fill_keys(array_keys($possible_settings), 0);
 
 		if ($mybb->request_method == 'post')
