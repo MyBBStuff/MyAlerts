@@ -48,7 +48,7 @@ function myalerts_install()
 
 	$PL or require_once PLUGINLIBRARY;
 
-	if ($PL->version < 9)
+	if ((int) $PL->version < 9)
 	{
     	flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
     	admin_redirect('index.php?module=config-plugins');
@@ -140,7 +140,7 @@ function myalerts_activate()
 
 	$PL or require_once PLUGINLIBRARY;
 
-	if ($PL->version < 9)
+	if ((int) $PL->version < 9)
 	{
     	flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
     	admin_redirect('index.php?module=config-plugins');
