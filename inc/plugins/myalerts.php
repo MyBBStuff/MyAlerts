@@ -85,7 +85,7 @@ function myalerts_install()
 		'quoted'			=>	1,
 		'post_threadauthor'	=>	1,
 		);
-	$db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))));
+	$db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))), '1 = 1');
 }
 
 function myalerts_is_installed()
@@ -775,9 +775,12 @@ function myalerts_global()
 		$mybb->user['myalerts_settings'] = json_decode($mybb->user['myalerts_settings'], true);
 
 		// Sanitize the alerts settings here to make life easy in the future
-		foreach ($mybb->user['myalerts_settings'] as $key => $value)
+		if (is_array($mybb->user['myalerts_settings']))
 		{
-			$mybb->user['myalerts_settings'][$key] = $db->escape_string($value);
+			foreach ($mybb->user['myalerts_settings'] as $key => $value)
+			{
+				$mybb->user['myalerts_settings'][$key] = $db->escape_string($value);
+			}
 		}
 
 		$mybb->user['unreadAlerts'] = my_number_format((int) $Alerts->getNumUnreadAlerts());
