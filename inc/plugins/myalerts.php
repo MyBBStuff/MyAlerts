@@ -576,7 +576,7 @@ if (typeof jQuery == \'undefined\')
 	var unreadAlerts = {$mybb->user[\'unreadAlerts\']};
 </script>
 <script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
-	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote("\n".'<myalerts_headericon>'."\n")."#i", '');
+	find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('<myalerts_headericon>')."#i", '');
 
 	$db->update_query('tasks', array('enabled' => 0), 'file = \'myalerts\'');
 }
