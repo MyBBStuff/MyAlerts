@@ -713,7 +713,7 @@ function myalerts_pre_output_page(&$contents)
 		}
 		else
 		{
-			eval("\$alerts = \"".$templates->get('myalerts_alert_row_no_alerts')."\";");
+			eval("\$alerts = \"".$templates->get('myalerts_alert_row_popup_no_alerts')."\";");
 		}
 
 		eval("\$myalerts_headericon = \"".$templates->get('myalerts_headericon')."\";");
