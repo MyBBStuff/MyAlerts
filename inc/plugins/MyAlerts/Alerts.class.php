@@ -45,6 +45,8 @@ class Alerts
 
 		if (!is_int($numAlerts))
 		{
+			$numAlerts = 0;
+
 			if (is_array($this->mybb->user['myalerts_settings']))
 			{
 				$alertTypes  = "'".implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings'])))."'";
@@ -68,13 +70,14 @@ class Alerts
 
 		if (!is_int($numUnreadAlerts))
 		{
+			$numUnreadAlerts = 0;
+
 			if (is_array($this->mybb->user['myalerts_settings']))
 			{
 				$alertTypes  = "'".implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings'])))."'";
 				$num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1 AND alert_type IN ('.$alertTypes.')');
+				$numUnreadAlerts = (int) $this->db->fetch_field($num, 'count');
 			}
-
-			$numUnreadAlerts = (int) $this->db->fetch_field($num, 'count');
 		}
 
 		return $numUnreadAlerts;
