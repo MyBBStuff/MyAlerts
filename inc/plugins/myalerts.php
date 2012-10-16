@@ -307,7 +307,7 @@ function myalerts_activate()
 	</td>
 </tr>',
 			'headericon'    =>  '<span class="myalerts_popup_wrapper{$newAlertsIndicator}">
-	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">Alerts ({$mybb->user[\'unreadAlerts\']})</a>
+	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">{$lang->myalerts_alerts} ({$mybb->user[\'unreadAlerts\']})</a>
 	<div id="unreadAlerts_menu_popup" class="myalerts_popup" style="display:none;">
 		<div class="popupTitle">{$lang->myalerts_page_title}</div>
 		<ol>
@@ -1392,6 +1392,12 @@ function myalerts_xmlhttp()
 		}
 
 		$toMarkRead = $mybb->input['toMarkRead'];
+
+		if (isset($mybb->input['js_type']) AND $mybb->input['js_type'] == 'prototype')
+		{
+			$toMarkRead = json_decode($toMarkRead);
+		}
+
 		$Alerts->markRead($toMarkRead);
 	}
 }

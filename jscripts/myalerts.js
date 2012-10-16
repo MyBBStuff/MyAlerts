@@ -14,7 +14,10 @@ jQuery(document).ready(function($)
 					toMarkRead.push($(this).attr('id').substr(16));
 				});
 
-				$.get('xmlhttp.php?action=markRead', { my_post_key: my_post_key, toMarkRead: toMarkRead }, function(data) {
+				$.get('xmlhttp.php?action=markRead', {
+					my_post_key: my_post_key,
+					toMarkRead: toMarkRead
+				}, function(data) {
 
 				});
 			});

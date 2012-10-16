@@ -4,6 +4,8 @@ $l['myalerts'] = 'MyAlerts';
 $l['myalerts_page_title'] = 'Recent Alerts';
 $l['myalerts_page_getnew'] = 'Check for new alerts';
 
+$l['myalerts_alerts'] = 'Alerts';
+
 $l['myalerts_settings_page_title'] = 'Alert Settings';
 
 $l['myalerts_online_location_listing'] = 'Viewing Alerts';
