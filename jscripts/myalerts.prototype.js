@@ -4,36 +4,36 @@ Event.observe(window, 'load', function() {
 		var popup_id = e.target.identify() + '_popup';
 		Effect.toggle(popup_id, 'blind', {
 			afterFinish: function() {
-   				var toMarkRead = new Array;
+				var toMarkRead = new Array;
 				$$('[id^="alert_row_popup_"]').each(function(s, index) {
 					toMarkRead.push(s.readAttribute('id').substr(16));
 				});
 
 				new Ajax.Request('xmlhttp.php?action=markRead',
-  				{
-		    		method:'get',
-		    		parameters: {
-		    			my_post_key: my_post_key,
-		    			toMarkRead: Object.toJSON(toMarkRead),
-		    			js_type: 'prototype'
-		    		},
+				{
+					method:'get',
+					parameters: {
+						my_post_key: my_post_key,
+						toMarkRead: Object.toJSON(toMarkRead),
+						js_type: 'prototype'
+					},
 					onSuccess: function() {},
 					onFailure: function() {}
-		  		});
-   			}
-   		});
+				});
+			}
+		});
 	});
 
 	Event.observe('getUnreadAlerts', 'click', function(e) {
 		Event.stop(e);
 		new Ajax.Request('xmlhttp.php?action=getNewAlerts',
-  		{
-    		method:'get',
+		{
+			method:'get',
 			onSuccess: function(transport) {
-  				Element.insert('latestAlertsListing', { 'top': transport.responseText })
+				Element.insert('latestAlertsListing', { 'top': transport.responseText })
 			},
 			onFailure: function() {}
-  		});
+		});
 	});
 
 	$$('.deleteAlertButton').invoke('observe', 'click', function(e) {
@@ -67,18 +67,18 @@ Event.observe(window, 'load', function() {
 	{
 		window.setInterval(function() {
 			new Ajax.Request('xmlhttp.php?action=getNewAlerts',
-	  		{
-	    		method:'get',
+			{
+				method:'get',
 				onSuccess: function(transport) {
-	  				Element.insert('latestAlertsListing', { 'top': transport.responseText })
+					Element.insert('latestAlertsListing', { 'top': transport.responseText })
 				},
 				onFailure: function() {}
-	  		});
+			});
 		}, myalerts_autorefresh * 1000);
 	}
 
 	if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0)
 	{
-    	document.title = document.title + ' (' + unreadAlerts + ')';
+		document.title = document.title + ' (' + unreadAlerts + ')';
 	}
 });

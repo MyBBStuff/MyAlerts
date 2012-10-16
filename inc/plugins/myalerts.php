@@ -7,7 +7,7 @@
  * @package MyAlerts
  * @author  Euan T. <euan@euantor.com>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 1.01
+ * @version 1.02
  */
 
 if (!defined('IN_MYBB'))
@@ -30,7 +30,7 @@ function myalerts_info()
 		'website'       =>  'http://euantor.com/myalerts',
 		'author'        =>  'euantor',
 		'authorsite'    =>  'http://euantor.com',
-		'version'       =>  '1.01',
+		'version'       =>  '1.02',
 		'guid'          =>  'aba228cf4bd5245ef984ccfde6514ce8',
 		'compatibility' =>  '16*',
 		);
