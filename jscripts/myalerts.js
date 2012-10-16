@@ -8,7 +8,16 @@ jQuery(document).ready(function($)
 			event.preventDefault();
 			var popup_id = $(this).attr('id') + '_popup';
 
-			$('#' + popup_id).attr('top', $(this).height() + 'px').slideToggle('slow');
+			$('#' + popup_id).attr('top', $(this).height() + 'px').slideToggle('slow', function() {
+				var toMarkRead = new Array;
+				$('[id^="alert_row_popup_"]').each(function() {
+					toMarkRead.push($(this).attr('id').substr(16));
+				});
+
+				$.get('xmlhttp.php?action=markRead', { my_post_key: my_post_key, toMarkRead: toMarkRead }, function(data) {
+
+				});
+			});
 			return false;
 		}
 	}, '.myalerts_popup_hook');
@@ -16,7 +25,7 @@ jQuery(document).ready(function($)
 	$('#getUnreadAlerts').on('click', function(event) {
 		event.preventDefault();
 		$.get('xmlhttp.php?action=getNewAlerts', function(data) {
-  			$('#latestAlertsListing').prepend(data);
+			$('#latestAlertsListing').prepend(data);
 		});
 	});
 
@@ -51,7 +60,7 @@ jQuery(document).ready(function($)
 
 	if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0)
 	{
-    	document.title = document.title + ' (' + unreadAlerts + ')';
+		document.title = document.title + ' (' + unreadAlerts + ')';
 	}
 
 });

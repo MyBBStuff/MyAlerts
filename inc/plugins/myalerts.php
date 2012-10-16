@@ -1,13 +1,13 @@
 <?php
 /**
- *	MyAlerts Core Plugin File
+ *  MyAlerts Core Plugin File
  *
- *	A simple notification/alert system for MyBB
+ *  A simple notification/alert system for MyBB
  *
- *	@author Euan T. <euan@euantor.com>
- *	@version 1.01
- *	@package MyAlerts
- *  @license http://opensource.org/licenses/mit-license.php MIT license
+ * @package MyAlerts
+ * @author  Euan T. <euan@euantor.com>
+ * @license http://opensource.org/licenses/mit-license.php MIT license
+ * @version 1.01
  */
 
 if (!defined('IN_MYBB'))
@@ -50,8 +50,8 @@ function myalerts_install()
 
 	if ((int) $PL->version < 9)
 	{
-    	flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
-    	admin_redirect('index.php?module=config-plugins');
+		flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
+		admin_redirect('index.php?module=config-plugins');
 	}
 
 	$plugin_info = myalerts_info();
@@ -79,11 +79,11 @@ function myalerts_install()
 
 	$db->add_column('users', 'myalerts_settings', 'TEXT NULL');
 	$myalertsSettings = array(
-		'rep'				=>	1,
-		'pm'				=>	1,
-		'buddylist'			=>	1,
-		'quoted'			=>	1,
-		'post_threadauthor'	=>	1,
+		'rep'               =>  1,
+		'pm'                =>  1,
+		'buddylist'         =>  1,
+		'quoted'            =>  1,
+		'post_threadauthor' =>  1,
 		);
 	$db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))), '1 = 1');
 }
@@ -142,8 +142,8 @@ function myalerts_activate()
 
 	if ((int) $PL->version < 9)
 	{
-    	flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
-    	admin_redirect('index.php?module=config-plugins');
+		flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
+		admin_redirect('index.php?module=config-plugins');
 	}
 
 	$plugin_info = myalerts_info();
@@ -167,10 +167,10 @@ function myalerts_activate()
 		$lang->setting_group_myalerts,
 		$lang->setting_group_myalerts_desc,
 		array(
-			'enabled'	=>	array(
-				'title'			=>	$lang->setting_myalerts_enabled,
-				'description'	=>	$lang->setting_myalerts_enabled_desc,
-				'value'			=>	'1',
+			'enabled'   =>  array(
+				'title'         =>  $lang->setting_myalerts_enabled,
+				'description'   =>  $lang->setting_myalerts_enabled_desc,
+				'value'         =>  '1',
 				),
 			'perpage'   =>  array(
 				'title'         =>  $lang->setting_myalerts_perpage,
@@ -182,7 +182,7 @@ function myalerts_activate()
 				'title'         =>  $lang->setting_myalerts_dropdown_limit,
 				'description'   =>  $lang->setting_myalerts_dropdown_limit_desc,
 				'value'         =>  '5',
-				'optionscode'	=>	'text',
+				'optionscode'   =>  'text',
 				),
 			'autorefresh'   =>  array(
 				'title'         =>  $lang->setting_myalerts_autorefresh,
@@ -301,12 +301,12 @@ function myalerts_activate()
 		{$footer}
 	</body>
 	</html>',
-			'setting_row'	=>	'<tr>
+			'setting_row'   =>  '<tr>
 	<td class="{$altbg}">
 		<label for="input_{$key}"><input type="checkbox" name="{$key}" id="input_{$key}"{$checked} /> &nbsp; {$langline}</label>
 	</td>
 </tr>',
-			'headericon'	=>	'<span class="myalerts_popup_wrapper{$newAlertsIndicator}">
+			'headericon'    =>  '<span class="myalerts_popup_wrapper{$newAlertsIndicator}">
 	&mdash; <a href="{$mybb->settings[\'bburl\']}/usercp.php?action=alerts" class="unreadAlerts myalerts_popup_hook" id="unreadAlerts_menu">Alerts ({$mybb->user[\'unreadAlerts\']})</a>
 	<div id="unreadAlerts_menu_popup" class="myalerts_popup" style="display:none;">
 		<div class="popupTitle">{$lang->myalerts_page_title}</div>
@@ -334,7 +334,7 @@ function myalerts_activate()
 		{$lang->myalerts_no_alerts}
 	</td>
 </tr>',
-			'alert_row_popup' =>  '<li class="alert_row {$alert[\'rowType\']}Row{$alert[\'unreadAlert\']}">
+			'alert_row_popup' =>  '<li class="alert_row {$alert[\'rowType\']}Row{$alert[\'unreadAlert\']}" id="alert_row_popup_{$alert[\'id\']}">
 	<a class="avatar" href="{$alert[\'userLink\']}"><img src="{$alert[\'avatar\']}" alt="{$alert[\'username\']}\'s avatar" width="24" height="24" /></a>
 	<div class="alertContent">
 		{$alert[\'message\']}
@@ -433,6 +433,7 @@ function myalerts_activate()
 	box-shadow:0 0 10px rgba(0,0,0,0.2);
 	position:absolute;
 	left:0;
+	z-index:9999;
 }
 	.myalerts_popup .popupTitle {
 		font-weight:bold;
@@ -528,26 +529,26 @@ if (typeof jQuery == \'undefined\')
 		require_once MYBB_ROOT.'/inc/functions_task.php';
 
 		$myTask = array(
-			'title'			=> $lang->myalerts_task_title,
-			'file'			=> 'myalerts',
-			'description'	=> $lang->myalerts_task_description,
-			'minute'		=> '0',
-			'hour'			=> '1',
-			'day'			=> '*',
-			'weekday'		=> '1',
-			'month'			=> '*',
-			'nextrun'		=> TIME_NOW + 3600,
-			'lastrun'		=> 0,
-			'enabled'		=> 1,
-			'logging'		=> 1,
-			'locked'		=> 0,
+			'title'         => $lang->myalerts_task_title,
+			'file'          => 'myalerts',
+			'description'   => $lang->myalerts_task_description,
+			'minute'        => '0',
+			'hour'          => '1',
+			'day'           => '*',
+			'weekday'       => '1',
+			'month'         => '*',
+			'nextrun'       => TIME_NOW + 3600,
+			'lastrun'       => 0,
+			'enabled'       => 1,
+			'logging'       => 1,
+			'locked'        => 0,
 
 		);
 
-        $myTask['nextrun'] = fetch_next_run($myTask);
-        $tid = $db->insert_query("tasks", $myTask);
-        $plugins->run_hooks('admin_tools_tasks_add_commit');
-        $cache->update_tasks();
+		$myTask['nextrun'] = fetch_next_run($myTask);
+		$tid = $db->insert_query("tasks", $myTask);
+		$plugins->run_hooks('admin_tools_tasks_add_commit');
+		$cache->update_tasks();
 	}
 	else
 	{
@@ -1158,7 +1159,7 @@ function myalerts_page()
 
 			$settings = array_intersect_key($mybb->input, $possible_settings);
 
-			//	Seeing as unchecked checkboxes just aren't sent, we need an array of all the possible settings, defaulted to 0 (or off) to merge
+			//  Seeing as unchecked checkboxes just aren't sent, we need an array of all the possible settings, defaulted to 0 (or off) to merge
 			$settings = array_merge($possible_settings, $settings);
 
 			$settings = json_encode($settings);
@@ -1179,7 +1180,7 @@ function myalerts_page()
 				if ($mybb->settings[$temparraykey])
 				{
 					$altbg = alt_trow();
-					//	variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
+					//  variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
 					$tempkey = 'myalerts_setting_'.$key;
 
 					$langline = $lang->$tempkey;
@@ -1215,7 +1216,7 @@ function myalerts_page()
 			if ($mybb->input['accessMethod'] == 'js')
 			{
 				$resp = array(
-					'success'	=>	$lang->myalerts_delete_deleted,
+					'success'   =>  $lang->myalerts_delete_deleted,
 					);
 				$numAlerts = $Alerts->getNumAlerts();
 				if ($numAlerts < 1)
@@ -1243,7 +1244,7 @@ function myalerts_page()
 				header('Cache-Control: no-cache, must-revalidate');
 				header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 				header('Content-type: application/json');
-				echo json_encode(array('error' =>	$lang->myalerts_delete_error));
+				echo json_encode(array('error' =>   $lang->myalerts_delete_error));
 			}
 			else
 			{
@@ -1376,5 +1377,21 @@ function myalerts_xmlhttp()
 	if ($mybb->input['action'] == 'getNumUnreadAlerts')
 	{
 		echo $Alerts->getNumUnreadAlerts();
+	}
+
+	if ($mybb->input['action'] == 'markRead')
+	{
+		if ($mybb->user['uid'] == 0)
+		{
+			return false;
+		}
+
+		if(!verify_post_check($mybb->input['my_post_key'], true))
+		{
+			xmlhttp_error($lang->invalid_post_code);
+		}
+
+		$toMarkRead = $mybb->input['toMarkRead'];
+		$Alerts->markRead($toMarkRead);
 	}
 }
