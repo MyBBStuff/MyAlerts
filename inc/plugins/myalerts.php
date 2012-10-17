@@ -1105,7 +1105,7 @@ function myalerts_page()
 
 		$readAlerts = array();
 
-		if ($numAlerts > 0)
+		if ($numAlerts > 0 AND !empty($alertsList) AND is_array($alertsList))
 		{
 			foreach ($alertsList as $alert)
 			{
