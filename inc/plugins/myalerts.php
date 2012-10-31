@@ -1247,7 +1247,7 @@ function myalerts_xmlhttp()
 		$toMarkRead = $mybb->input['toMarkRead'];
 
 		if (isset($mybb->input['js_type']) AND $mybb->input['js_type'] == 'prototype') {
-			$toMarkRead = json_decode($toMarkRead, true);
+			$toMarkRead = json_decode($toMarkRead);
 		}
 
 		$Alerts->markRead($toMarkRead);
