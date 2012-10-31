@@ -785,9 +785,14 @@ if ($settings['myalerts_enabled'] AND $settings['myalerts_alert_rep']) {
 }
 function myalerts_addAlert_rep()
 {
-	global $mybb, $Alerts, $reputation;
+	global $mybb, $db, $Alerts, $reputation;
 
-	$Alerts->addAlert($reputation['uid'], 'rep', 0, $mybb->user['uid'], array());
+	$userSettings = $db->fetch_field($db->simple_select('users', 'myalerts_settings', 'uid = '.(int) $reputation['uid'], 1), 'myalerts_settings');
+	$userSettings = json_decode($userSettings, true);
+
+	if ($userSettings['rep']) {
+		$Alerts->addAlert($reputation['uid'], 'rep', 0, $mybb->user['uid'], array());
+	}
 }
 
 if ($settings['myalerts_enabled'] AND $settings['myalerts_alert_pm']) {
@@ -797,7 +802,13 @@ function myalerts_addAlert_pm()
 {
 	global $mybb, $Alerts, $db, $pm, $pmhandler;
 
-	$pmUsers = array_map("trim", $pm['to']);
+	if (is_array($pm['bcc'])) {
+		$toUsers = array_merge($pm['to'], $pm['bcc']);
+	} else {
+		$toUsers = $pm['to'];
+	}
+
+	$pmUsers = array_map("trim", $toUsers);
 	$pmUsers = array_unique($pmUsers);
 
 	$users = array();
@@ -808,20 +819,25 @@ function myalerts_addAlert_pm()
 	}
 
 	if (count($users) > 0) {
-		$query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
+		$query = $db->simple_select('users', 'uid, myalerts_settings', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
 	}
 
 	$users = array();
-
+	$userSettings = array();
 	while ($user = $db->fetch_array($query)) {
-		$users[] = $user['uid'];
+		$userSettings[$user['uid']] = json_decode($user['myalerts_settings'], true);
+		if ($userSettings[$user['uid']]['pm']) {
+			$users[] = $user['uid'];
+		}
 	}
 
-	$Alerts->addMassAlert($users, 'pm', 0, $mybb->user['uid'], array(
-		'pm_title'  =>  $pm['subject'],
-		'pm_id'     =>  $pmhandler->pmid,
-		)
-	);
+	if (!empty($users)) {
+		$Alerts->addMassAlert($users, 'pm', 0, $mybb->user['uid'], array(
+			'pm_title'  =>  $pm['subject'],
+			'pm_id'     =>  $pmhandler->pmid,
+			)
+		);
+	}
 }
 
 if ($settings['myalerts_enabled'] AND $settings['myalerts_alert_buddylist']) {
@@ -891,12 +907,15 @@ function myalerts_alert_quoted()
 			$queryArray[] = $db->escape_string($value);
 		}
 
-		$uids = $db->write_query('SELECT `uid` FROM `'.TABLE_PREFIX.'users` WHERE LOWER(username) IN (\''.my_strtolower(implode("','", $queryArray)).'\') AND uid != '.$mybb->user['uid']);
+		$uids = $db->write_query('SELECT uid, myalerts_settings FROM `'.TABLE_PREFIX.'users` WHERE LOWER(username) IN (\''.my_strtolower(implode("','", $queryArray)).'\') AND uid != '.$mybb->user['uid']);
 
 		$userList = array();
-
+		$userSettings = array();
 		while ($uid = $db->fetch_array($uids)) {
-			$userList[] = (int) $uid['uid'];
+			$userSettings[$uid['uid']] = json_decode($uid['myalerts_settings'], true);
+			if ($userSettings[$uid['uid']]['quoted']) {
+				$userList[] = (int) $uid['uid'];
+			}
 		}
 
 		if (!empty($userList) AND is_array($userList)) {
@@ -1228,7 +1247,7 @@ function myalerts_xmlhttp()
 		$toMarkRead = $mybb->input['toMarkRead'];
 
 		if (isset($mybb->input['js_type']) AND $mybb->input['js_type'] == 'prototype') {
-			$toMarkRead = json_decode($toMarkRead);
+			$toMarkRead = json_decode($toMarkRead, true);
 		}
 
 		$Alerts->markRead($toMarkRead);
