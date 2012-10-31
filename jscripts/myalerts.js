@@ -25,6 +25,10 @@ jQuery(document).ready(function($)
 		}
 	}, '.myalerts_popup_hook');
 
+	$('html').on('click', function() {
+        		$('.myalerts_popup:visible').hide();
+    	});
+
 	$('#getUnreadAlerts').on('click', function(event) {
 		event.preventDefault();
 		$.get('xmlhttp.php?action=getNewAlerts', function(data) {
