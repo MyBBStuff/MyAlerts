@@ -91,7 +91,7 @@ class Alerts
 
             $alertTypes  = "'".implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings'])))."'";
 
-            $alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND alert_type IN ({$alertTypes}) ORDER BY a.id DESC LIMIT ".(int) $start.", ".(int) $limit.";");
+            $alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND alert_type IN ({$alertTypes}) ORDER BY a.id DESC LIMIT ".(int) $start.", ".(int) $limit.";");
             if ($this->db->num_rows($alerts) > 0) {
                 $return = array();
                 while ($alert = $this->db->fetch_array($alerts)) {
