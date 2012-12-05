@@ -567,17 +567,22 @@ global $settings;
 function parse_alert($alert)
 {
 	global $mybb, $lang, $plugins;
+	include_once('inc/functions.php');
 
-	if (!$lang->myalerts) {
+	if (!$lang->myalerts)
+	{
 		$lang->load('myalerts');
 	}
 
-	require_once MYBB_ROOT.'inc/class_parser.php';
+	require_once  MYBB_ROOT.'inc/class_parser.php';
 	$parser = new postParser;
 
+
 	$alert['userLink'] = get_profile_link($alert['uid']);
-	$alert['user'] = build_profile_link($alert['username'], $alert['uid']);
-	$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline'])." ".my_date($mybb->settings['timeformat'], $alert['dateline']);
+	$userinfo = get_user($alert['uid']);
+	$alert['user'] = format_name($userinfo['username'], $userinfo['usergroup'], $userinfo['displaygroup']);
+	$alert['user'] = build_profile_link($alert['user'], $alert['uid']);
+	$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline']).", ".my_date($mybb->settings['timeformat'], $alert['dateline']);
 
 	if ($alert['unread'] == 1) {
 		$alert['unreadAlert'] = ' unreadAlert';
