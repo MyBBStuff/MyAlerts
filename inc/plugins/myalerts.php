@@ -567,7 +567,6 @@ global $settings;
 function parse_alert($alert)
 {
 	global $mybb, $lang, $plugins;
-	include_once('inc/functions.php');
 
 	if (!$lang->myalerts)
 	{
@@ -579,8 +578,7 @@ function parse_alert($alert)
 
 
 	$alert['userLink'] = get_profile_link($alert['uid']);
-	$userinfo = get_user($alert['uid']);
-	$alert['user'] = format_name($userinfo['username'], $userinfo['usergroup'], $userinfo['displaygroup']);
+	$alert['user'] = format_name($alert['username'], $alert['usergroup'], $alert['displaygroup']);
 	$alert['user'] = build_profile_link($alert['user'], $alert['uid']);
 	$alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline']).", ".my_date($mybb->settings['timeformat'], $alert['dateline']);
 
