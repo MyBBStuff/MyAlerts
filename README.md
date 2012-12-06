@@ -1,9 +1,7 @@
 MyAlerts: Alerts System for MyBB
 ==========================
 
-**Important:** _MyAlerts is still in **BETA**. It is NOT meant for use on live forums until we exit the beta stage. Currently MyAlerts is available to everyone to test for and report bugs, contribute to the code, and see what the features are and how they're implimented._
-
-Current Version: Beta 1
+Current Version: 1.02
 Dependencies:  Plugin Library
 Creator: Euan T.
 
@@ -26,12 +24,20 @@ The currently supported events are:
 +  When somebody replies to a thread you started
 +  When somebody adds you to their buddy list
 +  When somebody PMs you
++  When somebody alter your reputation (adds or lowers your reputation)
 
 More events are currently in development or planned to be added in the near future. If you have suggestions for events to be added to the core, post them in an issue here on GitHub.
 
 Extensibility:
 ----------------
 MyAlerts is extensible. This means that any external MyBB plugin can create alerts and add them to a user's feed. API documentation will be available as soon as someone gets around to writing it. When there are a few plugins that support MyAlerts, a directory (GitHub wiki page) will be created so users can find compatible plugins.
+
+Here's a list of plugins which have currently a full integration with MyAlerts:
+
++ [MyNetwork's Post Reputation module][1], developed by [Tomm][2]
+
+[1]: http://resources.xekko.co.uk/mynetwork/features/post-reputation.html
+[2]: http://community.mybb.com/user-14621.html
 
 Contributing, questions, and more:
 ----------------------------------------------
