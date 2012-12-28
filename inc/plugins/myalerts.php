@@ -1049,6 +1049,9 @@ function myalerts_page()
 		if (!$lang->myalerts) {
 			$lang->load('myalerts');
 		}
+				
+		add_breadcrumb($lang->nav_usercp, 'usercp.php');
+		add_breadcrumb($lang->myalerts_settings_page_title, 'usercp.php?action=alert_settings');
 
 		$possible_settings = array(
 			'rep',
