@@ -39,7 +39,7 @@ function myalerts_install()
 	global $db, $cache;
 
 	if (!file_exists(PLUGINLIBRARY)) {
-		flash_message("The selected plugin could not be uninstalled because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
+		flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
 		admin_redirect("index.php?module=config-plugins");
 	}
 
