@@ -99,6 +99,27 @@ function myalerts_install()
         'post_threadauthor' =>  1,
         );
     $db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))), '1 = 1');
+
+        // Settings
+    $insertArray = array(
+        0 => array(
+            'code' => 'rep',
+        ),
+        1 => array(
+            'code' => 'pm',
+        ),
+        2 => array(
+            'code' => 'buddylist',
+        ),
+        3 => array(
+            'code' => 'quoted',
+        ),
+        4 => array(
+            'code' => 'post_threadauthor',
+        ),
+    );
+
+    $db->insert_query_multiple('alert_settings', $insertArray);
 }
 
 function myalerts_is_installed()
@@ -868,6 +889,14 @@ function myalerts_page()
 
         add_breadcrumb($lang->nav_usercp, 'usercp.php');
         add_breadcrumb($lang->myalerts_settings_page_title, 'usercp.php?action=alert_settings');
+
+
+        $dbSettings = array();
+        $query = $db->write_query('SELECT * FROM '.TABLE_PREFIX.'alert_settings s INNER JOIN '.TABLE_PREFIX.'alert_setting_values sv ON (s.id = sv.setting_id) WHERE sv.user_id = '.(int) $mybb->user['uid']);
+        while ($setting = $db->fetch_array($query)) {
+            $dbSettings[] = $setting;
+        }
+        unset($query);
 
         $possible_settings = array(
             'rep',
