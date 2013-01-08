@@ -119,7 +119,18 @@ function myalerts_uninstall()
 
     $PL or require_once PLUGINLIBRARY;
 
-    $db->drop_table('alerts');
+    if ($db->table_exists('alerts')) {
+        $db->drop_table('alerts');
+    }
+
+    if ($db->table_exists('alert_settings')) {
+        $db->drop_table('alert_settings');
+    }
+
+    if ($db->table_exists('alert_setting_values')) {
+        $db->drop_table('alert_setting_values');
+    }
+
     $PL->settings_delete('myalerts', true);
     $PL->templates_delete('myalerts');
     $db->drop_column('users', 'myalerts_settings');
