@@ -68,6 +68,7 @@ function myalerts_install()
             alert_type VARCHAR(25) NOT NULL,
             tid INT(10),
             from_id INT(10),
+            forced INT(1) NOT NULL DEFAULT '0',
             content TEXT
             ) ENGINE=MyISAM{$collation};");
     }

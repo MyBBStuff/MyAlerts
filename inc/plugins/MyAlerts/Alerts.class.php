@@ -45,7 +45,7 @@ class Alerts
             if (is_array($this->mybb->user['myalerts_settings'])) {
                 $alertTypes  = "'".implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings'])))."'";
 
-                $num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'alert_type IN ('.$alertTypes.') AND uid = '.(int) $this->mybb->user['uid']);
+                $num = $this->db->simple_select('alerts', 'COUNT(id) AS count', '(alert_type IN ('.$alertTypes.') OR forced = 1) AND uid = '.(int) $this->mybb->user['uid']);
                 $numAlerts = (int) $this->db->fetch_field($num, 'count');
             }
         }
@@ -67,7 +67,7 @@ class Alerts
 
             if (is_array($this->mybb->user['myalerts_settings'])) {
                 $alertTypes  = "'".implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings'])))."'";
-                $num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1 AND alert_type IN ('.$alertTypes.')');
+                $num = $this->db->simple_select('alerts', 'COUNT(id) AS count', 'uid = '.(int) $this->mybb->user['uid'].' AND unread = 1 AND (alert_type IN ('.$alertTypes.') OR forced = 1)');
                 $numUnreadAlerts = (int) $this->db->fetch_field($num, 'count');
             }
         }
@@ -91,7 +91,7 @@ class Alerts
 
             $alertTypes  = "'".implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings'])))."'";
 
-            $alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND alert_type IN ({$alertTypes}) ORDER BY a.id DESC LIMIT ".(int) $start.", ".(int) $limit.";");
+            $alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND (alert_type IN ({$alertTypes}) OR a.forced = 1) ORDER BY a.id DESC LIMIT ".(int) $start.", ".(int) $limit.";");
             if ($this->db->num_rows($alerts) > 0) {
                 $return = array();
                 while ($alert = $this->db->fetch_array($alerts)) {
@@ -118,7 +118,7 @@ class Alerts
     {
         if ((int) $this->mybb->user['uid'] > 0) {   // check the user is a user and not a guest - no point wasting queries on guests afterall
             $alertTypes  = "'".implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings'])))."'";
-            $alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND unread = '1' AND a.alert_type IN({$alertTypes}) ORDER BY a.id DESC;");
+            $alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND unread = '1' AND (a.alert_type IN({$alertTypes}) OR a.forced = 1) ORDER BY a.id DESC;");
 
             if ($this->db->num_rows($alerts) > 0) {
                 $return = array();
@@ -184,7 +184,7 @@ class Alerts
      *  @param Array Alert content
      *  @return boolean
      */
-    public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array())
+    public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array(), $forced = 0)
     {
         $content = json_encode($content);
 
@@ -194,6 +194,7 @@ class Alerts
             'alert_type' => $this->db->escape_string($type),
             'tid'        => (int) $tid,
             'from_id'    => (int) $from,
+            'forced'     => (int) $forced,
             'content'    => $this->db->escape_string($content),
             );
 
@@ -209,17 +210,17 @@ class Alerts
      *  @param Array Alert content
      *  @return boolean
      */
-    public function addMassAlert($uids, $type = '', $tid = 0, $from = 0, $content = array())
+    public function addMassAlert($uids, $type = '', $tid = 0, $from = 0, $content = array(), $forced = 0)
     {
         $sqlString = '';
         $separator = '';
         $content   = json_encode($content);
 
         foreach ($uids as $uid) {
-            $sqlString .= $separator.'('.(int) $uid.','.(int) TIME_NOW.', \''.$this->db->escape_string($type).'\', '.(int) $tid.','.(int) $from.',\''.$this->db->escape_string($content).'\')';
+            $sqlString .= $separator.'('.(int) $uid.','.(int) TIME_NOW.', \''.$this->db->escape_string($type).'\', '.(int) $tid.','.(int) $from.',\''.$this->db->escape_string($content).'\', '.(int) $forced.')';
             $separator = ",\n";
         }
 
-        $this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (`uid`, `dateline`, `alert_type`, `tid`, `from_id`, `content`) VALUES '.$sqlString.';');
+        $this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (`uid`, `dateline`, `alert_type`, `tid`, `from_id`, `content`, `forced`) VALUES '.$sqlString.';');
     }
 }
