@@ -885,23 +885,12 @@ function myalerts_page()
         add_breadcrumb($lang->myalerts_settings_page_title, 'usercp.php?action=alert_settings');
 
 
-        $dbSettings = array();
-        $query = $db->write_query('SELECT * FROM '.TABLE_PREFIX.'alert_settings s INNER JOIN '.TABLE_PREFIX.'alert_setting_values sv ON (s.id = sv.setting_id) WHERE sv.user_id = '.(int) $mybb->user['uid']);
+        $possible_settings = array();
+        $query = $db->write_query('SELECT * FROM '.TABLE_PREFIX.'alert_settings s');
         while ($setting = $db->fetch_array($query)) {
-            $dbSettings[] = $setting;
+            $possible_settings[$setting['code']] = 0;
         }
         unset($query);
-
-        $possible_settings = array(
-            'rep',
-            'pm',
-            'buddylist',
-            'quoted',
-            'post_threadauthor',
-            );
-        $plugins->run_hooks('myalerts_possible_settings', $possible_settings);
-        $possible_settings = array_flip($possible_settings);
-        $possible_settings = array_fill_keys(array_keys($possible_settings), 0);
 
         if ($mybb->request_method == 'post') {
             verify_post_check($mybb->input['my_post_key']);
@@ -911,11 +900,26 @@ function myalerts_page()
             //  Seeing as unchecked checkboxes just aren't sent, we need an array of all the possible settings, defaulted to 0 (or off) to merge
             $settings = array_merge($possible_settings, $settings);
 
-            $settings = json_encode($settings);
-
-            if ($db->update_query('users', array('myalerts_settings' => $db->escape_string($settings)), 'uid = '.(int) $mybb->user['uid'])) {
-                redirect('usercp.php?action=alert_settings', $lang->myalerts_settings_updated, $lang->myalerts_settings_updated_title);
+            $insertSettings = array();
+            if (!empty($settings) AND is_array($settings)) {
+                $db->delete_query('alert_setting_values', 'user_id = '. (int) $mybb->user['uid']);
+                foreach ($settings as $key => $val) {
+                    if (strtolower($val) == 'on') {
+                        $val = 1;
+                    }
+                    $id = $db->simple_select('alert_settings', 'id', "code = '". $db->escape_string($key) ."'", array('limit' => 1));
+                    if ($db->num_rows($id) == 1) {
+                        $insertSettings[] = array(
+                            'user_id'    => (int) $mybb->user['uid'],
+                            'setting_id' => (int) $db->fetch_field($id, 'id'),
+                            'value'      => (int) $val,
+                        );
+                    }
+                }
             }
+
+            $db->insert_query_multiple('alert_setting_values', $insertSettings);
+            redirect('usercp.php?action=alert_settings', $lang->myalerts_settings_updated, $lang->myalerts_settings_updated_title);
         } else {
             $settings = array_merge($possible_settings, (array) $mybb->user['myalerts_settings']);
             $settings = array_intersect_key($settings, $possible_settings);
