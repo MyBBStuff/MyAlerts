@@ -516,7 +516,7 @@ function myalerts_global()
         $templatelist .= ',';
     }
 
-    $templatelist .= 'myalerts_headericon,myalerts_popup_row';
+    $templatelist .= 'myalerts_headericon,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_popup_row_no_alerts';
 
     if (THIS_SCRIPT == 'usercp.php') {
         $templatelist .= ',myalerts_usercp_nav';
@@ -547,7 +547,7 @@ function myalerts_global()
         $queryString = "SELECT * FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (s.id = v.setting_id) WHERE v.user_id = ".(int) $mybb->user['uid'];
         $query = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX));
         while ($row = $db->fetch_array($query)) {
-            $mybb->user['myalerts_settings'][$row['key']] = (int) $row['value'];
+            $mybb->user['myalerts_settings'][$row['code']] = (int) $row['value'];
         }
 
         $mybb->user['unreadAlerts'] = 0;
