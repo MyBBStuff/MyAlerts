@@ -545,7 +545,7 @@ function myalerts_global()
 
         $userSettings = array();
         $queryString = "SELECT * FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (s.id = v.setting_id) WHERE v.user_id = ".(int) $mybb->user['uid'];
-        $query = $db->write_query($queryString);
+        $query = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX));
         while ($row = $db->fetch_array($query)) {
             $mybb->user['myalerts_settings'][$row['key']] = (int) $row['value'];
         }
