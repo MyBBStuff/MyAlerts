@@ -612,10 +612,12 @@ function myalerts_addAlert_rep()
 {
     global $mybb, $db, $Alerts, $reputation;
 
-    $userSettings = $db->fetch_field($db->simple_select('users', 'myalerts_settings', 'uid = '.(int) $reputation['uid'], 1), 'myalerts_settings');
-    $userSettings = json_decode($userSettings, true);
+    $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE u.uid = ". (int) $reputation['uid'] ." AND s.code = 'rep' LIMIT 1";
+    $query = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
 
-    if ($userSettings['rep']) {
+    $userSetting = $db->fetch_array($query);
+
+    if ((int) $userSetting['value'] == 1) {
         $Alerts->addAlert($reputation['uid'], 'rep', 0, $mybb->user['uid'], array());
     }
 }
@@ -627,41 +629,40 @@ function myalerts_addAlert_pm()
 {
     global $mybb, $Alerts, $db, $pm, $pmhandler;
 
-    if (is_array($pm['bcc'])) {
-        $toUsers = array_merge($pm['to'], $pm['bcc']);
-    } else {
-        $toUsers = $pm['to'];
-    }
-
-    $pmUsers = array_map("trim", $toUsers);
-    $pmUsers = array_unique($pmUsers);
-
-    $users = array();
-    $userArray = array();
-
-    foreach ($pmUsers as $user) {
-        $users[] = $db->escape_string($user);
-    }
-
-    if (count($users) > 0) {
-        $query = $db->simple_select('users', 'uid, myalerts_settings', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
-    }
-
-    $users = array();
-    $userSettings = array();
-    while ($user = $db->fetch_array($query)) {
-        $userSettings[$user['uid']] = json_decode($user['myalerts_settings'], true);
-        if ($userSettings[$user['uid']]['pm']) {
-            $users[] = $user['uid'];
+    if ($pm['saveasdraft'] != 1) {
+        if (is_array($pm['bcc'])) {
+            $toUsers = array_merge($pm['to'], $pm['bcc']);
+        } else {
+            $toUsers = $pm['to'];
         }
-    }
 
-    if (!empty($users)) {
-        $Alerts->addMassAlert($users, 'pm', 0, $mybb->user['uid'], array(
-            'pm_title'  =>  $pm['subject'],
-            'pm_id'     =>  $pmhandler->pmid,
-            )
-        );
+        $pmUsers = array_map("trim", $toUsers);
+        $pmUsers = array_unique($pmUsers);
+
+        $users = array();
+        $userArray = array();
+
+        foreach ($pmUsers as $user) {
+            $users[] = $db->escape_string($user);
+        }
+
+        $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE LOWER(u.username) IN ('".my_strtolower(implode("','", $users))."') AND s.code = 'pm'";
+        $query = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
+
+        $users = array();
+        while ($user = $db->fetch_array($query)) {
+            if ((int) $user['value'] == 1) {
+                $users[] = (int) $user['uid'];
+            }
+        }
+
+        if (!empty($users)) {
+            $Alerts->addMassAlert($users, 'pm', 0, $mybb->user['uid'], array(
+                'pm_title'  =>  $pm['subject'],
+                'pm_id'     =>  $pmhandler->pmid,
+                )
+            );
+        }
     }
 }
 
@@ -687,12 +688,15 @@ function myalerts_alert_buddylist()
         }
 
         if (count($users) > 0) {
-            $query = $db->simple_select('users', 'uid', "LOWER(username) IN ('".my_strtolower(implode("','", $users))."')");
+            $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE LOWER(u.username) IN ('".my_strtolower(implode("','", $users))."') AND s.code = 'buddylist'";
+            $query = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
 
             $user = array();
 
             while ($user = $db->fetch_array($query)) {
-                $userArray[] = $user['uid'];
+                if ((int) $user['value'] == 1) {
+                    $userArray[] = $user['uid'];
+                }
             }
 
             $Alerts->addMassAlert($userArray, 'buddylist', 0, $mybb->user['uid'], array());
@@ -732,13 +736,12 @@ function myalerts_alert_quoted()
             $queryArray[] = $db->escape_string($value);
         }
 
-        $uids = $db->write_query('SELECT uid, myalerts_settings FROM `'.TABLE_PREFIX.'users` WHERE LOWER(username) IN (\''.my_strtolower(implode("','", $queryArray)).'\') AND uid != '.$mybb->user['uid']);
+        $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE LOWER(u.username) IN ('".my_strtolower(implode("','", $queryArray))."') AND u.uid != ". (int) $mybb->user['uid'] ." AND s.code = 'quoted'";
+        $uids = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
 
         $userList = array();
-        $userSettings = array();
         while ($uid = $db->fetch_array($uids)) {
-            $userSettings[$uid['uid']] = json_decode($uid['myalerts_settings'], true);
-            if ($userSettings[$uid['uid']]['quoted']) {
+            if ((int) $uid['value'] == 1) {
                 $userList[] = (int) $uid['uid'];
             }
         }
@@ -770,14 +773,20 @@ function myalerts_alert_post_threadauthor(&$post)
         }
 
         if ($thread['uid'] != $mybb->user['uid']) {
-            //check if alerted for this thread already
-            $query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1 AND alert_type = \'post_threadauthor\'');
+            // Check if recipient wants this type of alert
+            $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE u.uid = ". (int) $thread['uid'] ." AND s.code = 'post_threadauthor' LIMIT 1";
+            $wantsAlert = $db->fetch_array($db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX)));
 
-            if ($db->num_rows($query) < 1) {
-                $Alerts->addAlert($thread['uid'], 'post_threadauthor', (int) $post->post_insert_data['tid'], $mybb->user['uid'], array(
-                    'tid'       =>  $post->post_insert_data['tid'],
-                    't_subject' =>  $thread['subject'],
-                    ));
+            if ((int) $wantsAlert['value'] == 1) {
+                //check if alerted for this thread already
+                $query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1 AND alert_type = \'post_threadauthor\'');
+
+                if ($db->num_rows($query) < 1) {
+                    $Alerts->addAlert($thread['uid'], 'post_threadauthor', (int) $post->post_insert_data['tid'], $mybb->user['uid'], array(
+                        'tid'       =>  $post->post_insert_data['tid'],
+                        't_subject' =>  $thread['subject'],
+                        ));
+                }
             }
         }
     }

@@ -1,10 +1,10 @@
 <?php
 /**
- *	Main Alerts Class
+ *  Main Alerts Class
  *
- *	@package MyAlerts
- *	@version 1.00
- *	@author Euan T. <euan@euantor.com>
+ *  @package MyAlerts
+ *  @version 1.00
+ *  @author Euan T. <euan@euantor.com>
  */
 
 class Alerts
@@ -14,10 +14,10 @@ class Alerts
     private $db = null;
 
     /**
-     *	Constructor
+     *  Constructor
      *
-     *	@param Object MyBB Object
-     *	@param Object MyBB Database Object
+     *  @param Object MyBB Object
+     *  @param Object MyBB Database Object
      */
     public function __construct($mybbIn, $dbIn)
     {
@@ -30,9 +30,9 @@ class Alerts
     }
 
     /**
-     *	Get the number of alerts a user has
+     *  Get the number of alerts a user has
      *
-     *	@return int The total number of alerts the user has
+     *  @return int The total number of alerts the user has
      */
     public function getNumAlerts()
     {
@@ -54,9 +54,9 @@ class Alerts
     }
 
     /**
-     *	Get the number of unread alerts a user has
+     *  Get the number of unread alerts a user has
      *
-     *	@return int The number of unread alerts
+     *  @return int The number of unread alerts
      */
     public function getNumUnreadAlerts()
     {
@@ -76,15 +76,15 @@ class Alerts
     }
 
     /**
-     *	Fetch all alerts for the currently logged in user
+     *  Fetch all alerts for the currently logged in user
      *
-     *	@param Integer The start point (used for multipaging alerts)
-     *	@return Array
-     *	@return boolean If the user has no new alerts
+     *  @param Integer The start point (used for multipaging alerts)
+     *  @return Array
+     *  @return boolean If the user has no new alerts
      */
     public function getAlerts($start = 0, $limit = 0)
     {
-        if ((int) $this->mybb->user['uid'] > 0) {	// check the user is a user and not a guest - no point wasting queries on guests afterall
+        if ((int) $this->mybb->user['uid'] > 0) {   // check the user is a user and not a guest - no point wasting queries on guests afterall
             if ($limit == 0) {
                 $limit = $this->mybb->settings['myalerts_perpage'];
             }
@@ -109,14 +109,14 @@ class Alerts
     }
 
     /**
-     *	Fetch all unread alerts for the currently logged in user
+     *  Fetch all unread alerts for the currently logged in user
      *
-     *	@return Array When the user has unread alerts
-     *	@return boolean If the user has no new alerts
+     *  @return Array When the user has unread alerts
+     *  @return boolean If the user has no new alerts
      */
     public function getUnreadAlerts()
     {
-        if ((int) $this->mybb->user['uid'] > 0) {	// check the user is a user and not a guest - no point wasting queries on guests afterall
+        if ((int) $this->mybb->user['uid'] > 0) {   // check the user is a user and not a guest - no point wasting queries on guests afterall
             $alertTypes  = "'".implode("','", array_keys(array_filter((array) $this->mybb->user['myalerts_settings'])))."'";
             $alerts = $this->db->write_query("SELECT a.*, u.uid, u.username, u.avatar FROM ".TABLE_PREFIX."alerts a INNER JOIN ".TABLE_PREFIX."users u ON (a.from_id = u.uid) WHERE a.uid = ".(int) $this->mybb->user['uid']." AND unread = '1' AND a.alert_type IN({$alertTypes}) ORDER BY a.id DESC;");
 
@@ -137,9 +137,9 @@ class Alerts
     }
 
     /**
-     *	Mark alerts as read
+     *  Mark alerts as read
      *
-     *	@param String/Array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
+     *  @param String/Array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
      */
     public function markRead($alerts = '')
     {
@@ -154,9 +154,9 @@ class Alerts
     }
 
     /**
-     *	Delete alerts
+     *  Delete alerts
      *
-     *	@param String/Array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
+     *  @param String/Array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form
      */
     public function deleteAlerts($alerts = '')
     {
@@ -176,44 +176,44 @@ class Alerts
     }
 
     /**
-     *	Add an alert
+     *  Add an alert
      *
-     *	@param int UID to add Alert for
-     *	@param string The type of alert
-     *	@param int The TID - default to 0
-     *	@param Array Alert content
-     *	@return boolean
+     *  @param int UID to add Alert for
+     *  @param string The type of alert
+     *  @param int The TID - default to 0
+     *  @param Array Alert content
+     *  @return boolean
      */
     public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array())
     {
         $content = json_encode($content);
 
         $insertArray = array(
-            'uid'		=>	(int) $uid,
-            'dateline'	=>	TIME_NOW,
-            'alert_type'		=>	$this->db->escape_string($type),
-            'tid'		=>	(int) $tid,
-            'from_id'	=>	(int) $from,
-            'content'	=>	$this->db->escape_string($content),
+            'uid'        => (int) $uid,
+            'dateline'   => TIME_NOW,
+            'alert_type' => $this->db->escape_string($type),
+            'tid'        => (int) $tid,
+            'from_id'    => (int) $from,
+            'content'    => $this->db->escape_string($content),
             );
 
         $this->db->insert_query('alerts', $insertArray);
     }
 
     /**
-     *	Add an alert for multiple users
+     *  Add an alert for multiple users
      *
-     *	@param array UIDs to add alert for
-     *	@param string The type of alert
-     *	@param int The TID - default to 0
-     *	@param Array Alert content
-     *	@return boolean
+     *  @param array UIDs to add alert for
+     *  @param string The type of alert
+     *  @param int The TID - default to 0
+     *  @param Array Alert content
+     *  @return boolean
      */
     public function addMassAlert($uids, $type = '', $tid = 0, $from = 0, $content = array())
     {
         $sqlString = '';
         $separator = '';
-        $content = json_encode($content);
+        $content   = json_encode($content);
 
         foreach ($uids as $uid) {
             $sqlString .= $separator.'('.(int) $uid.','.(int) TIME_NOW.', \''.$this->db->escape_string($type).'\', '.(int) $tid.','.(int) $from.',\''.$this->db->escape_string($content).'\')';
