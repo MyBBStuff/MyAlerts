@@ -9,7 +9,7 @@
 
 class Alerts
 {
-    const VERSION = '1.02';
+    const VERSION = '1.04';
     private $mybb = null;
     private $db = null;
 
