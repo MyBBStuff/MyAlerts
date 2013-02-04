@@ -1,15 +1,13 @@
 MyAlerts: Alerts System for MyBB
 ==========================
 
-**Important:** _MyAlerts is still in **BETA**. It is NOT meant for use on live forums until we exit the beta stage. Currently MyAlerts is available to everyone to test for and report bugs, contribute to the code, and see what the features are and how they're implimented._
-
-Current Version: Beta 1
-Dependencies:  Plugin Library
-Creator: Euan T.
+Current Version: 1.04
+Dependencies: [Plugin Library](http://mods.mybb.com/view/pluginlibrary)
+Creator: [Euan T.](http://www.euantor.com)
 
 General:
 -----------
-MyAlerts is a plugin for MyBB created and maintained by Euan T. It is a system that provides visual alerts for events in a forum on a user-by-user basis.
+MyAlerts is a plugin for MyBB created and maintained by [Euan T.](http://www.euantor.com). It is a system that provides visual alerts for events in a forum on a user-by-user basis.
 
 jQuery or Prototype:
 -----------
@@ -31,7 +29,7 @@ More events are currently in development or planned to be added in the near futu
 
 Extensibility:
 ----------------
-MyAlerts is extensible. This means that any external MyBB plugin can create alerts and add them to a user's feed. API documentation will be available as soon as someone gets around to writing it. When there are a few plugins that support MyAlerts, a directory (GitHub wiki page) will be created so users can find compatible plugins.
+MyAlerts is extensible. This means that any external MyBB plugin can create alerts and add them to a user's feed. Compatible plugins can be found on the wiki, [here](https://github.com/euantor/MyAlerts/wiki/Compatible-Plugins)
 
 Contributing, questions, and more:
 ----------------------------------------------
