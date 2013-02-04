@@ -90,17 +90,7 @@ function myalerts_install()
             ) ENGINE=MyISAM{$collation};");
     }
 
-    $db->add_column('users', 'myalerts_settings', 'TEXT NULL');
-    $myalertsSettings = array(
-        'rep'               =>  1,
-        'pm'                =>  1,
-        'buddylist'         =>  1,
-        'quoted'            =>  1,
-        'post_threadauthor' =>  1,
-        );
-    $db->update_query('users', array('myalerts_settings' => $db->escape_string(json_encode($myalertsSettings))), '1 = 1');
-
-        // Settings
+    // Settings
     $insertArray = array(
         0 => array(
             'code' => 'rep',
@@ -154,7 +144,6 @@ function myalerts_uninstall()
 
     $PL->settings_delete('myalerts', true);
     $PL->templates_delete('myalerts');
-    $db->drop_column('users', 'myalerts_settings');
     $PL->stylesheet_delete('alerts.css');
 
     if (!$lang->myalerts) {
@@ -458,19 +447,17 @@ function myalerts_register_do_end()
 {
     global $user_info, $db, $plugins;
 
-    $possible_settings = array(
-        'rep',
-        'pm',
-        'buddylist',
-        'quoted',
-        'post_threadauthor',
+    $query = $db->simple_select('alert_settings', '*');
+    $userSettings = array();
+    while ($setting = $db->fetch_array($query)) {
+        $userSettings[] = array(
+            'user_id'    => (int) $user_info['uid'],
+            'setting_id' => (int) $setting['id'],
+            'value'      => 1,
         );
-    $plugins->run_hooks('myalerts_possible_settings', $possible_settings);
-    $possible_settings = array_flip($possible_settings);
-    $possible_settings = array_fill_keys(array_keys($possible_settings), 1);
-    $possible_settings = json_encode($possible_settings);
+    }
+    $db->inset_query_multiple('alert_setting_values', $userSettings);
 
-    $db->update_query('users', array('myalerts_settings' => $db->escape_string($possible_settings)), 'uid = '.(int) $user_info['uid']);
 }
 
 if ($settings['myalerts_enabled']) {
@@ -556,13 +543,11 @@ function myalerts_global()
             $lang->load('myalerts');
         }
 
-        $mybb->user['myalerts_settings'] = json_decode($mybb->user['myalerts_settings'], true);
-
-        // Sanitize the alerts settings here to make life easy in the future
-        if (is_array($mybb->user['myalerts_settings'])) {
-            foreach ($mybb->user['myalerts_settings'] as $key => $value) {
-                $mybb->user['myalerts_settings'][$key] = $db->escape_string($value);
-            }
+        $userSettings = array();
+        $queryString = "SELECT * FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (s.id = v.setting_id) WHERE v.user_id = ".(int) $mybb->user['uid'];
+        $query = $db->write_query($queryString);
+        while ($row = $db->fetch_array($query)) {
+            $mybb->user['myalerts_settings'][$row['key']] = (int) $row['value'];
         }
 
         $mybb->user['unreadAlerts'] = 0;
