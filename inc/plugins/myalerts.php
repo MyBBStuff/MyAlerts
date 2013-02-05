@@ -932,7 +932,15 @@ function myalerts_page()
                     //  variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
                     $tempkey = 'myalerts_setting_'.$key;
 
-                    $langline = $lang->$tempkey;
+                    // if this isn't a core alert type and the language isn't already loaded . . .
+					if(!$lang->$key && !in_array($key, array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor')))
+					{
+						// load the plugin's language
+						@$lang->load($key);
+					}
+
+					// use out tempkey to store the correct language line
+					$langline = $lang->$tempkey;
 
                     $checked = '';
                     if ($value) {
