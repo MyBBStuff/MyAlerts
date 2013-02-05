@@ -189,7 +189,7 @@ function myalerts_activate()
     $euantor_plugins = $cache->read('euantor_plugins');
     $euantor_plugins['myalerts'] = array(
         'title'     =>  'MyAlerts',
-        'version'   =>  (int) $plugin_info['version'],
+        'version'   =>  $plugin_info['version'],
         );
     $cache->update('euantor_plugins', $euantor_plugins);
 
