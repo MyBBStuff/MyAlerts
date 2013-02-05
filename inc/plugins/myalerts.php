@@ -932,6 +932,11 @@ function myalerts_page()
                     //  variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
                     $tempkey = 'myalerts_setting_'.$key;
 
+                    $baseSettings = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor');
+                    if (!isset($lang->$tempKey) AND !in_array($key, $baseSettings)) {
+                        @$lang->load($tempKey);
+                    }
+
                     $langline = $lang->$tempkey;
 
                     $checked = '';
