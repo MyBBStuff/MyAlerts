@@ -245,7 +245,7 @@ function myalerts_activate()
                 'description'   =>  $lang->setting_myalerts_alert_post_threadauthor_desc,
                 'value'         =>  '1',
                 ),
-            'alerts_default_avatar' => array(
+            'default_avatar' => array(
                 'title'         => $lang->setting_myalerts_default_avatar,
                 'description'   => $lang->setting_myalerts_default_avatar_desc,
                 'optionscode'   => 'text',
@@ -409,7 +409,9 @@ function parse_alert($alert)
     require_once  MYBB_ROOT.'inc/class_parser.php';
     $parser = new postParser;
 
-
+    if (empty($alert['avatar'])) {
+        $alert['avatar'] = htmlspecialchars_uni($mybb->settings['myalerts_default_avatar']);
+    }
     $alert['userLink'] = get_profile_link($alert['uid']);
     $alert['user'] = format_name($alert['username'], $alert['usergroup'], $alert['displaygroup']);
     $alert['user'] = build_profile_link($alert['user'], $alert['uid']);
