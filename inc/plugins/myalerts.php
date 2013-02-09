@@ -457,7 +457,7 @@ function myalerts_register_do_end()
             'value'      => 1,
         );
     }
-    $db->inset_query_multiple('alert_setting_values', $userSettings);
+    $db->insert_query_multiple('alert_setting_values', $userSettings);
 
 }
 
