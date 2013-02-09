@@ -245,7 +245,13 @@ function myalerts_activate()
                 'description'   =>  $lang->setting_myalerts_alert_post_threadauthor_desc,
                 'value'         =>  '1',
                 ),
-            )
+            'alerts_default_avatar' => array(
+                'title'         => $lang->setting_myalerts_default_avatar,
+                'description'   => $lang->setting_myalerts_default_avatar_desc,
+                'optionscode'   => 'text',
+                'value'         => './images/alerts/default-avatar.png',
+                ),
+        )
     );
 
     // Templating, like a BAWS - http://www.euantor.com/185-templates-in-mybb-plugins
@@ -457,7 +463,7 @@ function myalerts_register_do_end()
             'value'      => 1,
         );
     }
-    $db->inset_query_multiple('alert_setting_values', $userSettings);
+    $db->insert_query_multiple('alert_setting_values', $userSettings);
 
 }
 

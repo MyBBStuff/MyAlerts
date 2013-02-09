@@ -23,6 +23,9 @@ $l['setting_myalerts_alert_quoted'] = "Alert when quoted in a post?";
 $l['setting_myalerts_alert_quoted_desc'] = "Do you wish for users to receive an alert when they are quoted in a post?";
 $l['setting_myalerts_alert_post_threadauthor'] = "Alert thread authors on reply?";
 $l['setting_myalerts_alert_post_threadauthor_desc'] = "Do you wish for thread authors to receive an alert when somebody responds to their thread?";
+$l['setting_myalerts_default_avatar'] = "Default Avatar URL";
+$l['setting_myalerts_default_avatar_desc'] = "Specify a URL to an image to use as the default avatar in MyAlerts for users without an avatar set.";
+
 
 $l['myalerts_helpsection_name'] = 'User Alerts';
 $l['myalerts_helpsection_desc'] = 'Basic information relating to the user alerts system in place on this site.';
