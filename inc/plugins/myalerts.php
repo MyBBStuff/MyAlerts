@@ -708,7 +708,9 @@ function myalerts_alert_buddylist()
                 }
             }
 
-            $Alerts->addMassAlert($userArray, 'buddylist', 0, $mybb->user['uid'], array());
+            if (!empty($userArray) AND is_array($userArray)) {
+                $Alerts->addMassAlert($userArray, 'buddylist', 0, $mybb->user['uid'], array());
+            }
         }
     }
 }
