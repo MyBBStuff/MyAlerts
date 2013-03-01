@@ -759,6 +759,7 @@ function myalerts_alert_quoted()
                 'tid'       =>  $post['tid'],
                 'pid'       =>  $pid,
                 'subject'   =>  $post['subject'],
+                'fid'       =>  (int) $post['fid'],
                 ));
         }
     }
@@ -773,10 +774,10 @@ function myalerts_alert_post_threadauthor(&$post)
 
     if (!$post->data['savedraft']) {
         if ($post->post_insert_data['tid'] == 0) {
-            $query = $db->simple_select('threads', 'uid,subject', 'tid = '.$post->data['tid'], array('limit' => '1'));
+            $query = $db->simple_select('threads', 'uid,subject,fid', 'tid = '.$post->data['tid'], array('limit' => '1'));
             $thread = $db->fetch_array($query);
         } else {
-            $query = $db->simple_select('threads', 'uid,subject', 'tid = '.$post->post_insert_data['tid'], array('limit' => '1'));
+            $query = $db->simple_select('threads', 'uid,subject,fid', 'tid = '.$post->post_insert_data['tid'], array('limit' => '1'));
             $thread = $db->fetch_array($query);
         }
 
@@ -793,6 +794,7 @@ function myalerts_alert_post_threadauthor(&$post)
                     $Alerts->addAlert($thread['uid'], 'post_threadauthor', (int) $post->post_insert_data['tid'], $mybb->user['uid'], array(
                         'tid'       =>  $post->post_insert_data['tid'],
                         't_subject' =>  $thread['subject'],
+                        'fid'       => (int) $thread['fid'],
                         ));
                 }
             }
