@@ -354,7 +354,7 @@ if (typeof jQuery == \'undefined\') {
 
         $task_id = $db->insert_query('tasks', $myTask);
         $theTask = $db->fetch_array($db->simple_select('tasks', '*', 'tid = '.(int) $task_id, 1));
-        $nextrun = fetch_next_run($theTask);
+        $nextrun = fetch_next_run($myTask);
         $db->update_query('tasks', 'nextrun = '.$nextrun, 'tid = '.(int) $task_id);
         $plugins->run_hooks('admin_tools_tasks_add_commit');
         $cache->update_tasks();
