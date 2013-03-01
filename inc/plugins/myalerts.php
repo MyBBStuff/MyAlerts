@@ -38,18 +38,6 @@ function myalerts_install()
 {
     global $db, $cache;
 
-    if (!file_exists(PLUGINLIBRARY)) {
-        flash_message("The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
-        admin_redirect("index.php?module=config-plugins");
-    }
-
-    $PL or require_once PLUGINLIBRARY;
-
-    if ($PL->version < 9) {
-        flash_message('This plugin requires PluginLibrary 9 or newer', 'error');
-        admin_redirect('index.php?module=config-plugins');
-    }
-
     $plugin_info = myalerts_info();
     $euantor_plugins = $cache->read('euantor_plugins');
     $euantor_plugins['myalerts'] = array(
@@ -125,8 +113,8 @@ function myalerts_uninstall()
     global $db, $lang, $PL;
 
     if (!file_exists(PLUGINLIBRARY)) {
-        flash_message("The selected plugin could not be uninstalled because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.", "error");
-        admin_redirect("index.php?module=config-plugins");
+        flash_message($lang->myalerts_pluginlibrary_missing, 'error');
+        admin_redirect('index.php?module=config-plugins');
     }
 
     $PL or require_once PLUGINLIBRARY;
@@ -166,8 +154,8 @@ function myalerts_activate()
     }
 
     if (!file_exists(PLUGINLIBRARY)) {
-        flash_message($lang->myalerts_pluginlibrary_missing, "error");
-        admin_redirect("index.php?module=config-plugins");
+        flash_message($lang->myalerts_pluginlibrary_missing, 'error');
+        admin_redirect('index.php?module=config-plugins');
     }
 
     $PL or require_once PLUGINLIBRARY;
@@ -376,6 +364,11 @@ if (typeof jQuery == \'undefined\') {
 function myalerts_deactivate()
 {
     global $Pl, $db;
+
+    if (!file_exists(PLUGINLIBRARY)) {
+        flash_message($lang->myalerts_pluginlibrary_missing, 'error');
+        admin_redirect('index.php?module=config-plugins');
+    }
 
     $PL or require_once PLUGINLIBRARY;
 
@@ -943,6 +936,9 @@ function myalerts_page()
                     $tempkey = 'myalerts_setting_'.$key;
 
                     $baseSettings = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor');
+
+                    $plugins->run_hooks('myalerts_load_lang');
+
                     if (!isset($lang->$tempKey) AND !in_array($key, $baseSettings)) {
                         @$lang->load($tempKey);
                     }
