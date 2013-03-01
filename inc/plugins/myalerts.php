@@ -717,7 +717,9 @@ if ($settings['myalerts_enabled'] AND $settings['myalerts_alert_quoted']) {
 }
 function myalerts_alert_quoted()
 {
-    global $mybb, $Alerts, $db, $pid, $post;
+    global $mybb, $Alerts, $db, $pid, $post, $cache;
+
+    $forumPerms = $cache->read('forumpermissions');
 
     $message = $post['message'];
 
@@ -744,13 +746,15 @@ function myalerts_alert_quoted()
             $queryArray[] = $db->escape_string($value);
         }
 
-        $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE LOWER(u.username) IN ('".my_strtolower(implode("','", $queryArray))."') AND u.uid != ". (int) $mybb->user['uid'] ." AND s.code = 'quoted'";
+        $queryString = "SELECT s.*, v.*, u.uid, u.usergroup FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE LOWER(u.username) IN ('".my_strtolower(implode("','", $queryArray))."') AND u.uid != ". (int) $mybb->user['uid'] ." AND s.code = 'quoted'";
         $uids = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
 
         $userList = array();
         while ($uid = $db->fetch_array($uids)) {
             if ((int) $uid['value'] == 1) {
-                $userList[] = (int) $uid['uid'];
+                if (isset($forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads']) AND (int) $forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads'] == 1) {
+                    $userList[] = (int) $uid['uid'];
+                }
             }
         }
 
@@ -770,9 +774,11 @@ if ($settings['myalerts_enabled'] AND $settings['myalerts_alert_post_threadautho
 }
 function myalerts_alert_post_threadauthor(&$post)
 {
-    global $mybb, $Alerts, $db;
+    global $mybb, $Alerts, $db, $cache;
 
     if (!$post->data['savedraft']) {
+        $forumPerms = $cache->read('forumpermissions');
+
         if ($post->post_insert_data['tid'] == 0) {
             $query = $db->simple_select('threads', 'uid,subject,fid', 'tid = '.$post->data['tid'], array('limit' => '1'));
             $thread = $db->fetch_array($query);
@@ -783,19 +789,22 @@ function myalerts_alert_post_threadauthor(&$post)
 
         if ($thread['uid'] != $mybb->user['uid']) {
             // Check if recipient wants this type of alert
-            $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE u.uid = ". (int) $thread['uid'] ." AND s.code = 'post_threadauthor' LIMIT 1";
+            $queryString = "SELECT s.*, v.*, u.uid, u.usergroup FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE u.uid = ". (int) $thread['uid'] ." AND s.code = 'post_threadauthor' LIMIT 1";
             $wantsAlert = $db->fetch_array($db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX)));
 
             if ((int) $wantsAlert['value'] == 1) {
-                //check if alerted for this thread already
-                $query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1 AND alert_type = \'post_threadauthor\'');
+                // Check forum permissions
+                if (isset($forumPerms[$thread['fid']][$wantsAlert['usergroup']]['canviewthreads']) AND (int) $forumPerms[$thread['fid']][$wantsAlert['usergroup']]['canviewthreads'] == 1) {
+                    //check if alerted for this thread already
+                    $query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1 AND alert_type = \'post_threadauthor\'');
 
-                if ($db->num_rows($query) < 1) {
-                    $Alerts->addAlert($thread['uid'], 'post_threadauthor', (int) $post->post_insert_data['tid'], $mybb->user['uid'], array(
-                        'tid'       =>  $post->post_insert_data['tid'],
-                        't_subject' =>  $thread['subject'],
-                        'fid'       => (int) $thread['fid'],
-                        ));
+                    if ($db->num_rows($query) < 1) {
+                        $Alerts->addAlert($thread['uid'], 'post_threadauthor', (int) $post->post_insert_data['tid'], $mybb->user['uid'], array(
+                            'tid'       =>  $post->post_insert_data['tid'],
+                            't_subject' =>  $thread['subject'],
+                            'fid'       => (int) $thread['fid'],
+                            ));
+                    }
                 }
             }
         }
