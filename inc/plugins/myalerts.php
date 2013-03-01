@@ -175,6 +175,10 @@ function myalerts_activate()
     }
 
     $euantor_plugins = $cache->read('euantor_plugins');
+    if ($euantor_plugins['myalerts']['version'] != $plugin_info['version']) {
+        require MYALERTS_PLUGIN_PATH.'upgrader.php';
+        myalerts_upgrader_run($plugin_info['version'], $euantor_plugins['myalerts']['version']);
+    }
     $euantor_plugins['myalerts'] = array(
         'title'     =>  'MyAlerts',
         'version'   =>  $plugin_info['version'],
