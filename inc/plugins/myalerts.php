@@ -794,7 +794,7 @@ function myalerts_alert_post_threadauthor(&$post)
 
             if ((int) $wantsAlert['value'] == 1) {
                 // Check forum permissions
-                if (!isset($forumPerms[$thread['fid']][$wantsAlert['usergroup']]['canviewthreads']) OR (int) $forumPerms[$thread['fid']][$wantsAlert['usergroup']]['canviewthreads'] != 0)
+                if (!isset($forumPerms[$thread['fid']][$wantsAlert['usergroup']]['canviewthreads']) OR (int) $forumPerms[$thread['fid']][$wantsAlert['usergroup']]['canviewthreads'] != 0) {
                     //check if alerted for this thread already
                     $query = $db->simple_select('alerts', 'id', 'tid = '.(int) $post->post_insert_data['tid'].' AND unread = 1 AND alert_type = \'post_threadauthor\'');
 
