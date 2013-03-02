@@ -463,7 +463,16 @@ function myalerts_register_do_end()
         );
     }
     $db->insert_query_multiple('alert_setting_values', $userSettings);
+}
 
+if ($settings['myalerts_enabled']) {
+    $plugins->add_hook('admin_user_users_delete_commit', 'myalerts_user_delete');
+}
+function myalerts_user_delete()
+{
+    global $db, $user;
+    $user['uid'] = (int) $user['uid'];
+    $db->delete_query('alert_setting_values', "user_id='{$user['uid']}'");
 }
 
 if ($settings['myalerts_enabled']) {
@@ -1129,13 +1138,3 @@ function myalerts_xmlhttp()
         $Alerts->markRead($toMarkRead);
     }
 }
-
-$plugins->add_hook('admin_user_users_delete_commit', 'myalerts_user_delete');
-
-function myalerts_user_delete()
-{
-    global $db, $user;
-	$db->delete_query("alert_setting_values", "user_id='{$user['uid']}'");
-}
-
-?>
