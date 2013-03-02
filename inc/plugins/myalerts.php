@@ -1129,3 +1129,13 @@ function myalerts_xmlhttp()
         $Alerts->markRead($toMarkRead);
     }
 }
+
+$plugins->add_hook('admin_user_users_delete_commit', 'myalerts_user_delete');
+
+function myalerts_user_delete()
+{
+    global $db, $user;
+	$db->delete_query("alert_setting_values", "user_id='{$user['uid']}'");
+}
+
+?>
