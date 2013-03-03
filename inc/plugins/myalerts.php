@@ -337,19 +337,19 @@ if (typeof jQuery == \'undefined\') {
         require_once MYBB_ROOT.'/inc/functions_task.php';
 
         $myTask = array(
-            'title'               => $lang->myalerts_task_title,
-            'file'                => 'myalerts',
-            'description'   => $lang->myalerts_task_description,
-            'minute'          => '0',
-            'hour'              => '1',
-            'day'               => '*',
-            'weekday'      => '1',
-            'month'          => '*',
-            'nextrun'        => TIME_NOW + 3600,
-            'lastrun'         => 0,
-            'enabled'       => 1,
-            'logging'        => 1,
-            'locked'         => 0,
+            'title'       => $lang->myalerts_task_title,
+            'file'        => 'myalerts',
+            'description' => $lang->myalerts_task_description,
+            'minute'      => 0,
+            'hour'        => 1,
+            'day'         => '*',
+            'weekday'     => 1,
+            'month'       => '*',
+            'nextrun'     => TIME_NOW + 3600,
+            'lastrun'     => 0,
+            'enabled'     => 1,
+            'logging'     => 1,
+            'locked'      => 0,
         );
 
         $task_id = $db->insert_query('tasks', $myTask);
