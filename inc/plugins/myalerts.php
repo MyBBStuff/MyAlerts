@@ -957,7 +957,7 @@ function myalerts_page()
                 if ($mybb->settings[$temparraykey]) {
                     $altbg = alt_trow();
                     //  variable variables. What fun! http://php.net/manual/en/language.variables.variable.php
-                    $tempkey = 'myalerts_setting_'.$key;
+                    $tempKey = 'myalerts_setting_'.$key;
 
                     $baseSettings = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor');
 
@@ -967,7 +967,7 @@ function myalerts_page()
                         @$lang->load($tempKey);
                     }
 
-                    $langline = $lang->$tempkey;
+                    $langline = $lang->$tempKey;
 
                     $checked = '';
                     if ($value) {
