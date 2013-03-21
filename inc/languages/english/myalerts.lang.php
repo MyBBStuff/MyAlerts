@@ -19,7 +19,7 @@ $l['myalerts_no_new_alerts'] = 'You have no new alerts.';
 $l['myalerts_rep'] = '{1} modified <a href="reputation.php?uid={2}">your reputation</a>. ({3})';
 $l['myalerts_pm'] = '{1} sent you a new private message titled "{2}". ({3})';
 $l['myalerts_buddylist'] = '{1} added you to their buddy list. ({2})';
-$l['myalerts_quoted'] = '{1} quoted you in <a href="{2}">a post</a>. ({3})';
+$l['myalerts_quoted'] = '{1} quoted you in <a href="{2}">{3}</a>. ({4})';
 $l['myalerts_post_threadauthor'] = '{1} replied to your thread "<a href="{2}">{3}</a>". There may be more posts after this. ({4})';
 
 $l['myalerts_setting_rep'] = 'Receive alert for reputation?';
