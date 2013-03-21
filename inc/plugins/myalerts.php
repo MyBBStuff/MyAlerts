@@ -433,7 +433,7 @@ function parse_alert($alert)
         $alert['rowType'] = 'buddylistAlert';
     } elseif ($alert['alert_type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted']) {
         $alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
-        $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], $alert['dateline']);
+        $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], htmlspecialchars_uni($parser->parse_badwords($alert['content']['subject'])), $alert['dateline']);
         $alert['rowType'] = 'quotedAlert';
     } elseif ($alert['alert_type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor']) {
         $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
