@@ -30,5 +30,9 @@ function myalerts_upgrader_run($currentVersion = '1.04', $oldVersion = '1.00')
 	    if ($db->field_exists('myalerts_settings', 'users')) {
 	    	$db->drop_column('users', 'myalerts_settings');
 	    }
+
+	    if ($db->field_exists('forced', 'alerts')) {
+	    	$db->add_column('alerts', 'forced', "INT(1) NOT NULL DEFAULT '0'");
+	    }
 	}
 }
