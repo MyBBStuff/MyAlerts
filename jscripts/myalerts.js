@@ -8,7 +8,7 @@ jQuery(document).ready(function($)
 			event.preventDefault();
 			var popup_id = $(this).attr('id') + '_popup';
 
-			$('#' + popup_id).attr('top', $(this).height() + 'px').slideToggle('slow', function() {
+			$('#' + popup_id).attr('top', $(this).height() + 'px').slideToggle('fast', function() {
 				var toMarkRead = new Array;
 				$('[id^="alert_row_popup_"]').each(function() {
 					toMarkRead.push($(this).attr('id').substr(16));
@@ -25,8 +25,12 @@ jQuery(document).ready(function($)
 		}
 	}, '.myalerts_popup_hook');
 
-	$('html').on('click', function() {
-		$('.myalerts_popup:visible').hide();
+	$('.myalerts_popup *').on('click', function(event) {
+		event.stopPropagation();
+	});
+
+	$("body:not('.myalerts_popup:visible')").on('click', function() {
+   		$('.myalerts_popup:visible').hide();
 	});
 
 	$('#getUnreadAlerts').on('click', function(event) {
