@@ -9,7 +9,7 @@ jQuery(document).ready(function($)
 			var popup_id = $(this).attr('id') + '_popup';
 
 			$('#' + popup_id).attr('top', $(this).height() + 'px').slideToggle('fast', function() {
-				var toMarkRead = new Array;
+				var toMarkRead = [];
 				$('[id^="alert_row_popup_"]').each(function() {
 					toMarkRead.push($(this).attr('id').substr(16));
 				});
@@ -30,7 +30,7 @@ jQuery(document).ready(function($)
 	});
 
 	$("body:not('.myalerts_popup:visible')").on('click', function() {
-   		$('.myalerts_popup:visible').hide();
+        $('.myalerts_popup:visible').hide();
 	});
 
 	$('#getUnreadAlerts').on('click', function(event) {
@@ -45,17 +45,17 @@ jQuery(document).ready(function($)
 		var deleteButton = $(this);
 
 		$.getJSON(deleteButton.attr('href'), {accessMethod: 'js'}, function(data) {
-			if (data['success'])
+			if (data.success)
 			{
 				deleteButton.parents('tr').get(0).remove();
-				if (data['template'])
+				if (data.template)
 				{
-					$('#latestAlertsListing').html(data['template']);
+					$('#latestAlertsListing').html(data.template);
 				}
 			}
 			else
 			{
-				alert(data['error']);
+				alert(data.error);
 			}
 		});
 	});
