@@ -43,7 +43,7 @@ function myalerts_install()
     $euantor_plugins['myalerts'] = array(
         'title'     =>  'MyAlerts',
         'version'   =>  $plugin_info['version'],
-        );
+    );
     $cache->update('euantor_plugins', $euantor_plugins);
 
     if (!$db->table_exists('alerts')) {
@@ -182,7 +182,7 @@ function myalerts_activate()
     $euantor_plugins['myalerts'] = array(
         'title'     =>  'MyAlerts',
         'version'   =>  $plugin_info['version'],
-        );
+    );
     $cache->update('euantor_plugins', $euantor_plugins);
 
     $PL->settings('myalerts',
@@ -193,56 +193,56 @@ function myalerts_activate()
                 'title'         =>  $lang->setting_myalerts_enabled,
                 'description'   =>  $lang->setting_myalerts_enabled_desc,
                 'value'         =>  '1',
-                ),
+            ),
             'perpage'   =>  array(
                 'title'         =>  $lang->setting_myalerts_perpage,
                 'description'   =>  $lang->setting_myalerts_perpage_desc,
                 'value'         =>  '10',
                 'optionscode'   =>  'text',
-                ),
+            ),
             'dropdown_limit'  =>  array(
                 'title'         =>  $lang->setting_myalerts_dropdown_limit,
                 'description'   =>  $lang->setting_myalerts_dropdown_limit_desc,
                 'value'         =>  '5',
                 'optionscode'   =>  'text',
-                ),
+            ),
             'autorefresh'   =>  array(
                 'title'         =>  $lang->setting_myalerts_autorefresh,
                 'description'   =>  $lang->setting_myalerts_autorefresh_desc,
                 'value'         =>  '0',
                 'optionscode'   =>  'text',
-                ),
+            ),
             'alert_rep' =>  array(
                 'title'         =>  $lang->setting_myalerts_alert_rep,
                 'description'   =>  $lang->setting_myalerts_alert_rep_desc,
                 'value'         =>  '1',
-                ),
+            ),
             'alert_pm'  =>  array(
                 'title'         =>  $lang->setting_myalerts_alert_pm,
                 'description'   =>  $lang->setting_myalerts_alert_pm_desc,
                 'value'         =>  '1',
-                ),
+            ),
             'alert_buddylist'  =>  array(
                 'title'         =>  $lang->setting_myalerts_alert_buddylist,
                 'description'   =>  $lang->setting_myalerts_alert_buddylist_desc,
                 'value'         =>  '1',
-                ),
+            ),
             'alert_quoted'  =>  array(
                 'title'         =>  $lang->setting_myalerts_alert_quoted,
                 'description'   =>  $lang->setting_myalerts_alert_quoted_desc,
                 'value'         =>  '1',
-                ),
+            ),
             'alert_post_threadauthor'  =>  array(
                 'title'         =>  $lang->setting_myalerts_alert_post_threadauthor,
                 'description'   =>  $lang->setting_myalerts_alert_post_threadauthor_desc,
                 'value'         =>  '1',
-                ),
+            ),
             'default_avatar' => array(
                 'title'         => $lang->setting_myalerts_default_avatar,
                 'description'   => $lang->setting_myalerts_default_avatar_desc,
                 'optionscode'   => 'text',
                 'value'         => './images/alerts/default-avatar.png',
-                ),
+            ),
         )
     );
 
@@ -287,7 +287,8 @@ if (typeof jQuery == \'undefined\') {
             'usetranslation'    =>  1,
             'enabled'           =>  1,
             'disporder'         =>  3,
-            ));
+            )
+        );
     } else {
         $sid = (int) $db->fetch_field($query, 'sid');
         $helpsection = $db->update_query('helpsections', array(
@@ -296,7 +297,9 @@ if (typeof jQuery == \'undefined\') {
             'usetranslation'    =>  1,
             'enabled'           =>  1,
             'disporder'         =>  3,
-            ), "sid = {$sid}");
+            ),
+        "sid = {$sid}"
+        );
     }
 
     unset($query);
@@ -310,7 +313,7 @@ if (typeof jQuery == \'undefined\') {
             'usetranslation'    =>  1,
             'enabled'           =>  1,
             'disporder'         =>  1,
-            ),
+        ),
         1   =>  array(
             'sid'               =>  (int) $helpsection,
             'name'              =>  $db->escape_string($lang->myalerts_help_alert_types),
@@ -319,8 +322,8 @@ if (typeof jQuery == \'undefined\') {
             'usetranslation'    =>  1,
             'enabled'           =>  1,
             'disporder'         =>  2,
-            ),
-        );
+        ),
+    );
 
     foreach ($helpDocuments as $document) {
         $query = $db->simple_select('helpdocs', 'hid', "name = '{$document['name']}'");
@@ -354,13 +357,14 @@ if (typeof jQuery == \'undefined\') {
 
         $task_id = $db->insert_query('tasks', $myTask);
         $theTask = $db->fetch_array($db->simple_select('tasks', '*', 'tid = '.(int) $task_id, 1));
-        $nextrun = fetch_next_run($myTask);
+        $nextrun = fetch_next_run($theTask);
         $db->update_query('tasks', 'nextrun = '.$nextrun, 'tid = '.(int) $task_id);
         $plugins->run_hooks('admin_tools_tasks_add_commit');
         $cache->update_tasks();
     } else {
         require_once MYBB_ROOT.'/inc/functions_task.php';
-        $db->update_query('tasks', array('enabled' => 1, 'nextrun' => fetch_next_run($myTask)), 'file = \'myalerts\'');
+        $theTask = $db->fetch_array($db->simple_select('tasks', '*', 'file = \'myalerts\'', 1));
+        $db->update_query('tasks', array('enabled' => 1, 'nextrun' => fetch_next_run($theTask)), 'file = \'myalerts\'');
         $cache->update_tasks();
     }
 }
