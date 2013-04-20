@@ -65,7 +65,8 @@ function myalerts_install()
         $collation = $db->build_create_table_collation();
         $db->write_query("CREATE TABLE ".TABLE_PREFIX."alert_settings(
             id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            code VARCHAR(75) NOT NULL
+            code VARCHAR(75) NOT NULL,
+            is_core INT(1) NOT NULL DEFAULT '0'
             ) ENGINE=MyISAM{$collation};");
     }
 
