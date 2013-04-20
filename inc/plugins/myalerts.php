@@ -477,6 +477,7 @@ function myalerts_user_delete()
     global $db, $user;
     $user['uid'] = (int) $user['uid'];
     $db->delete_query('alert_setting_values', "user_id='{$user['uid']}'");
+    $db->delete_query('alerts', "uid='{$user['uid']}'");
 }
 
 if ($settings['myalerts_enabled']) {
