@@ -31,7 +31,7 @@ function myalerts_info()
         'version'       =>  '1.04',
         'guid'          =>  'aba228cf4bd5245ef984ccfde6514ce8',
         'compatibility' =>  '16*',
-        );
+    );
 }
 
 function myalerts_install()
@@ -544,6 +544,8 @@ function myalerts_global()
     if (THIS_SCRIPT == 'usercp.php' AND $mybb->input['action'] == 'alert_settings') {
         $templatelist .= ',myalerts_setting_row,myalerts_settings_page';
     }
+    
+    $mybb->user['unreadAlerts'] = 0;
 
     if ($mybb->user['uid']) {
         global $Alerts, $db, $lang;
@@ -565,7 +567,6 @@ function myalerts_global()
             $mybb->user['myalerts_settings'][$row['code']] = (int) $row['value'];
         }
 
-        $mybb->user['unreadAlerts'] = 0;
         $mybb->user['unreadAlerts'] = my_number_format((int) $Alerts->getNumUnreadAlerts());
     }
 }
