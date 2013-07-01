@@ -187,6 +187,25 @@ class Alerts
     public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array(), $forced = 0)
     {
         $content = json_encode($content);
+        
+        // first of all, start the session if not started yet
+        if(!session_id()) {
+    		session_start();
+		}
+		
+		if(!empty($tid)) {
+            // if tid and type coincide with the respective ones in the $_SESSION array, then do nothing and save multiple notifications to the user
+			if($tid == $_SESSION['tid'] && $type != $_SESSION['type']) {
+				return;
+			}
+            // there's an unrelated alert here, so unset the previous stored tid and type and store them again, then alert the user as usual
+            else {
+				unset($_SESSION['tid']);
+				unset($_SESSION['type']);
+				$_SESSION['tid'] = $tid;
+				$_SESSION['type'] = $type;
+			}
+		}
 
         $insertArray = array(
             'uid'        => (int) $uid,
