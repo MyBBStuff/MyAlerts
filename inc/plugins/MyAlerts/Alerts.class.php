@@ -3,13 +3,13 @@
  *  Main Alerts Class
  *
  *  @package MyAlerts
- *  @version 1.00
+ *  @version 1.05
  *  @author Euan T. <euan@euantor.com>
  */
 
 class Alerts
 {
-    const VERSION = '1.04';
+    const VERSION = '1.05';
     private $mybb = null;
     private $db = null;
 
@@ -189,17 +189,15 @@ class Alerts
         $content = json_encode($content);
         
         // first of all, start the session if not started yet
-        if(!session_id()) {
+        if (!session_id()) {
     		session_start();
 		}
 		
-		if(!empty($tid)) {
+		if (!empty($tid)) {
             // if tid and type coincide with the respective ones in the $_SESSION array, then do nothing and save multiple notifications to the user
-			if($tid == $_SESSION['tid'] && $type != $_SESSION['type']) {
+			if ($tid == $_SESSION['tid'] AND $type != $_SESSION['type']) {
 				return;
-			}
-            // there's an unrelated alert here, so unset the previous stored tid and type and store them again, then alert the user as usual
-            else {
+			} else { // there's an unrelated alert here, so unset the previous stored tid and type and store them again, then alert the user as usual
 				unset($_SESSION['tid']);
 				unset($_SESSION['type']);
 				$_SESSION['tid'] = $tid;
@@ -215,7 +213,7 @@ class Alerts
             'from_id'    => (int) $from,
             'forced'     => (int) $forced,
             'content'    => $this->db->escape_string($content),
-            );
+        );
 
         $this->db->insert_query('alerts', $insertArray);
     }
@@ -231,15 +229,21 @@ class Alerts
      */
     public function addMassAlert($uids, $type = '', $tid = 0, $from = 0, $content = array(), $forced = 0)
     {
-        $sqlString = '';
-        $separator = '';
         $content   = json_encode($content);
+        $insertArray = array();
 
         foreach ($uids as $uid) {
-            $sqlString .= $separator.'('.(int) $uid.','.(int) TIME_NOW.', \''.$this->db->escape_string($type).'\', '.(int) $tid.','.(int) $from.',\''.$this->db->escape_string($content).'\', '.(int) $forced.')';
-            $separator = ",\n";
+            $insertArray[] = array(
+                'uid' => (int) $uid,
+                'dateline' => (int) TIME_NOW,
+                'alert_type' => $this->db->escape_string($type),
+                'tid' => (int) $tid,
+                'from_id' => (int) $from,
+                'content' => $this->db->escape_string($content),
+                'forced' => (int) $forced,
+            );
         }
 
-        $this->db->write_query('INSERT INTO '.TABLE_PREFIX.'alerts (`uid`, `dateline`, `alert_type`, `tid`, `from_id`, `content`, `forced`) VALUES '.$sqlString.';');
+        $this->db->insert_query_multiple('alerts', $insertArray);
     }
 }

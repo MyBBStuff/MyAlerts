@@ -7,7 +7,7 @@
  * @package MyAlerts
  * @author  Euan T. <euan@euantor.com>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 1.02
+ * @version 1.05
  */
 
 if (!defined('IN_MYBB')) {
@@ -28,7 +28,7 @@ function myalerts_info()
         'website'       =>  'http://euantor.com/myalerts',
         'author'        =>  'euantor',
         'authorsite'    =>  'http://euantor.com',
-        'version'       =>  '1.04',
+        'version'       =>  '1.05',
         'guid'          =>  'aba228cf4bd5245ef984ccfde6514ce8',
         'compatibility' =>  '16*',
     );
@@ -456,7 +456,7 @@ if ($settings['myalerts_enabled']) {
 }
 function myalerts_register_do_end()
 {
-    global $user_info, $db, $plugins;
+    global $user_info, $db;
 
     $query = $db->simple_select('alert_settings', '*');
     $userSettings = array();
