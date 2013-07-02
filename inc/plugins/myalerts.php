@@ -22,9 +22,10 @@ if (!defined("PLUGINLIBRARY")) {
 
 function myalerts_info()
 {
+    global $mybb;
     return array(
         'name'          =>  'MyAlerts',
-        'description'   =>  'A simple notifications/alerts system for MyBB',
+        'description'   =>  'A simple notifications/alerts system for MyBB<br/><br/>To enable all alerts for existing users, please click here: <a href="'.$mybb->settings['bburl'].'/inc/plugins/MyAlerts/force_enable_alerts.php">Run Script</a>. <strong>This script may take a while for large boards. If you have many users, it\'s advised to run this via the PHP CLI.</strong>',
         'website'       =>  'http://euantor.com/myalerts',
         'author'        =>  'euantor',
         'authorsite'    =>  'http://euantor.com',
