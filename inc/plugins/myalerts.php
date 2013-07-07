@@ -776,7 +776,7 @@ function myalerts_alert_quoted()
         }
 
         if (!empty($userList) AND is_array($userList)) {
-            $Alerts->addMassAlert($userList, 'quoted', 0, $mybb->user['uid'], array(
+            $Alerts->addMassAlert($userList, 'quoted', $post['tid'], $mybb->user['uid'], array(
                 'tid'       =>  $post['tid'],
                 'pid'       =>  $pid,
                 'subject'   =>  $post['subject'],
