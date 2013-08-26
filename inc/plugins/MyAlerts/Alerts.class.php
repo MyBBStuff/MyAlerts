@@ -186,25 +186,25 @@ class Alerts
      */
     public function addAlert($uid, $type = '', $tid = 0, $from = 0, $content = array(), $forced = 0)
     {
-        $content = json_encode($content);
+    	 // first of all, start the session if not started yet
+        if (!session_id()) session_start();
         
-        // first of all, start the session if not started yet
-        if (!session_id()) {
-    		session_start();
-	}
-		
+        $cache = $_SESSION['myalerts'];
+
 	if (!empty($tid)) {
 		// if tid and type coincide with the respective ones in the $_SESSION array, then do nothing and save multiple notifications to the user
-		if ($tid == $_SESSION['tid'] AND $type != $_SESSION['type']) {
+		if ($tid == $cache['tid'] AND $type != $cache['type']) {
 			return;
 		} else { // there's an unrelated alert here, so unset the previous stored tid and type and store them again, then alert the user as usual
-			unset($_SESSION['tid']);
-			unset($_SESSION['type']);
-			$_SESSION['tid'] = $tid;
-			$_SESSION['type'] = $type;
+			unset($_SESSION['myalerts']);
+			$_SESSION['myalerts'] = array(
+				"tid" => $tid,
+				"type" => $type
+			);
 		}
 	}
-
+	
+        $content = json_encode($content);
         $insertArray = array(
             'uid'        => (int) $uid,
             'dateline'   => TIME_NOW,
@@ -229,22 +229,24 @@ class Alerts
      */
     public function addMassAlert($uids, $type = '', $tid = 0, $from = 0, $content = array(), $forced = 0)
     {
-    	
-    	// same as above (extended to addMassAlert function)
-        if (!session_id()) {
-    		session_start();
-	}
-		
+    	 // first of all, start the session if not started yet
+        if (!session_id()) session_start();
+        
+        $cache = $_SESSION['myalerts'];
+
 	if (!empty($tid)) {
-		if ($tid == $_SESSION['tid'] AND $type != $_SESSION['type']) {
+		// if tid and type coincide with the respective ones in the $_SESSION array, then do nothing and save multiple notifications to the user
+		if ($tid == $cache['tid'] AND $type != $cache['type']) {
 			return;
-		} else {
-			unset($_SESSION['tid']);
-			unset($_SESSION['type']);
-			$_SESSION['tid'] = $tid;
-			$_SESSION['type'] = $type;
+		} else { // there's an unrelated alert here, so unset the previous stored tid and type and store them again, then alert the user as usual
+			unset($_SESSION['myalerts']);
+			$_SESSION['myalerts'] = array(
+				"tid" => $tid,
+				"type" => $type
+			);
 		}
 	}
+	
         $content   = json_encode($content);
         $insertArray = array();
 
