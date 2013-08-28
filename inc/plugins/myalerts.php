@@ -490,6 +490,9 @@ function myalerts_pre_output_page(&$contents)
     global $templates, $mybb, $lang, $myalerts_headericon, $Alerts, $plugins;
 
     if ($mybb->user['uid']) {
+        if(!session_id()) session_start();
+        // flushing our "cache" from the user's session (used to prevent multiple alerts to be delivered)
+        unset($_SESSION['myalerts']);
         if (!$lang->myalerts) {
             $lang->load('myalerts');
         }
