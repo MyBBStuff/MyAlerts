@@ -91,8 +91,8 @@ class AlertManager
 	public function addAlert(Alert $alert)
 	{
 		// TODO: Check for duplicates...
-		if (is_string($alert->getTypeId())) {
-			$alert->setTypeId($this->getAlertTypeIdByCode($alert->getTypeId()));
+		if (is_string($alert->getType())) {
+			$alert->setType($this->getAlertTypeIdByCode($alert->getType()));
 		}
 
 		$alert->setFromUserId($this->mybb->user['uid']);
@@ -113,11 +113,7 @@ class AlertManager
 	{
 		$typeId = 0;
 
-		if (empty(static::$alertTypes)) {
-			$this->getAlertTypes();
-		}
-
-		foreach (static::$alertTypes as $alertType) {
+		foreach ($this->getAlertTypes() as $alertType) {
 			if ($alertType->getCode() == $code) {
 				$typeId = $alertType->getId();
 				break;

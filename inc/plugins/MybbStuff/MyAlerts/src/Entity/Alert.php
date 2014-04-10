@@ -166,7 +166,7 @@ class Alert
 	/**
 	 * @return int|string
 	 */
-	public function getTypeId()
+	public function getType()
 	{
 		return $this->typeId;
 	}
@@ -174,7 +174,7 @@ class Alert
 	/**
 	 * @param int $typeId
 	 */
-	public function setTypeId($typeId)
+	public function setType($typeId)
 	{
 		$this->typeId = $typeId;
 	}
@@ -205,7 +205,7 @@ class Alert
 		return array(
 			'uid'           => $this->getId(),
 			'from_id'       => $this->getFromUserId(),
-			'alert_type'    => $this->getTypeId(),
+			'alert_type'    => $this->getType(),
 			'object_id'     => $this->getObjectId(),
 			'dateline'      => $this->getCreatedAt()->format('Y-m-d H:i:s'),
 			'extra_details' => json_encode($this->getExtraDetails()),
