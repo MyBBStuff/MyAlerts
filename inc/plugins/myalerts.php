@@ -7,18 +7,23 @@
  * @package MyAlerts
  * @author  Euan T. <euan@euantor.com>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 1.05
+ * @version 2.0.0
  */
 
 if (!defined('IN_MYBB')) {
     die('Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.');
 }
 
-define('MYALERTS_PLUGIN_PATH', MYBB_ROOT.'inc/plugins/MyAlerts/');
+defined('MYBBSTUFF_CORE_PATH') or define('MYBBSTUFF_CORE_PATH', MYBB_ROOT . 'inc/plugins/MybbStuff/Core/');
+define('MYALERTS_PLUGIN_PATH', MYBB_ROOT.'inc/plugins/MybbStuff/MyAlerts');
 
-if (!defined("PLUGINLIBRARY")) {
-    define("PLUGINLIBRARY", MYBB_ROOT."inc/plugins/pluginlibrary.php");
-}
+defined('PLUGINLIBRARY') or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
+
+require_once MYBBSTUFF_CORE_PATH . 'ClassLoader.php';
+
+$classLoader = new MybbStuff_Core_ClassLoader();
+$classLoader->registerNamespace('MybbStuff_MyAlerts', array(MYALERTS_PLUGIN_PATH));
+$classLoader->register();
 
 function myalerts_info()
 {
@@ -29,7 +34,7 @@ function myalerts_info()
         'website'       =>  'http://euantor.com/myalerts',
         'author'        =>  'euantor',
         'authorsite'    =>  'http://euantor.com',
-        'version'       =>  '1.05',
+        'version'       =>  '2.0.0',
         'guid'          =>  'aba228cf4bd5245ef984ccfde6514ce8',
         'compatibility' =>  '16*',
     );
@@ -248,8 +253,7 @@ function myalerts_activate()
         )
     );
 
-    // Templating, like a BAWS - http://www.euantor.com/185-templates-in-mybb-plugins
-    $dir = new DirectoryIterator(dirname(__FILE__).'/MyAlerts/templates');
+    $dir = new DirectoryIterator(MYALERTS_PLUGIN_PATH . '/templates');
     $templates = array();
     foreach ($dir as $file) {
         if (!$file->isDot() AND !$file->isDir() AND pathinfo($file->getFilename(), PATHINFO_EXTENSION) == 'html') {
@@ -263,21 +267,23 @@ function myalerts_activate()
         $templates
     );
 
-    $stylesheet = file_get_contents(dirname(__FILE__).'/MyAlerts/stylesheets/alerts.css');
+    $stylesheet = file_get_contents(MYALERTS_PLUGIN_PATH . '/stylesheets/alerts.css');
 
     $PL->stylesheet('alerts.css', $stylesheet);
 
     require_once MYBB_ROOT.'/inc/adminfunctions_templates.php';
-    // Add our JS. We need jQuery and myalerts.js. For jQuery, we check it hasn't already been loaded then load 1.7.2 from google's CDN
-    find_replace_templatesets('headerinclude', "#".preg_quote('{$stylesheets}')."#i", '<script type="text/javascript">
-if (typeof jQuery == \'undefined\') {
-    document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
-}
-</script>
+	
+	$myalertsJs = <<<JAVASCRIPT
+			
 <script type="text/javascript">
-    var unreadAlerts = {$mybb->user[\'unreadAlerts\']};
+    var unreadAlerts = {\$mybb->user['unreadAlerts']};
 </script>
-<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n".'{$stylesheets}');
+<script type="text/javascript" src="{\$mybb->asset_url}/jscripts/myalerts.js"></script>
+{\$stylesheets}
+JAVASCRIPT;
+	
+    // Add our JS. We need jQuery and myalerts.js. For jQuery, we check it hasn't already been loaded then load 1.7.2 from google's CDN
+    find_replace_templatesets('headerinclude', "#".preg_quote('{$stylesheets}')."#i", $myalertsJs);
     find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$modcplink}')."#i", '<myalerts_headericon>{$modcplink}');
 
     // Helpdocs
@@ -385,15 +391,15 @@ function myalerts_deactivate()
     $PL->stylesheet_deactivate('alerts.css');
 
     require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
-    find_replace_templatesets('headerinclude', "#".preg_quote('<script type="text/javascript">
-if (typeof jQuery == \'undefined\') {
-    document.write(unescape("%3Cscript src=\'http://code.jquery.com/jquery-1.7.2.min.js\' type=\'text/javascript\'%3E%3C/script%3E"));
-}
-</script>
+	
+	$myalertsJs = <<<JAVASCRIPT
 <script type="text/javascript">
-    var unreadAlerts = {$mybb->user[\'unreadAlerts\']};
+    var unreadAlerts = {\$mybb->user['unreadAlerts']};
 </script>
-<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/myalerts.js"></script>'."\n")."#i", '');
+<script type="text/javascript" src="{\$mybb->asset_url}/jscripts/myalerts.js"></script>
+JAVASCRIPT;
+	
+    find_replace_templatesets('headerinclude', "#".preg_quote($myalertsJs)."#i", '');
     find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('<myalerts_headericon>')."#i", '');
 
     $db->update_query('tasks', array('enabled' => 0), 'file = \'myalerts\'');

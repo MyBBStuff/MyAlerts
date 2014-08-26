@@ -1,13 +1,11 @@
 <?php
 
-namespace MybbStuff\MyAlerts\Entity;
-
 /**
  * A user's setting for a single alert type as represented int eh database.
  *
  * @package MybbStuff\MyAlerts\Entity
  */
-class UserAlertTypeSetting
+class MybbStuff_MyAlerts_Entity_UserAlertTypeSetting
 {
 	/** @var int The ID of the user/alert type mapping in the database. */
 	private $id;
@@ -22,7 +20,7 @@ class UserAlertTypeSetting
 	private $enabled = true;
 
 	/**
-	 * @param int|AlertType $alertType
+	 * @param int|MybbStuff_MyAlerts_Entity_AlertType $alertType
 	 */
 	public function setAlertType($alertType)
 	{

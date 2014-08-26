@@ -1,42 +1,37 @@
 <?php
 
-namespace MybbStuff\MyAlerts;
-
-use MybbStuff\MyAlerts\Entity\Alert;
-use MybbStuff\MyAlerts\Entity\AlertType;
-
 /**
  * Manages the creating, fetching and manipulating of alerts within the database.
  *
  * @package MybbStuff\MyAlerts
  */
-class AlertManager
+class MybbStuff_MyAlerts_AlertManager
 {
-	/** @var \MyBB MyBB core object used to get settings and more. */
+	/** @var MyBB MyBB core object used to get settings and more. */
 	private $mybb;
 
-	/** @var \DB_MySQLi Database connection to be used when manipulating alerts. */
+	/** @var DB_MySQLi Database connection to be used when manipulating alerts. */
 	private $db;
 
-	/** @var \datacache Cache instance used to manipulate alerts. */
+	/** @var datacache Cache instance used to manipulate alerts. */
 	private $cache;
 
 	/**
-	 * @var Alert[] A queue of alerts waiting to be committed to the database.
+	 * @var MybbStuff_MyAlerts_Entity_Alert[] A queue of alerts waiting to be committed to the database.
 	 */
 	private static $alertQueue;
 
-	/** @var  AlertType[] A cache of the alert types currently available in the system. */
+	/** @var  MybbStuff_MyAlerts_Entity_AlertType[] A cache of the alert types currently available in the system. */
 	private static $alertTypes;
 
 	/**
 	 * Initialise a new instance of the AlertManager.
 	 *
-	 * @param \MyBB      $mybb  MyBB core object used to get settings and more.
-	 * @param \DB_MySQLi $db    Database connection to be used when manipulating alerts.
-	 * @param \datacache $cache Cache instance used to manipulate alerts and alert types.
+	 * @param MyBB      $mybb  MyBB core object used to get settings and more.
+	 * @param DB_MySQLi $db    Database connection to be used when manipulating alerts.
+	 * @param datacache $cache Cache instance used to manipulate alerts and alert types.
 	 */
-	public function __construct(\MyBB $mybb, \DB_MySQLi $db, \datacache $cache)
+	public function __construct($mybb, $db, $cache)
 	{
 		$this->mybb  = $mybb;
 		$this->db    = $db;
@@ -59,11 +54,11 @@ class AlertManager
 	/**
 	 * Get all of the available alert types in the system.
 	 *
-	 * @return Entity\AlertType[] The available alert types.
+	 * @return MybbStuff_MyAlerts_Entity_AlertType[] The available alert types.
 	 */
 	public function getAlertTypes()
 	{
-		/** @var AlertType[] $alertTypes */
+		/** @var MybbStuff_MyAlerts_Entity_AlertType[] $alertTypes */
 		$alertTypes = array();
 
 		if (!empty(static::$alertTypes)) {
@@ -84,7 +79,7 @@ class AlertManager
 	/**
 	 * Add a new alert.
 	 *
-	 * @param Alert $alert The alert to add.
+	 * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to add.
 	 *
 	 * @return $this
 	 */

@@ -1,13 +1,11 @@
 <?php
 
-namespace MybbStuff\MyAlerts\Entity;
-
 /**
  * A single alert object as it's represented in the database.
  *
  * @package MybbStuff\MyAlerts\Entity
  */
-class Alert
+class MybbSTuff_MyAlerts_Entity_Alert
 {
 	/** @var int The ID of the alert. */
 	private $id = 0;
@@ -64,7 +62,7 @@ class Alert
 			$this->userId = (int) $user;
 		}
 
-		if ($type instanceof AlertType) {
+		if ($type instanceof MybbStuff_MyAlerts_Entity_AlertType) {
 			$this->typeId = $type->getId();
 		} elseif (is_string($type)) {
 			$this->typeId = $type;
@@ -103,7 +101,7 @@ class Alert
 	 * @param int           $objectId     The ID of the object this alert is linked to.
 	 * @param array         $extraDetails An array of optional extra details to be stored with the alert.
 	 *
-	 * @return Alert The created alert object.
+	 * @return MybbStuff_MyAlerts_Entity_Alert The created alert object.
 	 */
 	public static function make($user = 0, $type = 0, $objectId = null, array $extraDetails = array())
 	{

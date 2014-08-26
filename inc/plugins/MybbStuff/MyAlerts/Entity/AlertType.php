@@ -1,13 +1,11 @@
 <?php
 
-namespace MybbStuff\MyAlerts\Entity;
-
 /**
  * A single alert type object as it's represented in the database.
  *
  * @package MybbStuff\MyAlerts\Entity
  */
-class AlertType
+class MybbStuff_MyAlerts_Entity_AlertType
 {
 	/** @var int The ID of the alert type. */
 	private $id = 0;
