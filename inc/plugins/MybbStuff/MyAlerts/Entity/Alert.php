@@ -5,7 +5,7 @@
  *
  * @package MybbStuff\MyAlerts\Entity
  */
-class MybbSTuff_MyAlerts_Entity_Alert
+class MybbStuff_MyAlerts_Entity_Alert
 {
 	/** @var int The ID of the alert. */
 	private $id = 0;
