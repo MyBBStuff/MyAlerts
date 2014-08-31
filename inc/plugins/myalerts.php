@@ -60,10 +60,10 @@ function myalerts_install()
             unread TINYINT(4) NOT NULL DEFAULT '1',
             dateline BIGINT(30) NOT NULL,
             alert_type VARCHAR(25) NOT NULL,
-            tid INT(10),
+            oject_id INT(10) unsigned NOT NULL DEFAULT '0',
             from_id INT(10),
             forced INT(1) NOT NULL DEFAULT '0',
-            content TEXT
+            extra_details TEXT
             ) ENGINE=MyISAM{$collation};");
     }
 
@@ -546,7 +546,7 @@ function myalerts_global()
         $templatelist .= ',';
     }
 
-    $templatelist .= 'myalerts_headericon,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_popup_row_no_alerts';
+    $templatelist .= 'myalerts_headericon,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_alert_row_popup_no_alerts';
 
     if (THIS_SCRIPT == 'usercp.php') {
         $templatelist .= ',myalerts_usercp_nav';
@@ -703,6 +703,7 @@ function myalerts_alert_buddylist()
 
     if ($mybb->input['manage'] != 'ignore' AND !isset($mybb->input['delete'])) {
         global $Alerts, $db;
+
 
         $addUsers = explode(",", $mybb->input['add_username']);
         $addUsers = array_map("trim", $addUsers);
@@ -861,7 +862,7 @@ function myalerts_page()
     global $mybb;
 
     if ($mybb->input['action'] == 'alerts') {
-        global $Alerts, $db, $lang, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
+        global $db, $lang, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
 
         if (!$lang->myalerts) {
             $lang->load('myalerts');
@@ -870,7 +871,7 @@ function myalerts_page()
         add_breadcrumb($lang->nav_usercp, 'usercp.php');
         add_breadcrumb($lang->myalerts_page_title, 'usercp.php?action=alerts');
 
-        $numAlerts = $Alerts->getNumAlerts();
+        $numAlerts = $GLOBALS['myAlertsAlertManager']->getNumAlerts();
         $page = (int) $mybb->input['page'];
         $pages = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
 
@@ -887,7 +888,7 @@ function myalerts_page()
         $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "usercp.php?action=alerts");
 
         try {
-            $alertsList = $Alerts->getAlerts($start);
+            $alertsList = $GLOBALS['myAlertsAlertManager']->getAlerts($start);
         } catch (Exception $e) {
             die($e->getMessage());
         }
@@ -911,7 +912,7 @@ function myalerts_page()
             eval("\$alertsListing = \"".$templates->get('myalerts_alert_row_no_alerts')."\";");
         }
 
-        $Alerts->markRead($readAlerts);
+		$GLOBALS['myAlertsAlertManager']->markRead($readAlerts);
 
         eval("\$content = \"".$templates->get('myalerts_page')."\";");
         output_page($content);

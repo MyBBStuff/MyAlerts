@@ -20,18 +20,6 @@ class MybbStuff_MyAlerts_Entity_UserAlertTypeSetting
 	private $enabled = true;
 
 	/**
-	 * @param int|MybbStuff_MyAlerts_Entity_AlertType $alertType
-	 */
-	public function setAlertType($alertType)
-	{
-		if ($alertType instanceof AlertType) {
-			$this->alertType = $alertType->getId();
-		} else {
-			$this->alertType = (int) $alertType;
-		}
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getAlertType()
@@ -40,11 +28,18 @@ class MybbStuff_MyAlerts_Entity_UserAlertTypeSetting
 	}
 
 	/**
-	 * @param boolean $enabled
+	 * @param int|MybbStuff_MyAlerts_Entity_AlertType $alertType
 	 */
-	public function setEnabled($enabled)
+	public function setAlertType($alertType)
 	{
-		$this->enabled = (boolean) $enabled;
+		if($alertType instanceof AlertType)
+		{
+			$this->alertType = $alertType->getId();
+		}
+		else
+		{
+			$this->alertType = (int)$alertType;
+		}
 	}
 
 	/**
@@ -56,11 +51,11 @@ class MybbStuff_MyAlerts_Entity_UserAlertTypeSetting
 	}
 
 	/**
-	 * @param int $id
+	 * @param boolean $enabled
 	 */
-	public function setId($id)
+	public function setEnabled($enabled)
 	{
-		$this->id = (int) $id;
+		$this->enabled = (boolean)$enabled;
 	}
 
 	/**
@@ -72,15 +67,11 @@ class MybbStuff_MyAlerts_Entity_UserAlertTypeSetting
 	}
 
 	/**
-	 * @param int|array $userId
+	 * @param int $id
 	 */
-	public function setUserId($userId)
+	public function setId($id)
 	{
-		if (is_array($userId)) {
-			$this->userId = (int) $userId['uid'];
-		} else {
-			$this->userId = (int) $userId;
-		}
+		$this->id = (int)$id;
 	}
 
 	/**
@@ -89,5 +80,20 @@ class MybbStuff_MyAlerts_Entity_UserAlertTypeSetting
 	public function getUserId()
 	{
 		return $this->userId;
+	}
+
+	/**
+	 * @param int|array $userId
+	 */
+	public function setUserId($userId)
+	{
+		if(is_array($userId))
+		{
+			$this->userId = (int)$userId['uid'];
+		}
+		else
+		{
+			$this->userId = (int)$userId;
+		}
 	}
 } 

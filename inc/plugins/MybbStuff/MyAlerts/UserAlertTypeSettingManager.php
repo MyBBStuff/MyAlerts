@@ -12,7 +12,7 @@ class MybbStuff_MyAlerts_UserAlertTypeSettingManager
 
 	/**
 	 * Create a new instance of the UserAlertTypeSettingManager.
-	 * 
+	 *
 	 * @param DB_MySQLi $db A database instance to use with the manager.
 	 */
 	public function __construct($db)

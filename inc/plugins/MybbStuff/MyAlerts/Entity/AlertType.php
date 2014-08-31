@@ -15,14 +15,8 @@ class MybbStuff_MyAlerts_Entity_AlertType
 
 	/** @var string The public facing title of the alert type. */
 	private $title = '';
-
-	/**
-	 * @param string $code
-	 */
-	public function setCode($code)
-	{
-		$this->code = $code;
-	}
+	/** @var bool Whether the alert type is enabled. */
+	private $enabled = true;
 
 	/**
 	 * @return string
@@ -33,11 +27,11 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	}
 
 	/**
-	 * @param boolean $enabled
+	 * @param string $code
 	 */
-	public function setEnabled($enabled)
+	public function setCode($code)
 	{
-		$this->enabled = $enabled;
+		$this->code = $code;
 	}
 
 	/**
@@ -49,11 +43,11 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	}
 
 	/**
-	 * @param string $title
+	 * @param boolean $enabled
 	 */
-	public function setTitle($title)
+	public function setEnabled($enabled)
 	{
-		$this->title = $title;
+		$this->enabled = $enabled;
 	}
 
 	/**
@@ -64,15 +58,12 @@ class MybbStuff_MyAlerts_Entity_AlertType
 		return $this->title;
 	}
 
-	/** @var bool Whether the alert type is enabled. */
-	private $enabled = true;
-
 	/**
-	 * @param int $id
+	 * @param string $title
 	 */
-	public function setId($id = 0)
+	public function setTitle($title)
 	{
-		$this->id = $id;
+		$this->title = $title;
 	}
 
 	/**
@@ -81,5 +72,13 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	public function getId()
 	{
 		return $this->id;
+	}
+
+	/**
+	 * @param int $id
+	 */
+	public function setId($id = 0)
+	{
+		$this->id = $id;
 	}
 } 
