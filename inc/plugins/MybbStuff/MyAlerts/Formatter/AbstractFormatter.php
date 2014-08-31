@@ -15,6 +15,10 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
 	 * @var MyLanguage
 	 */
 	protected $lang;
+	/**
+	 * @var string
+	 */
+	protected $alertTypeName;
 
 	/**
 	 * Initialise a new alert formatter.
@@ -22,10 +26,27 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
 	 * @param MyBB       $mybb An instance of the MyBB core class to use when formatting.
 	 * @param MyLanguage $lang An instance of the language class to use when formatting.
 	 */
-	public function __construct(MyBB &$mybb, MyLanguage &$lang)
+	public function __construct(MyBB &$mybb, MyLanguage &$lang, $alertTypeName = '')
 	{
-		$this->mybb = &$mybb;
-		$this->lang = &$lang;
+		$this->mybb = $mybb;
+		$this->lang = $lang;
+		$this->alertTypeName = (string) $alertTypeName;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAlertTypeName()
+	{
+		return $this->alertTypeName;
+	}
+
+	/**
+	 * @param string $alertTypeName
+	 */
+	public function setAlertTypeName($alertTypeName = '')
+	{
+		$this->alertTypeName = (string) $alertTypeName;
 	}
 
 	/**
@@ -39,7 +60,7 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
 	/**
 	 * @param MyLanguage $lang
 	 */
-	public function setLang($lang)
+	public function setLang(MyLanguage $lang)
 	{
 		$this->lang = $lang;
 	}
@@ -55,10 +76,17 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
 	/**
 	 * @param MyBB $mybb
 	 */
-	public function setMybb($mybb)
+	public function setMybb(MyBB $mybb)
 	{
 		$this->mybb = $mybb;
 	}
+
+	/**
+	 * Init function called before running formatAlert(). Used to load language files and initialize other required resources.
+	 *
+	 * @return void
+	 */
+	public abstract function init();
 
 	/**
 	 * Format an alert into it's output string to be used in both the main alerts listing page and the popup.

@@ -422,37 +422,41 @@ function parse_alert($alert)
 
     if (empty($alert['avatar'])) {
         $alert['avatar'] = htmlspecialchars_uni($mybb->settings['myalerts_default_avatar']);
-    }
+    } else {
+		$alert['avatar'] = htmlspecialchars_uni($alert['avatar']);
+	}
     $alert['userLink'] = get_profile_link($alert['uid']);
     $alert['user'] = format_name($alert['username'], $alert['usergroup'], $alert['displaygroup']);
     $alert['user'] = build_profile_link($alert['user'], $alert['uid']);
     $alert['dateline'] = my_date($mybb->settings['dateformat'], $alert['dateline']).", ".my_date($mybb->settings['timeformat'], $alert['dateline']);
 
+	$alert['alert_status'] = ' alert--read';
     if ($alert['unread'] == 1) {
-        $alert['unreadAlert'] = ' unreadAlert';
-    } else {
-        $alert['unreadAlert'] = '';
+        $alert['alert_status'] = ' alert--unread';
     }
 
     $plugins->run_hooks('myalerts_alerts_output_start', $alert);
 
+	$alertFormatManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance($mybb, $lang);
+
+	$formatter = $alertFormatManager->getFormatterForAlertType($alert['alert_type']);
+
+	if ($formatter != null) {
+		$alert['message'] = $formatter->formatAlert(null);
+	}
+
     if ($alert['alert_type'] == 'rep' AND $mybb->settings['myalerts_alert_rep']) {
         $alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $mybb->user['uid'], $alert['dateline']);
-        $alert['rowType'] = 'reputationAlert';
     } elseif ($alert['alert_type'] == 'pm' AND $mybb->settings['myalerts_alert_pm']) {
         $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($parser->parse_badwords($alert['content']['pm_title']))."</a>", $alert['dateline']);
-        $alert['rowType'] = 'pmAlert';
     } elseif ($alert['alert_type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist']) {
         $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
-        $alert['rowType'] = 'buddylistAlert';
     } elseif ($alert['alert_type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted']) {
         $alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
         $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], htmlspecialchars_uni($parser->parse_badwords($alert['content']['subject'])), $alert['dateline']);
-        $alert['rowType'] = 'quotedAlert';
     } elseif ($alert['alert_type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor']) {
         $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
         $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($parser->parse_badwords($alert['content']['t_subject'])), $alert['dateline']);
-        $alert['rowType'] = 'postAlert';
     }
 
     $plugins->run_hooks('myalerts_alerts_output_end', $alert);
@@ -540,7 +544,9 @@ if ($settings['myalerts_enabled']) {
 }
 function myalerts_global()
 {
-    global $mybb, $templatelist;
+    global $mybb, $db, $lang, $templatelist;
+
+	myalerts_register_core_formatters($mybb, $db, $lang);
 
     if (isset($templatelist)) {
         $templatelist .= ',';
@@ -1153,4 +1159,11 @@ function myalerts_xmlhttp()
 
         $Alerts->markRead($toMarkRead);
     }
+}
+
+function myalerts_register_core_formatters($mybb, $db, $lang)
+{
+	$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance($mybb, $db);
+
+	$formatterManager->registerFormatter(new MybbStuff_MyAlerts_Formatter_RepFormatter($mybb, $lang, 'rep'));
 }
