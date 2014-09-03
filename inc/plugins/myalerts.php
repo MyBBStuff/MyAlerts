@@ -22,7 +22,7 @@ defined('PLUGINLIBRARY') or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/plu
 require_once MYBBSTUFF_CORE_PATH . 'ClassLoader.php';
 
 $classLoader = new MybbStuff_Core_ClassLoader();
-$classLoader->registerNamespace('MybbStuff_MyAlerts', array(MYALERTS_PLUGIN_PATH));
+$classLoader->registerNamespace('MybbStuff_MyAlerts', array(MYALERTS_PLUGIN_PATH . '/src'));
 $classLoader->register();
 
 function myalerts_info()
@@ -61,7 +61,7 @@ function myalerts_install()
             dateline BIGINT(30) NOT NULL,
             alert_type VARCHAR(25) NOT NULL,
             oject_id INT(10) unsigned NOT NULL DEFAULT '0',
-            from_id INT(10),
+            from_user_id INT(10),
             forced INT(1) NOT NULL DEFAULT '0',
             extra_details TEXT
             ) ENGINE=MyISAM{$collation};");
@@ -266,16 +266,16 @@ function myalerts_activate()
     $PL->stylesheet('alerts.css', $stylesheet);
 
     require_once MYBB_ROOT.'/inc/adminfunctions_templates.php';
-	
+
 	$myalertsJs = <<<JAVASCRIPT
-			
+
 <script type="text/javascript">
     var unreadAlerts = '{\$mybb->user['unreadAlerts']}';
 </script>
 <script type="text/javascript" src="{\$mybb->asset_url}/jscripts/myalerts.js"></script>
 {\$stylesheets}
 JAVASCRIPT;
-	
+
     // Add our JS. We need jQuery and myalerts.js. For jQuery, we check it hasn't already been loaded then load 1.7.2 from google's CDN
     find_replace_templatesets('headerinclude', "#".preg_quote('{$stylesheets}')."#i", $myalertsJs);
     find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('{$modcplink}')."#i", '<myalerts_headericon>{$modcplink}');
@@ -385,14 +385,14 @@ function myalerts_deactivate()
     $PL->stylesheet_deactivate('alerts.css');
 
     require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
-	
+
 	$myalertsJs = <<<JAVASCRIPT
 <script type="text/javascript">
     var unreadAlerts = '{\$mybb->user['unreadAlerts']}';
 </script>
 <script type="text/javascript" src="{\$mybb->asset_url}/jscripts/myalerts.js"></script>
 JAVASCRIPT;
-	
+
     find_replace_templatesets('headerinclude', "#".preg_quote($myalertsJs)."#i", '');
     find_replace_templatesets('header_welcomeblock_member', "#".preg_quote('<myalerts_headericon>')."#i", '');
 
@@ -403,9 +403,9 @@ global $settings;
 
 if ($settings['myalerts_enabled']) {
 	global $mybb, $db, $cache;
-	
+
 	$GLOBALS['myAlertsAlertManager'] = new MybbStuff_MyAlerts_AlertManager($mybb, $db, $cache);
-	
+
 	register_shutdown_function(array($GLOBALS['myAlertsAlertManager'], 'commit'));
 }
 
@@ -565,7 +565,7 @@ function myalerts_global()
     if (THIS_SCRIPT == 'usercp.php' AND $mybb->input['action'] == 'alert_settings') {
         $templatelist .= ',myalerts_setting_row,myalerts_settings_page';
     }
-    
+
     $mybb->user['unreadAlerts'] = 0;
 
     if ($mybb->user['uid']) {
@@ -650,7 +650,7 @@ function myalerts_addAlert_rep()
 
     if ((int) $userSetting['value'] == 1) {
 		$alert = new MybbStuff_MyAlerts_Entity_Alert($reputation['uid'], 'rep', 0);
-		
+
         $GLOBALS['myAlertsAlertManager']->addAlert($alert);
     }
 }
@@ -1163,7 +1163,7 @@ function myalerts_xmlhttp()
 
 function myalerts_register_core_formatters($mybb, $db, $lang)
 {
-	$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance($mybb, $db);
+	$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance($mybb, $lang);
 
 	$formatterManager->registerFormatter(new MybbStuff_MyAlerts_Formatter_RepFormatter($mybb, $lang, 'rep'));
 }
