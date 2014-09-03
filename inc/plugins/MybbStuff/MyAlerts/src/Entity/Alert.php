@@ -9,12 +9,16 @@ class MybbStuff_MyAlerts_Entity_Alert
 {
 	/** @var int The ID of the alert. */
 	private $id = 0;
+	/** @var array The details of the user that sent the alert. */
+	private $fromUser = array();
 	/** @var int The ID of the user this alert is from. */
 	private $fromUserId;
 	/** @var int The ID of the user this alert is for. */
 	private $userId;
 	/** @var int|string The ID of the type of alert this is. */
 	private $typeId;
+	/** @var MybbSTuff_MyAlerts_Entity_AlertType The type of the alert. */
+	private $type = null;
 	/** @var int The ID of the object this alert is linked to. */
 	private $objectId = null;
 	/** @var \DateTime The date/time this alert was created at. */
@@ -44,15 +48,11 @@ class MybbStuff_MyAlerts_Entity_Alert
 
 		if($type instanceof MybbStuff_MyAlerts_Entity_AlertType)
 		{
-			$this->typeId = $type->getId();
-		}
-		elseif(is_string($type))
-		{
-			$this->typeId = $type;
+			$this->setType($type);
 		}
 		else
 		{
-			$this->typeId = (int)$type;
+			$this->setTypeId($type);
 		}
 
 		if(isset($objectId))
@@ -101,9 +101,9 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * @param int $typeId
 	 */
-	public function setType($typeId)
+	public function setTypeId($typeId)
 	{
-		$this->typeId = $typeId;
+		$this->typeId = (int) $typeId;
 	}
 
 	/**
@@ -115,7 +115,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	{
 		return array(
 			'uid'           => $this->getUserId(),
-			'from_user_id'       => $this->getFromUserId(),
+			'from_user_id'  => $this->getFromUserId(),
 			'alert_type'    => $this->getType(),
 			'object_id'     => $this->getObjectId(),
 			'dateline'      => $this->getCreatedAt()->format('Y-m-d H:i:s'),
@@ -153,13 +153,41 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 */
 	public function setFromUserId($fromUserId)
 	{
-		$this->fromUserId = $fromUserId;
+		$this->fromUserId = (int) $fromUserId;
+	}
+
+	/**
+	 * @param array $user The user array of the user sending the alert.
+	 */
+	public function setFromUser(array $user)
+	{
+		$this->fromUser = $user;
+		$this->setFromUserId($user['uid']);
+	}
+
+	public function setType(MybbStuff_MyAlerts_Entity_AlertType $type)
+	{
+		$this->type = $type;
+		$this->setTypeId($type->getId());
+	}
+
+	public function getType()
+	{
+		return $this->type;
+	}
+
+	/**
+	 * Get the user who sent the alert's details.
+	 */
+	public function getFromUser()
+	{
+		return $this->fromUser;
 	}
 
 	/**
 	 * @return int|string
 	 */
-	public function getType()
+	public function getTypeId()
 	{
 		return $this->typeId;
 	}
@@ -191,7 +219,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * @param \DateTime $createdAt
 	 */
-	public function setCreatedAt($createdAt)
+	public function setCreatedAt(DateTime $createdAt)
 	{
 		$this->createdAt = $createdAt;
 	}
@@ -227,4 +255,4 @@ class MybbStuff_MyAlerts_Entity_Alert
 	{
 		$this->unread = $unread;
 	}
-} 
+}

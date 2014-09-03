@@ -80,7 +80,7 @@ class MybbStuff_MyAlerts_AlertManager
             $alert->setType($this->getAlertTypeIdByCode($alert->getType()));
         }
 
-        $alert->setFromUserId($this->mybb->user['uid']);
+        $alert->setFromUser($this->mybb->user);
 
         static::$alertQueue[] = $alert;
 
@@ -181,10 +181,12 @@ class MybbStuff_MyAlerts_AlertManager
      */
     public function getNumAlerts()
     {
-        static $numAlerts = 0;
+        static $numAlerts;
 
         if(!is_int($numAlerts))
         {
+            $numAlerts = 0;
+
             if(!empty($this->currentUserEnabledAlerts))
             {
                 $alertTypes = $this->getAlertTypesForIn();
@@ -214,10 +216,12 @@ SQL;
      */
     public function getNumUnreadAlerts()
     {
-        static $numUnreadAlerts = 0;
+        static $numUnreadAlerts;
 
         if(!is_int($numUnreadAlerts))
         {
+            $numAlerts = 0;
+
             if(!empty($this->currentUserEnabledAlerts))
             {
                 $alertTypes = $this->getAlertTypesForIn();
@@ -287,9 +291,18 @@ SQL;
                         $alert = new MybbStuff_MyAlerts_Entity_Alert($alertRow['uid'], $alertType, $alertRow['object_id']);
                         $alert->setId($alertRow['id']);
                         $alert->setCreatedAt(new DateTime($alertRow['dateline']));
-                        $alert->setFromUserId($alertRow['from_user_id']);
                         $alert->setUnread((bool) $alertRow['unread']);
                         $alert->setExtraDetails(json_decode($alertRow['extra_details'], true));
+
+                        $user = array(
+                            'uid' => (int) $alertRow['uid'],
+                            'username' => $alertRow['username'],
+                            'avatar' => $alertRow['avatar'],
+                            'usergroup' => $alertRow['usergroup'],
+                            'displaygroup' => $alertRow['displaygroup'],
+                        );
+
+                        $alert->setFromUser($user);
 
                         $alerts[]         = $alert;
                     }
@@ -333,9 +346,27 @@ SQL;
 
                 if($this->db->num_rows($query) > 0)
                 {
-                    while($alert = $this->db->fetch_array($query))
+                    while($alertRow = $this->db->fetch_array($query))
                     {
-                        $alert['content'] = json_decode($alert['content'], true);
+                        $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
+                        $alertType->setCode($alertRow['code']);
+                        $alertType->setId($alertRow['alert_type']);
+                        $alert = new MybbStuff_MyAlerts_Entity_Alert($alertRow['uid'], $alertType, $alertRow['object_id']);
+                        $alert->setId($alertRow['id']);
+                        $alert->setCreatedAt(new DateTime($alertRow['dateline']));
+                        $alert->setUnread((bool) $alertRow['unread']);
+                        $alert->setExtraDetails(json_decode($alertRow['extra_details'], true));
+
+                        $user = array(
+                            'uid' => (int) $alertRow['uid'],
+                            'username' => $alertRow['username'],
+                            'avatar' => $alertRow['avatar'],
+                            'usergroup' => $alertRow['usergroup'],
+                            'displaygroup' => $alertRow['displaygroup'],
+                        );
+
+                        $alert->setFromUser($user);
+
                         $alerts[]         = $alert;
                     }
                 }
@@ -352,10 +383,10 @@ SQL;
     /**
      *  Mark alerts as read.
      *
-     * @param string /array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form.
+     * @param array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form.
      * @return bool Whether the alerts were marked read successfully.
      */
-    public function markRead($alerts = '')
+    public function markRead(array $alerts = array())
     {
         $alerts = (array) $alerts;
 
@@ -379,10 +410,10 @@ SQL;
     /**
      *  Delete alerts.
      *
-     * @param string /array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form.
+     * @param array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form.
      * @return bool Whether the alerts were deleted successfully.
      */
-    public function deleteAlerts($alerts = '')
+    public function deleteAlerts(array $alerts = array())
     {
         $success = true;
 

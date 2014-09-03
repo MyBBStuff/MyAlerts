@@ -26,4 +26,5 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter extends MybbStuff_MyAlerts_Forma
 		if (!$this->lang->myalerts) {
 			$this->lang->load('myalerts');
 		}
-	}}
+	}
+}
