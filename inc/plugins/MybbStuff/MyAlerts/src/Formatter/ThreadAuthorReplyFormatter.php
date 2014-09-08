@@ -31,7 +31,7 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter extends MybbStuff_
             $outputAlert['from_user_profilelink'],
             $threadLink,
             htmlspecialchars_uni($this->parser->parse_badwords($alertContent['t_subject'])),
-            $alert->getCreatedAt()->format('Y-m-d H:i')
+            $outputAlert['dateline']
         );
     }
 

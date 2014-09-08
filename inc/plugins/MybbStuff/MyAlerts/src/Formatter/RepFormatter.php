@@ -17,7 +17,7 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter extends MybbStuff_MyAlerts_Forma
 			$this->lang->myalerts_rep,
 			$outputAlert['from_user_profilelink'],
 			(int) $alert->getUserId(),
-			$alert->getCreatedAt()->format('Y-m-d H:i')
+			$outputAlert['dateline']
 		);
 	}
 

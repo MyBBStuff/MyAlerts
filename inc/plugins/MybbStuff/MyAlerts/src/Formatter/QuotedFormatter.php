@@ -29,7 +29,7 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter extends MybbStuff_MyAlerts_Fo
             $outputAlert['from_user_profilelink'],
             $postLink,
             htmlspecialchars_uni($this->parser->parse_badwords($alertContent['subject'])),
-            $alert->getCreatedAt()->format('Y-m-d H:i')
+            $outputAlert['dateline']
         );
     }
 

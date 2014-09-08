@@ -426,7 +426,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
         }
 
         $outputAlert['from_user'] = format_name($fromUser['username'], $fromUser['usergroup'], $fromUser['displaygroup']);
-        $outputAlert['from_user_profilelink'] = build_profile_link($fromUser['user'], $fromUser['uid']);
+        $outputAlert['from_user_profilelink'] = build_profile_link($outputAlert['from_user'], $fromUser['uid']);
         $outputAlert['dateline'] = $alertToParse->getCreatedAt()->format('Y-m-d H:i');
 
         $outputAlert['alert_status'] = ' alert--read';

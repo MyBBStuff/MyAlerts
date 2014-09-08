@@ -20,11 +20,18 @@ class MybbStuff_MyAlerts_Formatter_PrivateMessageFormatter extends MybbStuff_MyA
     {
         $alertContent = $alert->getExtraDetails();
 
+        $pmId = (int) $alertContent['pm_id'];
+        $pmSubject = htmlspecialchars_uni($this->parser->parse_badwords($alertContent['pm_title']));
+
+        $pmLink = <<<HTML
+    <a href="{$this->mybb->settings['bburl']}/private.php?action=read&amp;pmid={$pmId}">{$pmSubject}</a>
+HTML;
+
         return $this->lang->sprintf(
             $this->lang->myalerts_pm,
             $outputAlert['from_user_profilelink'],
-            "<a href=\"{$this->mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alertContent['pm_id']."\">".htmlspecialchars_uni($this->parser->parse_badwords($alertContent['pm_title']))."</a>",
-            $alert->getCreatedAt()->format('Y-m-d H:i')
+            $pmLink,
+            $outputAlert['dateline']
         );
     }
 
