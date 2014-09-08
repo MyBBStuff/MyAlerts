@@ -408,9 +408,6 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
         $lang->load('myalerts');
     }
 
-    require_once  MYBB_ROOT.'inc/class_parser.php';
-    $parser = new postParser;
-
     $alertFormatManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance($mybb, $lang);
 
     $formatter = $alertFormatManager->getFormatterForAlertType($alertToParse->getType()->getCode());
@@ -428,10 +425,8 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
             $outputAlert['avatar'] = htmlspecialchars_uni($fromUser['avatar']);
         }
 
-        $outputAlert['userlink'] = get_profile_link($fromUser['uid']);
-
-        $outputAlert['user'] = format_name($fromUser['username'], $fromUser['usergroup'], $fromUser['displaygroup']);
-        $outputAlert['user'] = build_profile_link($fromUser['user'], $fromUser['uid']);
+        $outputAlert['from_user'] = format_name($fromUser['username'], $fromUser['usergroup'], $fromUser['displaygroup']);
+        $outputAlert['from_user_profilelink'] = build_profile_link($fromUser['user'], $fromUser['uid']);
         $outputAlert['dateline'] = $alertToParse->getCreatedAt()->format('Y-m-d H:i');
 
         $outputAlert['alert_status'] = ' alert--read';
@@ -439,24 +434,10 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
             $outputAlert['alert_status'] = ' alert--unread';
         }
 
-        $outputAlert['message'] = $formatter->formatAlert($alertToParse);
+        $outputAlert['message'] = $formatter->formatAlert($alertToParse, $outputAlert);
 
         $plugins->run_hooks('myalerts_alerts_output_end', $alert);
     }
-
-    // if ($alert['alert_type'] == 'rep' AND $mybb->settings['myalerts_alert_rep']) {
-    //     $alert['message'] = $lang->sprintf($lang->myalerts_rep, $alert['user'], $mybb->user['uid'], $alert['dateline']);
-    // } elseif ($alert['alert_type'] == 'pm' AND $mybb->settings['myalerts_alert_pm']) {
-    //     $alert['message'] = $lang->sprintf($lang->myalerts_pm, $alert['user'], "<a href=\"{$mybb->settings['bburl']}/private.php?action=read&amp;pmid=".(int) $alert['content']['pm_id']."\">".htmlspecialchars_uni($parser->parse_badwords($alert['content']['pm_title']))."</a>", $alert['dateline']);
-    // } elseif ($alert['alert_type'] == 'buddylist' AND $mybb->settings['myalerts_alert_buddylist']) {
-    //     $alert['message'] = $lang->sprintf($lang->myalerts_buddylist, $alert['user'], $alert['dateline']);
-    // } elseif ($alert['alert_type'] == 'quoted' AND $mybb->settings['myalerts_alert_quoted']) {
-    //     $alert['postLink'] = $mybb->settings['bburl'].'/'.get_post_link($alert['content']['pid'], $alert['content']['tid']).'#pid'.$alert['content']['pid'];
-    //     $alert['message'] = $lang->sprintf($lang->myalerts_quoted, $alert['user'], $alert['postLink'], htmlspecialchars_uni($parser->parse_badwords($alert['content']['subject'])), $alert['dateline']);
-    // } elseif ($alert['alert_type'] == 'post_threadauthor' AND $mybb->settings['myalerts_alert_post_threadauthor']) {
-    //     $alert['threadLink'] = $mybb->settings['bburl'].'/'.get_thread_link($alert['content']['tid'], 0, 'newpost');
-    //     $alert['message'] = $lang->sprintf($lang->myalerts_post_threadauthor, $alert['user'], $alert['threadLink'], htmlspecialchars_uni($parser->parse_badwords($alert['content']['t_subject'])), $alert['dateline']);
-    // }
 
     return $outputAlert;
 }
@@ -1168,4 +1149,7 @@ function myalerts_register_core_formatters($mybb, $db, $lang)
 
 	$formatterManager->registerFormatter(new MybbStuff_MyAlerts_Formatter_RepFormatter($mybb, $lang, 'rep'));
     $formatterManager->registerFormatter(new MybbStuff_MyAlerts_Formatter_BuddylistFormatter($mybb, $lang, 'buddylist'));
+    $formatterManager->registerFormatter(new MybbStuff_MyAlerts_Formatter_QuotedFormatter($mybb, $lang, 'quoted'));
+    $formatterManager->registerFormatter(new MybbStuff_MyAlerts_Formatter_PrivateMessageFormatter($mybb, $lang, 'pm'));
+    $formatterManager->registerFormatter(new MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter($mybb, $lang, 'post_threadauthor'));
 }

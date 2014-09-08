@@ -11,9 +11,14 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter extends MybbStuff_MyAlerts_Forma
 	 * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
 	 * @return string The formatted alert string.
 	 */
-	public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert)
+	public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
 	{
-		// TODO: Implement formatAlert() method.
+		return $this->lang->sprintf(
+			$this->lang->myalerts_rep,
+			$outputAlert['from_user_profilelink'],
+			(int) $alert->getUserId(),
+			$alert->getCreatedAt()->format('Y-m-d H:i')
+		);
 	}
 
 	/**

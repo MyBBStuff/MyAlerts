@@ -92,8 +92,9 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
 	 * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
 	 *
 	 * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
+	 * @param array $outputAlert The alert output details, including formated from user name, from user profile link and more.
 	 *
 	 * @return string The formatted alert string.
 	 */
-	public abstract function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert);
-} 
+	public abstract function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert);
+}
