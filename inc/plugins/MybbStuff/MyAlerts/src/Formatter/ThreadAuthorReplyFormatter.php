@@ -14,6 +14,7 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter extends MybbStuff_
      * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
      *
      * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
+     *
      * @return string The formatted alert string.
      */
     public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
@@ -21,10 +22,10 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter extends MybbStuff_
         $alertContent = $alert->getExtraDetails();
 
         $threadLink = $this->mybb->settings['bburl'] . '/' . get_thread_link(
-            (int) $alertContent['tid'],
-            0,
-            'newpost'
-        );
+                (int) $alertContent['tid'],
+                0,
+                'newpost'
+            );
 
         return $this->lang->sprintf(
             $this->lang->myalerts_post_threadauthor,
@@ -46,7 +47,7 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter extends MybbStuff_
             $this->lang->load('myalerts');
         }
 
-        require_once  MYBB_ROOT.'inc/class_parser.php';
+        require_once MYBB_ROOT . 'inc/class_parser.php';
         $this->parser = new postParser;
     }
 }

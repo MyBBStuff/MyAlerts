@@ -9,6 +9,7 @@ class MybbStuff_MyAlerts_Formatter_BuddylistFormatter extends MybbStuff_MyAlerts
      * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
      *
      * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
+     *
      * @return string The formatted alert string.
      */
     public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)

@@ -7,16 +7,16 @@
  */
 class MybbStuff_MyAlerts_UserAlertTypeSettingManager
 {
-	/** @var DB_MySQLi Database connection instance to use. */
-	private $db;
+    /** @var DB_MySQLi Database connection instance to use. */
+    private $db;
 
-	/**
-	 * Create a new instance of the UserAlertTypeSettingManager.
-	 *
-	 * @param DB_MySQLi $db A database instance to use with the manager.
-	 */
-	public function __construct($db)
-	{
-		$this->db = $db;
-	}
+    /**
+     * Create a new instance of the UserAlertTypeSettingManager.
+     *
+     * @param DB_MySQLi $db A database instance to use with the manager.
+     */
+    public function __construct($db)
+    {
+        $this->db = $db;
+    }
 } 

@@ -44,6 +44,16 @@ class MybbStuff_MyAlerts_AlertManager
     }
 
     /**
+     * Filter the current user's enabled alerts array and format it so that it is an array of just alert type codes that are enabled.
+     *
+     * @return array The filtered array.
+     */
+    private function filterEnabledAlerts(array $alertSettings = null)
+    {
+        return array_keys(array_filter($alertSettings));
+    }
+
+    /**
      * Shortcut to get MyBB settings.
      *
      * @return array An array of settings and values.
@@ -60,8 +70,7 @@ class MybbStuff_MyAlerts_AlertManager
      */
     public function addAlerts(array $alerts)
     {
-        foreach($alerts as $alert)
-        {
+        foreach ($alerts as $alert) {
             $this->addAlert($alert);
         }
     }
@@ -70,13 +79,13 @@ class MybbStuff_MyAlerts_AlertManager
      * Add a new alert.
      *
      * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to add.
+     *
      * @return $this
      */
     public function addAlert(MybbStuff_MyAlerts_Entity_Alert $alert)
     {
         // TODO: Check for duplicates...
-        if(is_string($alert->getType()))
-        {
+        if (is_string($alert->getType())) {
             $alert->setType($this->getAlertTypeIdByCode($alert->getType()));
         }
 
@@ -91,16 +100,15 @@ class MybbStuff_MyAlerts_AlertManager
      * Get the ID of an alert type by its short code.
      *
      * @param string $code The short code name of the alert type.
+     *
      * @return int The ID of the alert type.
      */
     private function getAlertTypeIdByCode($code = '')
     {
         $typeId = 0;
 
-        foreach($this->getAlertTypes() as $alertType)
-        {
-            if($alertType->getCode() == $code)
-            {
+        foreach ($this->getAlertTypes() as $alertType) {
+            if ($alertType->getCode() == $code) {
                 $typeId = $alertType->getId();
                 break;
             }
@@ -113,30 +121,27 @@ class MybbStuff_MyAlerts_AlertManager
      * Get all of the available alert types in the system.
      *
      * @param bool $useCache Whether to use the alert type cache.
+     *
      * @return MybbStuff_MyAlerts_Entity_AlertType[] The available alert types.
      */
     public function getAlertTypes($useCache = true)
     {
-        $useCache = (bool)$useCache;
+        $useCache = (bool) $useCache;
 
         /** @var MybbStuff_MyAlerts_Entity_AlertType[] $alertTypes */
         $alertTypes = array();
 
-        if(!empty(static::$alertTypes))
-        {
+        if (!empty(static::$alertTypes)) {
             $alertTypes = static::$alertTypes;
-        }
-        else
-        {
+        } else {
 //          if ($this->cache != null && $useCache) {
 //              $alertTypes = $this->cache->read('myalerts_alert_types');
 //          } else {
             $alertTypeQuery = $this->db->simple_select('alert_settings', '*');
 
-            while($alertType = $this->db->fetch_array($alertTypeQuery))
-            {
+            while ($alertType = $this->db->fetch_array($alertTypeQuery)) {
                 $type = new MybbStuff_MyAlerts_Entity_AlertType();
-                $type->setId((int)$alertType['id']);
+                $type->setId((int) $alertType['id']);
                 $type->setCode($alertType['code']);
                 $alertTypes[] = $type;
             }
@@ -155,20 +160,16 @@ class MybbStuff_MyAlerts_AlertManager
      */
     public function commit()
     {
-        if(empty(static::$alertQueue))
-        {
+        if (empty(static::$alertQueue)) {
             $success = true;
-        }
-        else
-        {
+        } else {
             $toCommit = array();
 
-            foreach(static::$alertQueue as $alert)
-            {
+            foreach (static::$alertQueue as $alert) {
                 $toCommit[] = $alert->toArray();
             }
 
-            $success = (boolean)$this->db->insert_query_multiple('alerts', $toCommit);
+            $success = (boolean) $this->db->insert_query_multiple('alerts', $toCommit);
         }
 
         return $success;
@@ -183,16 +184,14 @@ class MybbStuff_MyAlerts_AlertManager
     {
         static $numAlerts;
 
-        if(!is_int($numAlerts))
-        {
+        if (!is_int($numAlerts)) {
             $numAlerts = 0;
 
-            if(!empty($this->currentUserEnabledAlerts))
-            {
+            if (!empty($this->currentUserEnabledAlerts)) {
                 $alertTypes = $this->getAlertTypesForIn();
 
-                $this->mybb->user['uid'] = (int)$this->mybb->user['uid'];
-                $prefix = TABLE_PREFIX;
+                $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
+                $prefix                  = TABLE_PREFIX;
 
                 $queryString = <<<SQL
                 SELECT COUNT(*) AS count FROM {$prefix}alerts a
@@ -202,11 +201,24 @@ SQL;
 
                 $query = $this->db->write_query($queryString);
 
-                $numAlerts = (int)$this->db->fetch_field($query, 'count');
+                $numAlerts = (int) $this->db->fetch_field($query, 'count');
             }
         }
 
         return $numAlerts;
+    }
+
+    /**
+     * Gets the enabled alert types for the current user ready to be used in a MySQL IN() call.
+     *
+     * @return string The formatted string of alert types enabled for the user.
+     */
+    private function getAlertTypesForIn()
+    {
+        $alertTypes = array_map(array($this->db, 'escape_string'), $this->currentUserEnabledAlerts);
+        $alertTypes = "'" . implode("','", $alertTypes) . "'";
+
+        return $alertTypes;
     }
 
     /**
@@ -218,17 +230,15 @@ SQL;
     {
         static $numUnreadAlerts;
 
-        if(!is_int($numUnreadAlerts))
-        {
+        if (!is_int($numUnreadAlerts)) {
             $numAlerts = 0;
 
-            if(!empty($this->currentUserEnabledAlerts))
-            {
+            if (!empty($this->currentUserEnabledAlerts)) {
                 $alertTypes = $this->getAlertTypesForIn();
 
-                $this->mybb->user['uid'] = (int)$this->mybb->user['uid'];
+                $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
 
-                $prefix = TABLE_PREFIX;
+                $prefix      = TABLE_PREFIX;
                 $queryString = <<<SQL
                 SELECT COUNT(*) AS count FROM {$prefix}alerts a
                 INNER JOIN {$prefix}alert_settings s ON (a.alert_type_id = s.id)
@@ -237,7 +247,7 @@ SQL;
 
                 $query = $this->db->write_query($queryString);;
 
-                $numUnreadAlerts = (int)$this->db->fetch_field($query, 'count');
+                $numUnreadAlerts = (int) $this->db->fetch_field($query, 'count');
             }
         }
 
@@ -249,6 +259,7 @@ SQL;
      *
      * @param int $start The start point (used for multipaging alerts)
      * @param int $limit The maximum number of alerts to retreive.
+     *
      * @return array The alerts for the user.
      * @return boolean If the user has no new alerts.
      * @throws Exception Thrown if the use cannot access the alerts system.
@@ -260,8 +271,7 @@ SQL;
         $start = (int) $start;
         $limit = (int) $limit;
 
-        if((int)$this->mybb->user['uid'] > 0)
-        { // check the user is a user and not a guest - no point wasting queries on guests afterall
+        if ((int) $this->mybb->user['uid'] > 0) { // check the user is a user and not a guest - no point wasting queries on guests afterall
             if (!empty($this->currentUserEnabledAlerts)) {
                 if ($limit == 0) {
                     $limit = $this->mybb->settings['myalerts_perpage'];
@@ -281,36 +291,37 @@ SQL;
 
                 $query = $this->db->write_query($alertsQuery);
 
-                if($this->db->num_rows($query) > 0) {
+                if ($this->db->num_rows($query) > 0) {
                     $return = array();
-                    while($alertRow = $this->db->fetch_array($query))
-                    {
+                    while ($alertRow = $this->db->fetch_array($query)) {
                         $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
                         $alertType->setCode($alertRow['code']);
                         $alertType->setId($alertRow['alert_type_id']);
-                        $alert = new MybbStuff_MyAlerts_Entity_Alert($alertRow['uid'], $alertType, $alertRow['object_id']);
+                        $alert = new MybbStuff_MyAlerts_Entity_Alert(
+                            $alertRow['uid'],
+                            $alertType,
+                            $alertRow['object_id']
+                        );
                         $alert->setId($alertRow['id']);
                         $alert->setCreatedAt(new DateTime($alertRow['dateline']));
                         $alert->setUnread((bool) $alertRow['unread']);
                         $alert->setExtraDetails(json_decode($alertRow['extra_details'], true));
 
                         $user = array(
-                            'uid' => (int) $alertRow['uid'],
-                            'username' => $alertRow['username'],
-                            'avatar' => $alertRow['avatar'],
-                            'usergroup' => $alertRow['usergroup'],
+                            'uid'          => (int) $alertRow['uid'],
+                            'username'     => $alertRow['username'],
+                            'avatar'       => $alertRow['avatar'],
+                            'usergroup'    => $alertRow['usergroup'],
                             'displaygroup' => $alertRow['displaygroup'],
                         );
 
                         $alert->setFromUser($user);
 
-                        $alerts[]         = $alert;
+                        $alerts[] = $alert;
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             throw new Exception('Guests have not got access to the Alerts functionality');
         }
 
@@ -327,12 +338,11 @@ SQL;
     public function getUnreadAlerts()
     {
         $alerts = array();
-        if((int)$this->mybb->user['uid'] > 0)
-        { // check the user is a user and not a guest - no point wasting queries on guests afterall
+        if ((int) $this->mybb->user['uid'] > 0) { // check the user is a user and not a guest - no point wasting queries on guests afterall
             if (!empty($this->currentUserEnabledAlerts)) {
                 $alertTypes = $this->getAlertTypesForIn();
 
-                $this->mybb->user['uid'] = (int)$this->mybb->user['uid'];
+                $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
                 $prefix                  = TABLE_PREFIX;
                 $alertsQuery             = <<<SQL
     SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$prefix}alerts a
@@ -344,36 +354,36 @@ SQL;
 
                 $query = $this->db->write_query($alertsQuery);
 
-                if($this->db->num_rows($query) > 0)
-                {
-                    while($alertRow = $this->db->fetch_array($query))
-                    {
+                if ($this->db->num_rows($query) > 0) {
+                    while ($alertRow = $this->db->fetch_array($query)) {
                         $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
                         $alertType->setCode($alertRow['code']);
                         $alertType->setId($alertRow['alert_type_id']);
-                        $alert = new MybbStuff_MyAlerts_Entity_Alert($alertRow['uid'], $alertType, $alertRow['object_id']);
+                        $alert = new MybbStuff_MyAlerts_Entity_Alert(
+                            $alertRow['uid'],
+                            $alertType,
+                            $alertRow['object_id']
+                        );
                         $alert->setId($alertRow['id']);
                         $alert->setCreatedAt(new DateTime($alertRow['dateline']));
                         $alert->setUnread((bool) $alertRow['unread']);
                         $alert->setExtraDetails(json_decode($alertRow['extra_details'], true));
 
                         $user = array(
-                            'uid' => (int) $alertRow['uid'],
-                            'username' => $alertRow['username'],
-                            'avatar' => $alertRow['avatar'],
-                            'usergroup' => $alertRow['usergroup'],
+                            'uid'          => (int) $alertRow['uid'],
+                            'username'     => $alertRow['username'],
+                            'avatar'       => $alertRow['avatar'],
+                            'usergroup'    => $alertRow['usergroup'],
                             'displaygroup' => $alertRow['displaygroup'],
                         );
 
                         $alert->setFromUser($user);
 
-                        $alerts[]         = $alert;
+                        $alerts[] = $alert;
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             throw new Exception('Guests have not got access to the Alerts functionality');
         }
 
@@ -384,6 +394,7 @@ SQL;
      *  Mark alerts as read.
      *
      * @param array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form.
+     *
      * @return bool Whether the alerts were marked read successfully.
      */
     public function markRead(array $alerts = array())
@@ -392,15 +403,16 @@ SQL;
 
         $success = true;
 
-        if(is_array($alerts) && !empty($alerts))
-        {
+        if (is_array($alerts) && !empty($alerts)) {
             $alerts = array_map('intval', $alerts);
-            $alerts = "'".implode("','", $alerts)."'";
+            $alerts = "'" . implode("','", $alerts) . "'";
 
             $success = (bool) $this->db->update_query(
-                'alerts', array(
+                'alerts',
+                array(
                     'unread' => '0'
-                ), 'id IN('.$alerts.') AND uid = '.$this->mybb->user['uid']
+                ),
+                'id IN(' . $alerts . ') AND uid = ' . $this->mybb->user['uid']
             );
         }
 
@@ -411,57 +423,36 @@ SQL;
      *  Delete alerts.
      *
      * @param array Either a string formatted for use in a MySQL IN() clause or an array to be parsed into said form.
+     *
      * @return bool Whether the alerts were deleted successfully.
      */
     public function deleteAlerts(array $alerts = array())
     {
         $success = true;
 
-        if(is_array($alerts) OR is_int($alerts))
-        {
+        if (is_array($alerts) OR is_int($alerts)) {
             $alerts = (array) $alerts;
 
             if (!empty($alerts)) {
                 $alerts = array_map('intval', $alerts);
-                $alerts = "'".implode("','", $alerts)."'";
+                $alerts = "'" . implode("','", $alerts) . "'";
 
-                $success = (bool) $this->db->delete_query('alerts', 'id IN('.$alerts.') AND uid = '.(int)$this->mybb->user['uid']);
+                $success = (bool) $this->db->delete_query(
+                    'alerts',
+                    'id IN(' . $alerts . ') AND uid = ' . (int) $this->mybb->user['uid']
+                );
             }
-        }
-        else
-        {
-            if($alerts == 'allRead')
-            {
-                $success = (bool) $this->db->delete_query('alerts', 'unread = 0 AND uid = '.(int)$this->mybb->user['uid']);
-            }
-            elseif($alerts = 'allAlerts')
-            {
-                $success = (bool) $this->db->delete_query('alerts', 'uid = '.(int)$this->mybb->user['uid']);
+        } else {
+            if ($alerts == 'allRead') {
+                $success = (bool) $this->db->delete_query(
+                    'alerts',
+                    'unread = 0 AND uid = ' . (int) $this->mybb->user['uid']
+                );
+            } elseif ($alerts = 'allAlerts') {
+                $success = (bool) $this->db->delete_query('alerts', 'uid = ' . (int) $this->mybb->user['uid']);
             }
         }
 
         return $success;
-    }
-
-    /**
-     * Filter the current user's enabled alerts array and format it so that it is an array of just alert type codes that are enabled.
-     *
-     * @return array The filtered array.
-     */
-    private function filterEnabledAlerts(array $alertSettings = null)
-    {
-        return array_keys(array_filter($alertSettings));
-    }
-
-    /**
-     * Gets the enabled alert types for the current user ready to be used in a MySQL IN() call.
-     *
-     * @return string The formatted string of alert types enabled for the user.
-     */
-    private function getAlertTypesForIn()
-    {
-        $alertTypes = array_map(array($this->db, 'escape_string'), $this->currentUserEnabledAlerts);
-        $alertTypes = "'".implode("','", $alertTypes)."'";
-        return $alertTypes;
     }
 }

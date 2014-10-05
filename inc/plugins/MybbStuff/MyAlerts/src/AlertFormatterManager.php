@@ -9,84 +9,90 @@
  */
 class MybbStuff_MyAlerts_AlertFormatterManager
 {
-	/**
-	 * @var MybbStuff_MyAlerts_AlertFormatterManager
-	 */
-	private static $instance;
+    /**
+     * @var MybbStuff_MyAlerts_AlertFormatterManager
+     */
+    private static $instance;
 
-	/**
-	 * @var MyBB
-	 */
-	private $mybb;
-	/**
-	 * @var MyLanguage
-	 */
-	private $lang;
-	/**
-	 * @var array
-	 */
-	private $alertFormatters;
+    /**
+     * @var MyBB
+     */
+    private $mybb;
+    /**
+     * @var MyLanguage
+     */
+    private $lang;
+    /**
+     * @var array
+     */
+    private $alertFormatters;
 
-	public static function getInstance(MyBB &$mybb, MyLanguage &$lang)
-	{
-		if (!static::$instance) {
-			static::$instance = new static($mybb, $lang);
-		}
+    /**
+     * Create a new formatter manager.
+     */
+    private function __construct(MyBB &$mybb, MyLanguage &$lang)
+    {
+        $this->mybb = $mybb;
+        $this->lang = $lang;
+        $this->alertFormatters = array();
+    }
 
-		return static::$instance;
-	}
+    public static function getInstance(MyBB &$mybb, MyLanguage &$lang)
+    {
+        if (!static::$instance) {
+            static::$instance = new static($mybb, $lang);
+        }
 
-	/**
-	 * Create a new formatter manager.
-	 */
-	private function __construct(MyBB &$mybb, MyLanguage &$lang)
-	{
-		$this->mybb = $mybb;
-		$this->lang = $lang;
-		$this->alertFormatters = array();
-	}
+        return static::$instance;
+    }
 
-	/**
-	 * Register a new alert type formatter.
-	 *
-	 * @param string|MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatterClass The formatter to use. Either the name or instance of a class extending MybbStuff_MyAlerts_Formatter_AbstractFormatter.
-	 * @return $this
-	 */
-	public function registerFormatter($formatterClass = '')
-	{
-		$formatter = null;
+    /**
+     * Register a new alert type formatter.
+     *
+     * @param string|MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatterClass The formatter to use. Either the name or instance of a class extending MybbStuff_MyAlerts_Formatter_AbstractFormatter.
+     *
+     * @return $this
+     */
+    public function registerFormatter($formatterClass = '')
+    {
+        $formatter = null;
 
-		if (is_string($formatterClass)) {
-			/** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatter */
-			$formatter = new $formatterClass($this->mybb, $this->lang);
-			$formatter->init();
-		} elseif (is_object($formatterClass) && $formatterClass instanceof MybbStuff_MyAlerts_Formatter_AbstractFormatter) {
-			$formatter = $formatterClass;
-		} else {
-			throw new InvalidArgumentException('$formatterClass must either be the name or instance of a class extending MybbStuff_MyAlerts_Formatter_AbstractFormatter.');
-		}
+        if (is_string($formatterClass)) {
+            /** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatter */
+            $formatter = new $formatterClass($this->mybb, $this->lang);
+            $formatter->init();
+        } elseif (is_object(
+                $formatterClass
+            ) && $formatterClass instanceof MybbStuff_MyAlerts_Formatter_AbstractFormatter
+        ) {
+            $formatter = $formatterClass;
+        } else {
+            throw new InvalidArgumentException(
+                '$formatterClass must either be the name or instance of a class extending MybbStuff_MyAlerts_Formatter_AbstractFormatter.'
+            );
+        }
 
-		$this->alertFormatters[$formatter->getAlertTypeName()] = $formatter;
+        $this->alertFormatters[$formatter->getAlertTypeName()] = $formatter;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get the registered formatter for an alert type.
-	 *
-	 * @param string $alertTypeName The name of the alert type to retrieve the formatter for.
-	 *
-	 * @return MybbStuff_MyAlerts_Formatter_AbstractFormatter|null The located formatter or null if a registered formatter is not found.
-	 */
-	public function getFormatterForAlertType($alertTypeName = '')
-	{
-		$alertTypeName = (string) $alertTypeName;
-		$formatter = null;
+    /**
+     * Get the registered formatter for an alert type.
+     *
+     * @param string $alertTypeName The name of the alert type to retrieve the formatter for.
+     *
+     * @return MybbStuff_MyAlerts_Formatter_AbstractFormatter|null The located formatter or null if a registered formatter is not found.
+     */
+    public function getFormatterForAlertType($alertTypeName = '')
+    {
+        $alertTypeName = (string) $alertTypeName;
+        $formatter     = null;
 
-		if (isset($this->alertFormatters[$alertTypeName])) {
-			$formatter = $this->alertFormatters[$alertTypeName];
-		}
+        if (isset($this->alertFormatters[$alertTypeName])) {
+            $formatter = $this->alertFormatters[$alertTypeName];
+        }
 
-		return $formatter;
-	}
+        return $formatter;
+    }
 } 
