@@ -196,7 +196,7 @@ class MybbStuff_MyAlerts_AlertManager
 
                 $queryString = <<<SQL
                 SELECT COUNT(*) AS count FROM {$prefix}alerts a
-                INNER JOIN {$prefix}alert_settings s ON (a.alert_type = s.id)
+                INNER JOIN {$prefix}alert_settings s ON (a.alert_type_id = s.id)
                 WHERE (s.code IN ({$alertTypes}) OR a.forced = 1) AND a.uid = {$this->mybb->user['uid']};
 SQL;
 
@@ -231,7 +231,7 @@ SQL;
                 $prefix = TABLE_PREFIX;
                 $queryString = <<<SQL
                 SELECT COUNT(*) AS count FROM {$prefix}alerts a
-                INNER JOIN {$prefix}alert_settings s ON (a.alert_type = s.id)
+                INNER JOIN {$prefix}alert_settings s ON (a.alert_type_id = s.id)
                 WHERE (s.code IN ({$alertTypes}) OR a.forced = 1) AND a.uid = {$this->mybb->user['uid']} AND a.unread = 1;
 SQL;
 
@@ -274,7 +274,7 @@ SQL;
                 $alertsQuery             = <<<SQL
     SELECT a.*, s.code, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$prefix}alerts a
     INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
-    INNER JOIN {$prefix}alert_settings s ON (a.alert_type = s.id)
+    INNER JOIN {$prefix}alert_settings s ON (a.alert_type_id = s.id)
     WHERE a.uid = {$this->mybb->user['uid']}
     AND (s.code IN ({$alertTypes}) OR a.forced = 1) ORDER BY a.id DESC LIMIT {$start}, {$limit};
 SQL;
@@ -287,7 +287,7 @@ SQL;
                     {
                         $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
                         $alertType->setCode($alertRow['code']);
-                        $alertType->setId($alertRow['alert_type']);
+                        $alertType->setId($alertRow['alert_type_id']);
                         $alert = new MybbStuff_MyAlerts_Entity_Alert($alertRow['uid'], $alertType, $alertRow['object_id']);
                         $alert->setId($alertRow['id']);
                         $alert->setCreatedAt(new DateTime($alertRow['dateline']));
@@ -337,7 +337,7 @@ SQL;
                 $alertsQuery             = <<<SQL
     SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$prefix}alerts a
     INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
-    INNER JOIN {$prefix}alert_settings s ON (a.alert_type = s.id)
+    INNER JOIN {$prefix}alert_settings s ON (a.alert_type_id = s.id)
     WHERE a.uid = {$this->mybb->user['uid']} AND a.unread = 1
     AND (s.code IN ({$alertTypes}) OR a.forced = 1) ORDER BY a.id DESC;
 SQL;
@@ -350,7 +350,7 @@ SQL;
                     {
                         $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
                         $alertType->setCode($alertRow['code']);
-                        $alertType->setId($alertRow['alert_type']);
+                        $alertType->setId($alertRow['alert_type_id']);
                         $alert = new MybbStuff_MyAlerts_Entity_Alert($alertRow['uid'], $alertType, $alertRow['object_id']);
                         $alert->setId($alertRow['id']);
                         $alert->setCreatedAt(new DateTime($alertRow['dateline']));

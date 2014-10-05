@@ -116,7 +116,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 		return array(
 			'uid'           => $this->getUserId(),
 			'from_user_id'  => $this->getFromUserId(),
-			'alert_type'    => $this->getType(),
+			'alert_type_id'    => $this->getTypeId(),
 			'object_id'     => $this->getObjectId(),
 			'dateline'      => $this->getCreatedAt()->format('Y-m-d H:i:s'),
 			'extra_details' => json_encode($this->getExtraDetails()),

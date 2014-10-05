@@ -7,78 +7,97 @@
  */
 class MybbStuff_MyAlerts_Entity_AlertType
 {
-	/** @var int The ID of the alert type. */
-	private $id = 0;
+    /** @var int The ID of the alert type. */
+    private $id = 0;
+    /** @var string The short code identifying the alert type - eg: 'pm', 'rep'. */
+    private $code = '';
+    /** @var bool Whether the alert type is enabled. */
+    private $enabled = true;
 
-	/** @var string The short code identifying the alert type - eg: 'pm', 'rep'. */
-	private $code = '';
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return $this->code;
+    }
 
-	/** @var string The public facing title of the alert type. */
-	private $title = '';
-	/** @var bool Whether the alert type is enabled. */
-	private $enabled = true;
+    /**
+     * @param string $code
+     */
+    public function setCode($code)
+    {
+        $this->code = (string) $code;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getCode()
-	{
-		return $this->code;
-	}
+    /**
+     * @return boolean
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
 
-	/**
-	 * @param string $code
-	 */
-	public function setCode($code)
-	{
-		$this->code = $code;
-	}
+    /**
+     * @param boolean $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = (bool) $enabled;
+    }
 
-	/**
-	 * @return boolean
-	 */
-	public function getEnabled()
-	{
-		return $this->enabled;
-	}
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
-	/**
-	 * @param boolean $enabled
-	 */
-	public function setEnabled($enabled)
-	{
-		$this->enabled = $enabled;
-	}
+    /**
+     * @param int $id
+     */
+    public function setId($id = 0)
+    {
+        $this->id = (int) $id;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getTitle()
-	{
-		return $this->title;
-	}
+    /**
+     * Serialize the alert type to an array.
+     *
+     * @return array The seralized alert type.
+     */
+    public function toArray()
+    {
+        return array(
+            'id' => $this->getId(),
+            'code' => $this->getCode(),
+            'enabled' => $this->getEnabled(),
+        );
+    }
 
-	/**
-	 * @param string $title
-	 */
-	public function setTitle($title)
-	{
-		$this->title = $title;
-	}
+    /**
+     * Unserialize an alert type from an array created using toArray().
+     *
+     * @param array $serialized The serialized alert type.
+     *
+     * @return MybbStuff_MyAlerts_Entity_AlertType The unserialized alert type.
+     */
+    public static function unserialize(array $serialized)
+    {
+        $serialized = array_merge(array(
+                'id' => 0,
+                'code' => 0,
+                'enabled' => 0,
+            ),
+            $serialized
+        );
 
-	/**
-	 * @return int
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
+        $alertType = new static();
+        $alertType->setEnabled($serialized['enabled']);
+        $alertType->setId($serialized['id']);
+        $alertType->setCode($serialized['code']);
 
-	/**
-	 * @param int $id
-	 */
-	public function setId($id = 0)
-	{
-		$this->id = $id;
-	}
+        return $alertType;
+    }
 } 
