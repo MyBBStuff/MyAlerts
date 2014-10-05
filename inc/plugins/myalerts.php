@@ -421,6 +421,8 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
     if ($formatter != null) {
         $plugins->run_hooks('myalerts_alerts_output_start', $alert);
 
+        $formatter->init();
+
         $fromUser = $alertToParse->getFromUser();
 
         if (empty($fromUser['avatar'])) {
