@@ -33,4 +33,17 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter extends MybbStuff_MyAlerts_Forma
             $this->lang->load('myalerts');
         }
     }
+
+    /**
+     * Build a link to an alert's content so that the system can redirect to it.
+     *
+     * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
+     *
+     * @return string The built alert, preferably an absolute link.
+     */
+    public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+    {
+        return "{$this->mybb->settings['bburl']}/reputation.php?uid={$this->mybb->user['uid']}";
+
+    }
 }

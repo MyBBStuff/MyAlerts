@@ -20,12 +20,7 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter extends MybbStuff_
     public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
     {
         $alertContent = $alert->getExtraDetails();
-
-        $threadLink = $this->mybb->settings['bburl'] . '/' . get_thread_link(
-                (int) $alertContent['tid'],
-                0,
-                'newpost'
-            );
+        $threadLink = $this->buildShowLink($alert);
 
         return $this->lang->sprintf(
             $this->lang->myalerts_post_threadauthor,
@@ -49,5 +44,25 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter extends MybbStuff_
 
         require_once MYBB_ROOT . 'inc/class_parser.php';
         $this->parser = new postParser;
+    }
+
+    /**
+     * Build a link to an alert's content so that the system can redirect to it.
+     *
+     * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
+     *
+     * @return string The built alert, preferably an absolute link.
+     */
+    public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+    {
+        $alertContent = $alert->getExtraDetails();
+
+        $threadLink = $this->mybb->settings['bburl'] . '/' . get_thread_link(
+                (int) $alertContent['tid'],
+                0,
+                'newpost'
+            );
+
+        return $threadLink;
     }
 }

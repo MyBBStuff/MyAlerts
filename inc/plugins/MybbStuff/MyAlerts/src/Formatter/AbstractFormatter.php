@@ -97,4 +97,13 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
      * @return string The formatted alert string.
      */
     public abstract function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert);
+
+    /**
+     * Build a link to an alert's content so that the system can redirect to it.
+     *
+     * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
+     *
+     * @return string The built alert, preferably an absolute link.
+     */
+    public abstract function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert);
 }

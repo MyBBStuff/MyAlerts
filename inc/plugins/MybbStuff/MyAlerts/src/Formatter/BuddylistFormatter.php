@@ -32,4 +32,16 @@ class MybbStuff_MyAlerts_Formatter_BuddylistFormatter extends MybbStuff_MyAlerts
             $this->lang->load('myalerts');
         }
     }
+
+    /**
+     * Build a link to an alert's content so that the system can redirect to it.
+     *
+     * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
+     *
+     * @return string The built alert, preferably an absolute link.
+     */
+    public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+    {
+        return get_profile_link($alert->getFromUserId());
+    }
 }

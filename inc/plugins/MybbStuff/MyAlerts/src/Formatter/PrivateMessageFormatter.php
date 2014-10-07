@@ -21,11 +21,10 @@ class MybbStuff_MyAlerts_Formatter_PrivateMessageFormatter extends MybbStuff_MyA
     {
         $alertContent = $alert->getExtraDetails();
 
-        $pmId      = (int) $alertContent['pm_id'];
         $pmSubject = htmlspecialchars_uni($this->parser->parse_badwords($alertContent['pm_title']));
 
         $pmLink = <<<HTML
-    <a href="{$this->mybb->settings['bburl']}/private.php?action=read&amp;pmid={$pmId}">{$pmSubject}</a>
+    <a href="{$this->buildShowLink($alert)}">{$pmSubject}</a>
 HTML;
 
         return $this->lang->sprintf(
@@ -49,5 +48,21 @@ HTML;
 
         require_once MYBB_ROOT . 'inc/class_parser.php';
         $this->parser = new postParser;
+    }
+
+    /**
+     * Build a link to an alert's content so that the system can redirect to it.
+     *
+     * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
+     *
+     * @return string The built alert, preferably an absolute link.
+     */
+    public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+    {
+        $alertContent = $alert->getExtraDetails();
+
+        $pmId      = (int) $alertContent['pm_id'];
+
+        return "{$this->mybb->settings['bburl']}/private.php?action=read&amp;pmid={$pmId}";
     }
 }

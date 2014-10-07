@@ -68,3 +68,5 @@ $l['myalerts_help_alert_types_post_threadauthor'] = '<strong>New reply to your t
 <p>
 	This alert type is received whenever another member of the site replies to one of your threads. This alert is only received for the first new post to the thread rather than being duplicated for each reply.
 </p>';
+
+$l['myalerts_error_alert_not_found'] = 'Alert not found.';
