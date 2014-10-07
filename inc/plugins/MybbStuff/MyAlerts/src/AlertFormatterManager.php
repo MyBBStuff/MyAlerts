@@ -10,11 +10,6 @@
 class MybbStuff_MyAlerts_AlertFormatterManager
 {
     /**
-     * @var MybbStuff_MyAlerts_AlertFormatterManager
-     */
-    private static $instance;
-
-    /**
      * @var MyBB
      */
     private $mybb;
@@ -35,15 +30,6 @@ class MybbStuff_MyAlerts_AlertFormatterManager
         $this->mybb = $mybb;
         $this->lang = $lang;
         $this->alertFormatters = array();
-    }
-
-    public static function getInstance(MyBB &$mybb, MyLanguage &$lang)
-    {
-        if (!static::$instance) {
-            static::$instance = new static($mybb, $lang);
-        }
-
-        return static::$instance;
     }
 
     /**
