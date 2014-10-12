@@ -5,7 +5,7 @@
 
 define('IN_MYBB', true);
 
-$action = isset($mybb->input['action']) ? $mybb->input['action'] : '';
+$action = $mybb->get_input('action', MyBB::INPUT_STRING);
 
 if (!isset($lang->myalerts)) {
     $lang->load('myalerts');
@@ -22,14 +22,17 @@ switch ($action) {
 
 /**
  * Handle a request to view a single alert by marking the alert read and forwarding on to the correct location.
+ *
+ * @param MyBB $mybb MyBB core object.
+ * @param MyLanguage $lang Language object to use.
  */
 function myalerts_redirect_alert($mybb, $lang)
 {
-    $alertId = (int) $mybb->get_input('alert_id', 1);
+    $alertId = $mybb->get_input('alert_id', MyBB::INPUT_INT);
 
     /** @var MybbStuff_MyAlerts_Entity_Alert $alert */
     $alert = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlert($alertId);
-    /** @var MybbSTuff_MyAlerts_Formatter_AbstractFormatter $alertTypeFormatter */
+    /** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $alertTypeFormatter */
     $alertTypeFormatter = $GLOBALS['mybbstuff_myalerts_alert_formatter_manager']->getFormatterForAlertType($alert->getType()->getCode());
 
     if (!$alert || !$alertTypeFormatter) {
@@ -39,4 +42,14 @@ function myalerts_redirect_alert($mybb, $lang)
     $GLOBALS['mybbstuff_myalerts_alert_manager']->markRead(array($alertId));
 
     header('Location: ' . $alertTypeFormatter->buildShowLink($alert));
+}
+
+/**
+ * View all alerts.
+ *
+ * @param MyBB $mybb MyBB core object.
+ */
+function myalerts_view_alerts($mybb)
+{
+
 }

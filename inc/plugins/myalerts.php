@@ -27,8 +27,6 @@ $classLoader->register();
 
 function myalerts_info()
 {
-    global $mybb;
-
     return array(
         'name'          => 'MyAlerts',
         'description'   => 'A simple notifications/alerts system for MyBB.',
@@ -167,7 +165,7 @@ function myalerts_uninstall()
 
 function myalerts_activate()
 {
-    global $mybb, $db, $lang, $PL, $plugins, $cache;
+    global $db, $lang, $PL, $plugins, $cache;
 
     if (!$lang->myalerts) {
         $lang->load('myalerts');
@@ -263,7 +261,7 @@ JAVASCRIPT;
     find_replace_templatesets(
         'header_welcomeblock_member',
         "#" . preg_quote('{$modcplink}') . "#i",
-        '<myalerts_headericon>{$modcplink}'
+        '{$myalerts_headericon}{$modcplink}'
     );
 
     // Helpdocs
@@ -388,7 +386,7 @@ function myalerts_deactivate()
 JAVASCRIPT;
 
     find_replace_templatesets('headerinclude', "#" . preg_quote($myalertsJs) . "#i", '');
-    find_replace_templatesets('header_welcomeblock_member', "#" . preg_quote('<myalerts_headericon>') . "#i", '');
+    find_replace_templatesets('header_welcomeblock_member', "#" . preg_quote('{$myalerts_headericon}') . "#i", '');
 
     $db->update_query('tasks', array('enabled' => 0), 'file = \'myalerts\'');
 }
@@ -507,12 +505,12 @@ function myalerts_global()
             $mybb->user['myalerts_settings'][$row['code']] = (int) $row['value'];
         }
 
-        $GLOBALS['mybbstuff_myalerts_alert_type_manager'] = new MybbStuff_MyAlerts_AlertTypeManager(
+        $alertTypeManager = $GLOBALS['mybbstuff_myalerts_alert_type_manager'] = new MybbStuff_MyAlerts_AlertTypeManager(
             $db,
             $cache
         );
 
-        $GLOBALS['mybbstuff_myalerts_alert_manager'] = new MybbStuff_MyAlerts_AlertManager($mybb, $db, $cache);
+        $GLOBALS['mybbstuff_myalerts_alert_manager'] = new MybbStuff_MyAlerts_AlertManager($mybb, $db, $cache, $alertTypeManager);
 
         $GLOBALS['mybbstuff_myalerts_alert_formatter_manager'] = new MybbStuff_MyAlerts_AlertFormatterManager($mybb, $lang);
 
@@ -567,11 +565,14 @@ function myalerts_online_location(&$plugin_array)
         $lang->load('myalerts');
     }
 
-    if ($plugin_array['user_activity']['activity'] == 'usercp' AND my_strpos(
-            $plugin_array['user_activity']['location'],
-            'alerts'
-        )
-    ) {
+    $inUserCpAlerts = $plugin_array['user_activity']['activity'] == 'usercp' AND my_strpos(
+        $plugin_array['user_activity']['location'],
+        'alerts'
+    );
+
+    $inAlertsPage = $plugin_array['user_activity']['activity'] == 'alerts';
+
+    if ($inUserCpAlerts || $inAlertsPage) {
         $plugin_array['location_name'] = $lang->myalerts_online_location_listing;
     }
 }
