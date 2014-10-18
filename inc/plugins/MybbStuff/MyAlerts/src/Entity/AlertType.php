@@ -26,8 +26,8 @@ class MybbStuff_MyAlerts_Entity_AlertType
         $serialized = array_merge(
             array(
                 'id'      => 0,
-                'code'    => 0,
-                'enabled' => 0,
+                'code'    => '',
+                'enabled' => false,
             ),
             $serialized
         );
@@ -101,4 +101,4 @@ class MybbStuff_MyAlerts_Entity_AlertType
     {
         $this->enabled = (bool) $enabled;
     }
-} 
+}

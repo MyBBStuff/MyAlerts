@@ -25,7 +25,7 @@ class MybbStuff_MyAlerts_AlertFormatterManager
     /**
      * Create a new formatter manager.
      */
-    public function __construct(MyBB &$mybb, MyLanguage &$lang)
+    public function __construct(MyBB $mybb, MyLanguage $lang)
     {
         $this->mybb = $mybb;
         $this->lang = $lang;
@@ -81,4 +81,4 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 
         return $formatter;
     }
-} 
+}
