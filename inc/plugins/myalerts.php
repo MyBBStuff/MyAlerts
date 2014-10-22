@@ -412,9 +412,9 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
         $fromUser = $alertToParse->getFromUser();
 
         if (empty($fromUser['avatar'])) {
-            $outputAlert['avatar'] = htmlspecialchars_uni($mybb->settings['myalerts_default_avatar']);
+            $outputAlert['avatar'] = htmlspecialchars_uni($mybb->get_asset_url($mybb->settings['myalerts_default_avatar']));
         } else {
-            $outputAlert['avatar'] = htmlspecialchars_uni($fromUser['avatar']);
+            $outputAlert['avatar'] = htmlspecialchars_uni($mybb->get_asset_url($fromUser['avatar']));
         }
 
         $outputAlert['from_user']             = format_name(
