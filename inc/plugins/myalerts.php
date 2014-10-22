@@ -469,8 +469,6 @@ function myalerts_global()
 {
     global $mybb, $db, $lang, $templatelist, $cache;
 
-    myalerts_register_core_formatters($mybb, $db, $lang);
-
     if (isset($templatelist)) {
         $templatelist .= ',';
     }
@@ -513,6 +511,8 @@ function myalerts_global()
         $GLOBALS['mybbstuff_myalerts_alert_manager'] = new MybbStuff_MyAlerts_AlertManager($mybb, $db, $cache, $alertTypeManager);
 
         $GLOBALS['mybbstuff_myalerts_alert_formatter_manager'] = new MybbStuff_MyAlerts_AlertFormatterManager($mybb, $lang);
+
+	    myalerts_register_core_formatters($mybb, $db, $lang);
 
         register_shutdown_function(array($GLOBALS['mybbstuff_myalerts_alert_manager'], 'commit'));
 
