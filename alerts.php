@@ -5,6 +5,8 @@
 
 define('IN_MYBB', true);
 
+require_once __DIR__ . '/global.php';
+
 $action = $mybb->get_input('action', MyBB::INPUT_STRING);
 
 if (!isset($lang->myalerts)) {
@@ -15,6 +17,8 @@ switch ($action) {
     case 'view':
         myalerts_redirect_alert($mybb, $lang);
         break;
+	case 'settings':
+		myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates);
     default:
         myalerts_view_alerts($mybb);
         break;
@@ -24,7 +28,7 @@ switch ($action) {
  * Handle a request to view a single alert by marking the alert read and forwarding on to the correct location.
  *
  * @param MyBB $mybb MyBB core object.
- * @param MyLanguage $lang Language object to use.
+ * @param MyLanguage $lang Language object.
  */
 function myalerts_redirect_alert($mybb, $lang)
 {
@@ -42,6 +46,51 @@ function myalerts_redirect_alert($mybb, $lang)
     $GLOBALS['mybbstuff_myalerts_alert_manager']->markRead(array($alertId));
 
     header('Location: ' . $alertTypeFormatter->buildShowLink($alert));
+}
+
+/**
+ * Show a user their settings for MyAlerts.
+ *
+ * @param MyBB $mybb MyBB core object.
+ * @param DB_MySQLi|DB_MySQL $db Database object.
+ * @param MyLanguage $lang Language object.
+ * @param pluginSystem $plugins MyBB plugin system.
+ * @param templates $templates Template manager.
+ */
+function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates)
+{
+	if (strtolower($mybb->request_method) == 'post') { // Saving alert type settings
+
+	} else { // Displaying alert type settings form
+
+		$content = '';
+
+		$alertTypes = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getAlertTypes();
+
+		foreach ($alertTypes as $key => $value) {
+			if ($value['enabled']) {
+				$altbg = alt_trow();
+				$tempKey = 'myalerts_setting_' . $key;
+
+				$baseSettings = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor');
+
+				$plugins->run_hooks('myalerts_load_lang');
+
+				$langline = $lang->$tempKey;
+
+				$checked = '';
+				if ($value)
+				{
+					$checked = ' checked="checked"';
+				}
+
+				eval("\$alertSettings .= \"" . $templates->get('myalerts_setting_row') . "\";");
+			}
+		}
+
+		eval("\$content = \"" . $templates->get('myalerts_settings_page') . "\";");
+		output_page($content);
+	}
 }
 
 /**

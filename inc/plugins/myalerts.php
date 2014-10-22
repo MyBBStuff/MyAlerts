@@ -620,7 +620,7 @@ function myalerts_addAlert_rep()
     $userSetting = $db->fetch_array($query);
 
     if ((int) $userSetting['value'] == 1) {
-        /** @var MybbSTuff_MyAlerts_Entity_AlertType $alertType */
+        /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
         $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('rep');
 
         if (isset($alertType) && $alertType->getEnabled()) {
@@ -647,8 +647,6 @@ function myalerts_addAlert_pm()
         $pmUsers = array_unique($pmUsers);
 
         $users     = array();
-        $userArray = array();
-
         foreach ($pmUsers as $user) {
             $users[] = $db->escape_string($user);
         }
@@ -658,7 +656,7 @@ function myalerts_addAlert_pm()
             ) . "') AND s.code = 'pm'";
         $query       = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
 
-        /** @var MybbSTuff_MyAlerts_Entity_AlertType $alertType */
+        /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
         $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('pm');
 
         if (isset($alertType) && $alertType->getEnabled()) {
