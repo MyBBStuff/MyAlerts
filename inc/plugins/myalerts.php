@@ -464,8 +464,8 @@ function myalerts_user_delete()
     $db->delete_query('alerts', "uid='{$user['uid']}'");
 }
 
-$plugins->add_hook('global_start', 'myalerts_global');
-function myalerts_global()
+$plugins->add_hook('global_start', 'myalerts_global_start');
+function myalerts_global_start()
 {
     global $mybb, $db, $lang, $templatelist, $cache;
 
@@ -499,6 +499,13 @@ function myalerts_global()
         if (!$lang->myalerts) {
             $lang->load('myalerts');
         }
+
+	    $mybb->user['myalerts_disabled_alert_types'] = json_decode($mybb->user['myalerts_disabled_alert_types']);
+	    if (is_array($mybb->user['myalerts_disabled_alert_types']) && !empty($mybb->user['myalerts_disabled_alert_types'])) {
+		    $mybb->user['myalerts_disabled_alert_types'] = array_map('intval', $mybb->user['myalerts_disabled_alert_types']);
+	    } else {
+		    $mybb->user['myalerts_disabled_alert_types'] = array();
+	    }
 
         $queryString                     = "SELECT * FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (s.id = v.setting_id) WHERE v.user_id = " . (int) $mybb->user['uid'];
         $query                           = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX));

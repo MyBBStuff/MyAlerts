@@ -60,8 +60,30 @@ function myalerts_redirect_alert($mybb, $lang)
  */
 function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates)
 {
-	if (strtolower($mybb->request_method) == 'post') { // Saving alert type settings
+	$alertTypes = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getAlertTypes();
 
+	if (strtolower($mybb->request_method) == 'post') { // Saving alert type settings
+		$disabledAlerts = array();
+
+		foreach ($alertTypes as $alertCode => $alertType) {
+			if (!isset($_POST[$alertCode])) {
+				$disabledAlerts[] = (int) $alertType['id'];
+			}
+		}
+
+		if ($disabledAlerts != $mybb->user['myalerts_disabled_alert_types']) { // Different settings, so update
+			$jsonEncodedDisabledAlerts = json_encode($disabledAlerts);
+
+			$db->update_query('users', array(
+					'myalerts_disabled_alert_types' => $db->escape_string($jsonEncodedDisabledAlerts)
+				), 'uid=' . (int) $mybb->user['uid']);
+		}
+
+		redirect(
+			'alerts.php?action=settings',
+			$lang->myalerts_settings_updated,
+			$lang->myalerts_settings_updated_title
+		);
 	} else { // Displaying alert type settings form
 
 		$content = '';
@@ -71,10 +93,7 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates)
 		add_breadcrumb($lang->myalerts_settings_page_title, 'alerts.php?action=settings');
 
 		require_once __DIR__ . '/inc/functions_user.php';
-
 		usercp_menu();
-
-		$alertTypes = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getAlertTypes();
 
 		foreach ($alertTypes as $key => $value) {
 			if ($value['enabled']) {
@@ -88,8 +107,7 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates)
 				$langline = $lang->$tempKey;
 
 				$checked = '';
-				if ($value)
-				{
+				if (!in_array($value['id'], $mybb->user['myalerts_disabled_alert_types'])) {
 					$checked = ' checked="checked"';
 				}
 
