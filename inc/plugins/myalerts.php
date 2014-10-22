@@ -501,18 +501,11 @@ function myalerts_global_start()
         }
 
 	    $mybb->user['myalerts_disabled_alert_types'] = json_decode($mybb->user['myalerts_disabled_alert_types']);
-	    if (is_array($mybb->user['myalerts_disabled_alert_types']) && !empty($mybb->user['myalerts_disabled_alert_types'])) {
+	    if (!empty($mybb->user['myalerts_disabled_alert_types']) && is_array($mybb->user['myalerts_disabled_alert_types'])) {
 		    $mybb->user['myalerts_disabled_alert_types'] = array_map('intval', $mybb->user['myalerts_disabled_alert_types']);
 	    } else {
 		    $mybb->user['myalerts_disabled_alert_types'] = array();
 	    }
-
-        $queryString                     = "SELECT * FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (s.id = v.setting_id) WHERE v.user_id = " . (int) $mybb->user['uid'];
-        $query                           = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX));
-        $mybb->user['myalerts_settings'] = array();
-        while ($row = $db->fetch_array($query)) {
-            $mybb->user['myalerts_settings'][$row['code']] = (int) $row['value'];
-        }
 
         $alertTypeManager = $GLOBALS['mybbstuff_myalerts_alert_type_manager'] = new MybbStuff_MyAlerts_AlertTypeManager(
             $db,

@@ -41,7 +41,7 @@ class MybbStuff_MyAlerts_AlertManager
         $this->cache = $cache;
         $this->alertTypeManager = $alertTypeManager;
 
-        $this->currentUserEnabledAlerts = $this->filterEnabledAlerts($mybb->user['myalerts_settings']);
+        $this->currentUserEnabledAlerts = $this->filterEnabledAlerts($mybb->user['myalerts_disabled_alert_types']);
 
         static::$alertQueue = array();
         static::$alertTypes = array();
@@ -50,11 +50,23 @@ class MybbStuff_MyAlerts_AlertManager
     /**
      * Filter the current user's enabled alerts array and format it so that it is an array of just alert type codes that are enabled.
      *
+     * @param array $userDisabledAlertIds The user's disabled alert types.
+     *
      * @return array The filtered array.
      */
-    private function filterEnabledAlerts(array $alertSettings = null)
+    private function filterEnabledAlerts($userDisabledAlertIds = array())
     {
-        return array_keys(array_filter($alertSettings));
+        $userDisabledAlertIds = (array) $userDisabledAlertIds;
+	    $alertTypes = $this->alertTypeManager->getAlertTypes();
+        $enabledAlertTypes = array();
+
+	    foreach ($alertTypes as $alertType) {
+            if (!isset($userDisabledAlertIds[$alertType['id']])) {
+                $enabledAlertTypes[] = (int) $alertType['id'];
+            }
+	    }
+
+	    return $enabledAlertTypes;
     }
 
     /**
@@ -139,7 +151,7 @@ class MybbStuff_MyAlerts_AlertManager
                 $queryString = <<<SQL
                 SELECT COUNT(*) AS count FROM {$prefix}alerts a
                 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
-                WHERE (t.code IN ({$alertTypes}) OR a.forced = 1) AND a.uid = {$this->mybb->user['uid']};
+                WHERE (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1) AND t.enabled = 1 AND a.uid = {$this->mybb->user['uid']};
 SQL;
 
                 $query = $this->db->write_query($queryString);
@@ -158,8 +170,7 @@ SQL;
      */
     private function getAlertTypesForIn()
     {
-        $alertTypes = array_map(array($this->db, 'escape_string'), $this->currentUserEnabledAlerts);
-        $alertTypes = "'" . implode("','", $alertTypes) . "'";
+        $alertTypes = implode(',', $this->currentUserEnabledAlerts);
 
         return $alertTypes;
     }
@@ -185,7 +196,7 @@ SQL;
                 $queryString = <<<SQL
                 SELECT COUNT(*) AS count FROM {$prefix}alerts a
                 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
-                WHERE (t.code IN ({$alertTypes}) OR a.forced = 1) AND a.uid = {$this->mybb->user['uid']} AND a.unread = 1;
+                WHERE (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1) AND t.enabled = 1 AND a.uid = {$this->mybb->user['uid']} AND a.unread = 1;
 SQL;
 
                 $query = $this->db->write_query($queryString);;
@@ -224,11 +235,11 @@ SQL;
             $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
             $prefix                  = TABLE_PREFIX;
             $alertsQuery             = <<<SQL
-SELECT a.*, s.code, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$prefix}alerts a
+SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$prefix}alerts a
 INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']}
-AND (t.code IN ({$alertTypes}) OR a.forced = 1) ORDER BY a.id DESC LIMIT {$start}, {$limit};
+AND (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1) AND t.enabled = 1 ORDER BY a.id DESC LIMIT {$start}, {$limit};
 SQL;
 
             $query = $this->db->write_query($alertsQuery);
@@ -288,7 +299,7 @@ SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$pref
 INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']} AND a.unread = 1
-AND (s.code IN ({$alertTypes}) OR a.forced = 1) ORDER BY a.id DESC;
+AND (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1) AND t.enabled = 1 ORDER BY a.id DESC;
 SQL;
 
             $query = $this->db->write_query($alertsQuery);
