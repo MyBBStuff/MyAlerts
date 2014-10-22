@@ -4,6 +4,7 @@
  */
 
 define('IN_MYBB', true);
+define('THIS_SCRIPT', 'alerts.php');
 
 require_once __DIR__ . '/global.php';
 
@@ -64,6 +65,14 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates)
 	} else { // Displaying alert type settings form
 
 		$content = '';
+
+		global $headerinclude, $header, $footer, $usercpnav;
+
+		add_breadcrumb($lang->myalerts_settings_page_title, 'alerts.php?action=settings');
+
+		require_once __DIR__ . '/inc/functions_user.php';
+
+		usercp_menu();
 
 		$alertTypes = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getAlertTypes();
 
