@@ -9,6 +9,8 @@ class MybbStuff_MyAlerts_AlertManager
 {
     /** @var string The version of the AlertManager. */
     const VERSION = '2.0.0';
+    const FIND_USERS_BY_UID = 0;
+    const FIND_USERS_BY_USERNAME = 1;
     /**
      * @var MybbStuff_MyAlerts_Entity_Alert[] A queue of alerts waiting to be committed to the database.
      */
@@ -457,5 +459,49 @@ SQL;
         }
 
         return $success;
+    }
+
+    /**
+     * Get the users who want to receive a certain alert type.
+     *
+     * @param MybbStuff_MyAlerts_Entity_AlertType $alertType The alert type to check.
+     * @param array                               $users An array of User IDs to check.
+     * @param int $findUsersBy The column to find users by. Should be one of FIND_USERS_BY_UID or FIND_USERS_BY_USERNAME
+     *
+     * @return array
+     */
+    public function doUsersWantAlert(MybbStuff_MyAlerts_Entity_AlertType $alertType, array $users = array(), $findUsersBy = self::FIND_USERS_BY_UID)
+    {
+        $usersWhoWantAlert = array();
+
+
+
+        switch ($findUsersBy) {
+            case self::FIND_USERS_BY_USERNAME:
+                $users = array_map(array($this->db, 'escape_string'), $users);
+
+                $usernames = "'" . implode("','", $users) . "'";
+                $query = $this->db->simple_select('users', 'uid, myalerts_disabled_alert_types, usergroup', "username IN({$usernames})");
+                break;
+            case self::FIND_USERS_BY_UID:
+            default:
+                $users = array_map('intval', $users);
+
+                $uids = "'" . implode("','", $users) . "'";
+                $query = $this->db->simple_select('users', 'uid, myalerts_disabled_alert_types', "uid IN({$uids})");
+                break;
+        }
+
+
+
+        while ($user = $this->db->fetch_array($query)) {
+            $disabledAlertTypes = @json_decode($user['myalerts_disabled_alert_types']);
+
+            if (empty($disabledAlertTypes) || !in_array($alertType->getId(), $disabledAlertTypes)) {
+                $usersWhoWantAlert[] = $user;
+            }
+        }
+
+        return $usersWhoWantAlert;
     }
 }

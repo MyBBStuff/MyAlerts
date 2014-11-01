@@ -464,7 +464,7 @@ function myalerts_user_delete()
     $db->delete_query('alerts', "uid='{$user['uid']}'");
 }
 
-$plugins->add_hook('global_start', 'myalerts_global_start');
+$plugins->add_hook('global_start', 'myalerts_global_start', -1);
 function myalerts_global_start()
 {
     global $mybb, $db, $lang, $templatelist, $cache;
@@ -616,29 +616,24 @@ function myalerts_helpdoc()
 $plugins->add_hook('reputation_do_add_process', 'myalerts_addAlert_rep');
 function myalerts_addAlert_rep()
 {
-    global $db, $reputation;
+    global $reputation;
 
-    $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE u.uid = " . (int) $reputation['uid'] . " AND s.code = 'rep' LIMIT 1";
-    $query       = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
+    /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
+    $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('rep');
 
-    $userSetting = $db->fetch_array($query);
+    $usersWhoWantAlert = $GLOBALS['mybbstuff_myalerts_alert_manager']->doUsersWantAlert($alertType, array($reputation['uid']));
 
-    if ((int) $userSetting['value'] == 1) {
-        /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-        $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('rep');
+    if (isset($alertType) && $alertType->getEnabled() && !empty($usersWhoWantAlert)) {
+        $alert = new MybbStuff_MyAlerts_Entity_Alert($reputation['uid'], $alertType, 0);
 
-        if (isset($alertType) && $alertType->getEnabled()) {
-            $alert = new MybbStuff_MyAlerts_Entity_Alert($reputation['uid'], $alertType, 0);
-
-            $GLOBALS['mybbstuff_myalerts_alert_manager']->addAlert($alert);
-        }
+        $GLOBALS['mybbstuff_myalerts_alert_manager']->addAlert($alert);
     }
 }
 
 $plugins->add_hook('private_do_send_end', 'myalerts_addAlert_pm');
 function myalerts_addAlert_pm()
 {
-    global $db, $pm, $pmhandler;
+    global $pm, $pmhandler;
 
     if ($pm['saveasdraft'] != 1) {
         if (is_array($pm['bcc'])) {
@@ -650,33 +645,22 @@ function myalerts_addAlert_pm()
         $pmUsers = array_map("trim", $toUsers);
         $pmUsers = array_unique($pmUsers);
 
-        $users     = array();
-        foreach ($pmUsers as $user) {
-            $users[] = $db->escape_string($user);
-        }
-
-        $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE LOWER(u.username) IN ('" . my_strtolower(
-                implode("','", $users)
-            ) . "') AND s.code = 'pm'";
-        $query       = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
-
         /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
         $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('pm');
 
-        if (isset($alertType) && $alertType->getEnabled()) {
-            $alerts = array();
-            while ($user = $db->fetch_array($query)) {
-                if ((int) $user['value'] == 1) {
+        $usersWhoWantAlert = $GLOBALS['mybbstuff_myalerts_alert_manager']->doUsersWantAlert($alertType, $pmUsers, MybbStuff_MyAlerts_AlertManager::FIND_USERS_BY_USERNAME);
 
-                    $alert = new MybbStuff_MyAlerts_Entity_Alert((int) $user['uid'], $alertType, 0);
-                    $alert->setExtraDetails(
-                        array(
-                            'pm_title' => $pm['subject'],
-                            'pm_id'    => (int) $pmhandler->pmid,
-                        )
-                    );
-                    $alerts[] = $alert;
-                }
+        if (isset($alertType) && $alertType->getEnabled() && !empty($usersWhoWantAlert)) {
+            $alerts = array();
+            foreach ($usersWhoWantAlert as $user) {
+                $alert = new MybbStuff_MyAlerts_Entity_Alert((int) $user['uid'], $alertType, 0);
+                $alert->setExtraDetails(
+                    array(
+                        'pm_title' => $pm['subject'],
+                        'pm_id'    => (int) $pmhandler->pmid,
+                    )
+                );
+                $alerts[] = $alert;
             }
 
             if (!empty($alerts)) {
@@ -692,35 +676,21 @@ function myalerts_alert_buddylist()
     global $mybb;
 
     if ($mybb->input['manage'] != 'ignore' AND !isset($mybb->input['delete'])) {
-        global $Alerts, $db;
-
-
         $addUsers = explode(",", $mybb->input['add_username']);
         $addUsers = array_map("trim", $addUsers);
         $addUsers = array_unique($addUsers);
 
-        $users = array();
-
-        foreach ($addUsers as $user) {
-            $users[] = $db->escape_string($user);
-        }
-
-        if (count($users) > 0) {
-            $queryString = "SELECT s.*, v.*, u.uid FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE LOWER(u.username) IN ('" . my_strtolower(
-                    implode("','", $users)
-                ) . "') AND s.code = 'buddylist'";
-            $query       = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
-
-            /** @var MybbSTuff_MyAlerts_Entity_AlertType $alertType */
+        if (count($addUsers) > 0) {
+            /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
             $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('buddylist');
 
-            if (isset($alertType) && $alertType->getEnabled()) {
+            $usersWhoWantAlert = $GLOBALS['mybbstuff_myalerts_alert_manager']->doUsersWantAlert($alertType, $addUsers, MybbStuff_MyAlerts_AlertManager::FIND_USERS_BY_USERNAME);
+
+            if (isset($alertType) && $alertType->getEnabled() && !empty($usersWhoWantAlert)) {
                 $alerts = array();
-                while ($user = $db->fetch_array($query)) {
-                    if ((int) $user['value'] == 1) {
-                        $alert    = new MybbStuff_MyAlerts_Entity_Alert((int) $user['uid'], $alertType, 0);
-                        $alerts[] = $alert;
-                    }
+                foreach ($usersWhoWantAlert as $user) {
+                    $alert    = new MybbStuff_MyAlerts_Entity_Alert((int) $user['uid'], $alertType, 0);
+                    $alerts[] = $alert;
                 }
 
                 if (!empty($alerts)) {
@@ -734,7 +704,7 @@ function myalerts_alert_buddylist()
 $plugins->add_hook('newreply_do_newreply_end', 'myalerts_alert_quoted');
 function myalerts_alert_quoted()
 {
-    global $mybb, $Alerts, $db, $pid, $post, $cache;
+    global $mybb, $db, $pid, $post, $cache;
 
     $forumPerms = $cache->read('forumpermissions');
 
@@ -758,22 +728,15 @@ function myalerts_alert_quoted()
 
     $users = array_values($matches);
 
-    if (!empty($users) AND is_array($users)) {
-        foreach ($users as $value) {
-            $queryArray[] = $db->escape_string($value);
-        }
-
-        $queryString = "SELECT s.*, v.*, u.uid, u.usergroup FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE LOWER(u.username) IN ('" . my_strtolower(
-                implode("','", $queryArray)
-            ) . "') AND u.uid != " . (int) $mybb->user['uid'] . " AND s.code = 'quoted'";
-        $uids        = $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX));
-
+    if (!empty($users)) {
         /** @var MybbSTuff_MyAlerts_Entity_AlertType $alertType */
         $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('quoted');
 
+        $usersWhoWantAlert = $GLOBALS['mybbstuff_myalerts_alert_manager']->doUsersWantAlert($alertType, $users, MybbStuff_MyAlerts_AlertManager::FIND_USERS_BY_USERNAME);
+
         if (isset($alertType) && $alertType->getEnabled()) {
             $alerts = array();
-            while ($uid = $db->fetch_array($uids)) {
+            foreach ($usersWhoWantAlert as $uid) {
                 if ((int) $uid['value'] == 1) {
                     if (!isset($forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads']) OR (int) $forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads'] != 0) {
                         $userList[] = (int) $uid['uid'];
@@ -810,7 +773,7 @@ function myalerts_alert_post_threadauthor(&$post)
     if (!$post->data['savedraft']) {
         $forumPerms = $cache->read('forumpermissions');
 
-        /** @var MybbSTuff_MyAlerts_Entity_AlertType $alertType */
+        /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
         $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('post_threadauthor');
 
         if (isset($alertType) && $alertType->getEnabled()) {
