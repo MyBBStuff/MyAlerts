@@ -150,16 +150,6 @@ function myalerts_uninstall()
         $lang->load('myalerts');
     }
 
-    $sid = (int) $db->fetch_field(
-        $db->simple_select(
-            'helpsections',
-            'sid',
-            'name = \'' . $db->escape_string($lang->myalerts_helpsection_name) . '\''
-        ),
-        'sid'
-    );
-    $db->delete_query('helpsections', 'sid = ' . $sid);
-    $db->delete_query('helpdocs', 'sid = ' . $sid);
     $db->delete_query('tasks', 'file = \'myalerts\'');
 }
 
@@ -263,67 +253,6 @@ JAVASCRIPT;
         "#" . preg_quote('{$modcplink}') . "#i",
         '{$myalerts_headericon}{$modcplink}'
     );
-
-    // Helpdocs
-    $query = $db->simple_select('helpsections', 'sid', "name = '" . $lang->myalerts_helpsection_name . "'");
-    if (!$db->num_rows($query)) {
-        $helpsection = $db->insert_query(
-            'helpsections',
-            array(
-                'name'           => $lang->myalerts_helpsection_name,
-                'description'    => $lang->myalerts_helpsection_desc,
-                'usetranslation' => 1,
-                'enabled'        => 1,
-                'disporder'      => 3,
-            )
-        );
-    } else {
-        $sid         = (int) $db->fetch_field($query, 'sid');
-        $helpsection = $db->update_query(
-            'helpsections',
-            array(
-                'name'           => $lang->myalerts_helpsection_name,
-                'description'    => $lang->myalerts_helpsection_desc,
-                'usetranslation' => 1,
-                'enabled'        => 1,
-                'disporder'      => 3,
-            ),
-            "sid = {$sid}"
-        );
-    }
-
-    unset($query);
-
-    $helpDocuments = array(
-        0 => array(
-            'sid'            => (int) $helpsection,
-            'name'           => $db->escape_string($lang->myalerts_help_info),
-            'description'    => $db->escape_string($lang->myalerts_help_info_desc),
-            'document'       => $db->escape_string($lang->myalerts_help_info_document),
-            'usetranslation' => 1,
-            'enabled'        => 1,
-            'disporder'      => 1,
-        ),
-        1 => array(
-            'sid'            => (int) $helpsection,
-            'name'           => $db->escape_string($lang->myalerts_help_alert_types),
-            'description'    => $db->escape_string($lang->myalerts_help_alert_types_desc),
-            'document'       => $db->escape_string($lang->myalerts_help_alert_types_document),
-            'usetranslation' => 1,
-            'enabled'        => 1,
-            'disporder'      => 2,
-        ),
-    );
-
-    foreach ($helpDocuments as $document) {
-        $query = $db->simple_select('helpdocs', 'hid', "name = '{$document['name']}'");
-        if (!$db->num_rows($query)) {
-            $db->insert_query('helpdocs', $document);
-        } else {
-            $db->update_query('helpdocs', $document, "name = '{$document['name']}'", 1);
-        }
-        unset($query);
-    }
 
     $taskExists = $db->simple_select('tasks', 'tid', 'file = \'myalerts\'', array('limit' => '1'));
     if ($db->num_rows($taskExists) == 0) {
@@ -578,38 +507,6 @@ function myalerts_online_location(&$plugin_array)
 
     if ($inUserCpAlerts || $inAlertsPage) {
         $plugin_array['location_name'] = $lang->myalerts_online_location_listing;
-    }
-}
-
-$plugins->add_hook('misc_help_helpdoc_start', 'myalerts_helpdoc');
-function myalerts_helpdoc()
-{
-    global $helpdoc, $lang, $mybb;
-
-    if (!$lang->myalerts) {
-        $lang->load('myalerts');
-    }
-
-    if ($helpdoc['name'] == $lang->myalerts_help_alert_types) {
-        if ($mybb->settings['myalerts_alert_rep']) {
-            $helpdoc['document'] .= $lang->myalerts_help_alert_types_rep;
-        }
-
-        if ($mybb->settings['myalerts_alert_pm']) {
-            $helpdoc['document'] .= $lang->myalerts_help_alert_types_pm;
-        }
-
-        if ($mybb->settings['myalerts_alert_buddylist']) {
-            $helpdoc['document'] .= $lang->myalerts_help_alert_types_buddylist;
-        }
-
-        if ($mybb->settings['myalerts_alert_quoted']) {
-            $helpdoc['document'] .= $lang->myalerts_help_alert_types_quoted;
-        }
-
-        if ($mybb->settings['myalerts_alert_post_threadauthor']) {
-            $helpdoc['document'] .= $lang->myalerts_help_alert_types_post_threadauthor;
-        }
     }
 }
 
