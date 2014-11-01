@@ -797,15 +797,11 @@ function myalerts_alert_post_threadauthor(&$post)
             }
 
             if ($thread['uid'] != $mybb->user['uid']) {
-                // Check if recipient wants this type of alert
-                $queryString = "SELECT s.*, v.*, u.uid, u.usergroup FROM %salert_settings s LEFT JOIN %salert_setting_values v ON (v.setting_id = s.id) LEFT JOIN %susers u ON (v.user_id = u.uid) WHERE u.uid = " . (int) $thread['uid'] . " AND s.code = 'post_threadauthor' LIMIT 1";
-                $wantsAlert  = $db->fetch_array(
-                    $db->write_query(sprintf($queryString, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX))
-                );
+                $usersWhoWantAlert = $GLOBALS['mybbstuff_myalerts_alert_manager']->doUsersWantAlert($alertType, array($thread['uid']), MybbStuff_MyAlerts_AlertManager::FIND_USERS_BY_USERNAME);
 
-                if ((int) $wantsAlert['value'] == 1) {
+                if (!empty($usersWhoWantAlert)) {
                     // Check forum permissions
-                    if (!isset($forumPerms[$thread['fid']][$wantsAlert['usergroup']]['canviewthreads']) OR (int) $forumPerms[$thread['fid']][$wantsAlert['usergroup']]['canviewthreads'] != 0) {
+                    if (!isset($forumPerms[$thread['fid']][$usersWhoWantAlert['usergroup']]['canviewthreads']) OR (int) $forumPerms[$thread['fid']][$usersWhoWantAlert['usergroup']]['canviewthreads'] != 0) {
                         //check if alerted for this thread already
                         $query = $db->simple_select(
                             'alerts',
