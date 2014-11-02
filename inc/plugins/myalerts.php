@@ -328,6 +328,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
             $outputAlert['avatar'] = htmlspecialchars_uni($mybb->get_asset_url($fromUser['avatar']));
         }
 
+        $outputAlert['id'] = $alertToParse->getId();
         $outputAlert['from_user']             = format_name(
             $fromUser['username'],
             $fromUser['usergroup'],

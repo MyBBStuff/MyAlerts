@@ -19,7 +19,8 @@ switch ($action) {
         myalerts_redirect_alert($mybb, $lang);
         break;
 	case 'settings':
-		myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates);
+		myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme);
+        break;
     default:
         myalerts_view_alerts($mybb);
         break;
@@ -33,7 +34,7 @@ switch ($action) {
  */
 function myalerts_redirect_alert($mybb, $lang)
 {
-    $alertId = $mybb->get_input('alert_id', MyBB::INPUT_INT);
+    $alertId = $mybb->get_input('id', MyBB::INPUT_INT);
 
     /** @var MybbStuff_MyAlerts_Entity_Alert $alert */
     $alert = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlert($alertId);
@@ -46,7 +47,9 @@ function myalerts_redirect_alert($mybb, $lang)
 
     $GLOBALS['mybbstuff_myalerts_alert_manager']->markRead(array($alertId));
 
-    header('Location: ' . $alertTypeFormatter->buildShowLink($alert));
+    $redirectLink = unhtmlentities($alertTypeFormatter->buildShowLink($alert));
+
+    header('Location: ' . $redirectLink);
 }
 
 /**
@@ -57,8 +60,9 @@ function myalerts_redirect_alert($mybb, $lang)
  * @param MyLanguage $lang Language object.
  * @param pluginSystem $plugins MyBB plugin system.
  * @param templates $templates Template manager.
+ * @param array $theme Details about the current theme.
  */
-function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates)
+function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme)
 {
 	$alertTypes = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getAlertTypes();
 
@@ -127,5 +131,8 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates)
  */
 function myalerts_view_alerts($mybb)
 {
+    $alerts = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlerts(0, 10);
 
+    echo "<pre>";
+    var_dump($alerts);
 }

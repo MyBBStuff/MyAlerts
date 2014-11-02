@@ -237,7 +237,7 @@ SQL;
             $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
             $prefix                  = TABLE_PREFIX;
             $alertsQuery             = <<<SQL
-SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$prefix}alerts a
+SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
 INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']}
@@ -297,7 +297,7 @@ SQL;
             $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
             $prefix                  = TABLE_PREFIX;
             $alertsQuery             = <<<SQL
-SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$prefix}alerts a
+SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
 INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']} AND a.unread = 1
@@ -356,10 +356,10 @@ SQL;
         $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
         $prefix                  = TABLE_PREFIX;
         $alertsQuery             = <<<SQL
-SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup FROM {$prefix}alerts a
+SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
 INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
-WHERE a.uid = {$this->mybb->user['uid']} AND WHERE id = {$id};
+WHERE a.uid = {$this->mybb->user['uid']} AND a.id = {$id};
 SQL;
 
         $query = $this->db->write_query($alertsQuery);
