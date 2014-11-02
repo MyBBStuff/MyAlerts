@@ -22,7 +22,7 @@ switch ($action) {
 		myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme);
         break;
     default:
-        myalerts_view_alerts($mybb);
+        myalerts_view_alerts($mybb, $lang, $templates, $theme);
         break;
 }
 
@@ -128,11 +128,66 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme
  * View all alerts.
  *
  * @param MyBB $mybb MyBB core object.
+ * @param MyLanguage $lang Language object.
+ * @param templates $templates Template manager.
+ * @param array $theme Details about the current theme.
  */
-function myalerts_view_alerts($mybb)
+function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 {
     $alerts = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlerts(0, 10);
 
-    echo "<pre>";
-    var_dump($alerts);
+    if (!$lang->myalerts) {
+        $lang->load('myalerts');
+    }
+
+    add_breadcrumb($lang->nav_usercp, 'usercp.php');
+    add_breadcrumb($lang->myalerts_page_title, 'usercp.php?action=alerts');
+
+    require_once __DIR__ . '/inc/functions_user.php';
+    usercp_menu();
+
+    $numAlerts = $GLOBALS['mybbstuff_myalerts_alert_manager']->getNumAlerts();
+    $page      = (int) $mybb->input['page'];
+    $pages     = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
+
+    if ($page > $pages OR $page <= 0) {
+        $page = 1;
+    }
+
+    if ($page) {
+        $start = ($page - 1) * $mybb->settings['myalerts_perpage'];
+    } else {
+        $start = 0;
+        $page  = 1;
+    }
+    $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "usercp.php?action=alerts");
+
+    $alertsList = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlerts($start);
+
+    $readAlerts = array();
+
+    if (is_array($alertsList) && !empty($alertsList)) {
+        foreach ($alertsList as $alertObject) {
+            $altbg = alt_trow();
+
+            $alert = parse_alert($alertObject);
+
+            if ($alert['message']) {
+                eval("\$alertsListing .= \"" . $templates->get('myalerts_alert_row') . "\";");
+            }
+
+            $readAlerts[] = $alert['id'];
+        }
+    } else {
+        $altbg = 'trow1';
+        eval("\$alertsListing = \"" . $templates->get('myalerts_alert_row_no_alerts') . "\";");
+    }
+
+    $GLOBALS['mybbstuff_myalerts_alert_manager']->markRead($readAlerts);
+
+    global $headerinclude, $header, $footer, $usercpnav;
+
+    $content = '';
+    eval("\$content = \"" . $templates->get('myalerts_page') . "\";");
+    output_page($content);
 }

@@ -48,3 +48,5 @@ $l['myalerts_usercp_nav_delete_read'] = 'Delete Old Alerts';
 $l['myalerts_usercp_nav_delete_all'] = 'Delete All Alerts';
 
 $l['myalerts_error_alert_not_found'] = 'Alert not found.';
+
+$l['myalerts_delete'] = 'Delete';

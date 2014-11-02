@@ -221,15 +221,8 @@ function myalerts_activate()
 
     require_once MYBB_ROOT . '/inc/adminfunctions_templates.php';
 
-    $myalertsJs = <<<JAVASCRIPT
-<script type="text/javascript">
-    var unreadAlerts = '{\$mybb->user['unreadAlerts']}';
-</script>
-<script type="text/javascript" src="{\$mybb->asset_url}/jscripts/myalerts.js"></script>
-{\$stylesheets}
-JAVASCRIPT;
 
-    find_replace_templatesets('headerinclude', '/$/', $myalertsJs);
+    find_replace_templatesets('headerinclude', '/$/', '{$myalerts_js}');
     find_replace_templatesets(
         'header_welcomeblock_member',
         "#" . preg_quote('{$modcplink}') . "#i",
@@ -289,14 +282,7 @@ function myalerts_deactivate()
 
     require_once MYBB_ROOT . "/inc/adminfunctions_templates.php";
 
-    $myalertsJs = <<<JAVASCRIPT
-<script type="text/javascript">
-    var unreadAlerts = '{\$mybb->user['unreadAlerts']}';
-</script>
-<script type="text/javascript" src="{\$mybb->asset_url}/jscripts/myalerts.js"></script>
-JAVASCRIPT;
-
-    find_replace_templatesets('headerinclude', "#" . preg_quote($myalertsJs) . "#i", '');
+    find_replace_templatesets('headerinclude', "#" . preg_quote('{$myalerts_js}') . "#i", '');
     find_replace_templatesets('header_welcomeblock_member', "#" . preg_quote('{$myalerts_headericon}') . "#i", '');
 
     $db->update_query('tasks', array('enabled' => 0), 'file = \'myalerts\'');
@@ -379,13 +365,13 @@ function myalerts_user_delete()
 $plugins->add_hook('global_start', 'myalerts_global_start', -1);
 function myalerts_global_start()
 {
-    global $mybb, $db, $lang, $templatelist, $cache;
+    global $mybb, $templatelist, $cache, $templates, $myalerts_js;
 
     if (isset($templatelist)) {
         $templatelist .= ',';
     }
 
-    $templatelist .= 'myalerts_headericon,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_alert_row_popup_no_alerts';
+    $templatelist .= 'myalerts_headericon,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_scripts';
 
     if (THIS_SCRIPT == 'usercp.php' || THIS_SCRIPT == 'alerts.php') {
         $templatelist .= ',myalerts_usercp_nav';
@@ -395,13 +381,15 @@ function myalerts_global_start()
 		$templatelist .= ',usercp_nav_messenger,usercp_nav_messenger_tracking,usercp_nav_messenger_compose,usercp_nav_messenger_folder,usercp_nav_changename,usercp_nav_editsignature,usercp_nav_profile,usercp_nav_attachments,usercp_nav_misc,usercp_nav';
 	}
 
-    if (THIS_SCRIPT == 'alerts.php' AND $mybb->input['action'] == 'alerts') {
+    if (THIS_SCRIPT == 'alerts.php') {
         $templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
     }
 
-    if (THIS_SCRIPT == 'alerts.php' AND $mybb->input['action'] == 'settings') {
+    if (THIS_SCRIPT == 'alerts.php' && $mybb->input['action'] == 'settings') {
         $templatelist .= ',myalerts_setting_row,myalerts_settings_page';
     }
+
+    $myalerts_js = eval($templates->render('myalerts_scripts'));
 
     $mybb->user['unreadAlerts'] = 0;
 
@@ -736,64 +724,6 @@ $plugins->add_hook('usercp_start', 'myalerts_page');
 function myalerts_page()
 {
     global $mybb;
-
-    if ($mybb->input['action'] == 'alerts') {
-        global $db, $lang, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
-
-        if (!$lang->myalerts) {
-            $lang->load('myalerts');
-        }
-
-        add_breadcrumb($lang->nav_usercp, 'usercp.php');
-        add_breadcrumb($lang->myalerts_page_title, 'usercp.php?action=alerts');
-
-        $numAlerts = $GLOBALS['mybbstuff_myalerts_alert_manager']->getNumAlerts();
-        $page      = (int) $mybb->input['page'];
-        $pages     = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
-
-        if ($page > $pages OR $page <= 0) {
-            $page = 1;
-        }
-
-        if ($page) {
-            $start = ($page - 1) * $mybb->settings['myalerts_perpage'];
-        } else {
-            $start = 0;
-            $page  = 1;
-        }
-        $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "usercp.php?action=alerts");
-
-        try {
-            $alertsList = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlerts($start);
-        } catch (Exception $e) {
-            die($e->getMessage());
-        }
-
-        $readAlerts = array();
-
-        if (is_array($alertsList) && !empty($alertsList)) {
-            foreach ($alertsList as $alertObject) {
-                $altbg = alt_trow();
-
-                $alert = parse_alert($alertObject);
-
-                if ($alert['message']) {
-                    eval("\$alertsListing .= \"" . $templates->get('myalerts_alert_row') . "\";");
-                }
-
-                $readAlerts[] = $alert['id'];
-            }
-        } else {
-            $altbg = 'trow1';
-            eval("\$alertsListing = \"" . $templates->get('myalerts_alert_row_no_alerts') . "\";");
-        }
-
-        $GLOBALS['mybbstuff_myalerts_alert_manager']->markRead($readAlerts);
-
-        $content = '';
-        eval("\$content = \"" . $templates->get('myalerts_page') . "\";");
-        output_page($content);
-    }
 
     if ($mybb->input['action'] == 'deleteAlert' AND $mybb->input['id']) {
         global $Alerts, $lang;
