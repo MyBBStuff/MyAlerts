@@ -586,18 +586,16 @@ function myalerts_alert_quoted()
         return;
     }
 
-    $matches = array_merge($match[2], $match[3]);
-
-    foreach ($matches as $key => $value) {
+    foreach ($match as $key => $value) {
         if (empty($value)) {
-            unset($matches[$key]);
+            unset($match[$key]);
         }
     }
 
-    $users = array_values($matches);
+    $users = array_values($match[2]);
 
     if (!empty($users)) {
-        /** @var MybbSTuff_MyAlerts_Entity_AlertType $alertType */
+        /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
         $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('quoted');
 
         $usersWhoWantAlert = $GLOBALS['mybbstuff_myalerts_alert_manager']->doUsersWantAlert($alertType, $users, MybbStuff_MyAlerts_AlertManager::FIND_USERS_BY_USERNAME);
@@ -605,24 +603,22 @@ function myalerts_alert_quoted()
         if (isset($alertType) && $alertType->getEnabled()) {
             $alerts = array();
             foreach ($usersWhoWantAlert as $uid) {
-                if ((int) $uid['value'] == 1) {
-                    if (!isset($forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads']) OR (int) $forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads'] != 0) {
-                        $userList[] = (int) $uid['uid'];
-                        $alert      = new MybbStuff_MyAlerts_Entity_Alert(
-                            (int) $uid['uid'],
-                            $alertType,
-                            (int) $post['tid']
-                        );
-                        $alert->setExtraDetails(
-                            array(
-                                'tid'     => $post['tid'],
-                                'pid'     => $pid,
-                                'subject' => $post['subject'],
-                                'fid'     => (int) $post['fid'],
-                            )
-                        );
-                        $alerts[] = $alert;
-                    }
+                if (!isset($forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads']) OR (int) $forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads'] != 0) {
+                    $userList[] = (int) $uid['uid'];
+                    $alert      = new MybbStuff_MyAlerts_Entity_Alert(
+                        (int) $uid['uid'],
+                        $alertType,
+                        (int) $post['tid']
+                    );
+                    $alert->setExtraDetails(
+                        array(
+                            'tid'     => $post['tid'],
+                            'pid'     => $pid,
+                            'subject' => $post['subject'],
+                            'fid'     => (int) $post['fid'],
+                        )
+                    );
+                    $alerts[] = $alert;
                 }
             }
 
