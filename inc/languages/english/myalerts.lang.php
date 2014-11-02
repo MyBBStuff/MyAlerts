@@ -16,7 +16,7 @@ $l['myalerts_view_all'] = 'View All Alerts';
 $l['myalerts_loading'] = 'Loading...';
 $l['myalerts_no_alerts'] = 'No alerts to display';
 $l['myalerts_no_new_alerts'] = 'You have no new alerts.';
-$l['myalerts_rep'] = '{1} modified <a href="reputation.php?uid={2}">your reputation</a>. ({3})';
+$l['myalerts_rep'] = '{1} modified <a href="{2}">your reputation</a>. ({3})';
 $l['myalerts_pm'] = '{1} sent you a new private message titled "{2}". ({3})';
 $l['myalerts_buddylist'] = '{1} added you to their buddy list. ({2})';
 $l['myalerts_quoted'] = '{1} quoted you in <a href="{2}">{3}</a>. ({4})';
