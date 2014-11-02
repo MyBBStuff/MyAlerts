@@ -1,18 +1,3 @@
-CREATE TABLE `mybb_alert_setting_values` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) NOT NULL,
-  `setting_id` int(10) NOT NULL,
-  `value` int(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-CREATE TABLE `mybb_alert_settings` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `code` varchar(75) NOT NULL,
-  `is_core` int(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
 CREATE TABLE `mybb_alert_types` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `code` varchar(255) NOT NULL DEFAULT '',

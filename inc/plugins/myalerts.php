@@ -54,69 +54,58 @@ function myalerts_install()
         $collation = $db->build_create_table_collation();
         $db->write_query(
             "CREATE TABLE " . TABLE_PREFIX . "alerts(
-            id INT(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            uid INT(10) unsigned NOT NULL,
-            unread TINYINT(4) NOT NULL DEFAULT '1',
-            dateline DATETIME NOT NULL,
-            alert_type_id INT(10) unsigned NOT NULL,
-            object_id INT(10) unsigned NOT NULL DEFAULT '0',
-            from_user_id INT(10),
-            forced INT(1) NOT NULL DEFAULT '0',
-            extra_details TEXT
+                `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                `uid` int(10) unsigned NOT NULL,
+                `unread` tinyint(4) NOT NULL DEFAULT '1',
+                `dateline` datetime NOT NULL,
+                `alert_type_id` int(10) unsigned NOT NULL,
+                `object_id` int(10) unsigned NOT NULL DEFAULT '0',
+                `from_user_id` int(10) unsigned DEFAULT NULL,
+                `forced` int(1) NOT NULL DEFAULT '0',
+                `extra_details` text,
+                PRIMARY KEY (`id`),
+                KEY `uid_index` (`id`)
             ) ENGINE=MyISAM{$collation};"
         );
     }
 
-    if (!$db->table_exists('alert_settings')) {
-        $collation = $db->build_create_table_collation();
-        $db->write_query(
-            "CREATE TABLE " . TABLE_PREFIX . "alert_settings(
-            id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            code VARCHAR(75) NOT NULL,
-            is_core INT(1) NOT NULL DEFAULT '0'
-            ) ENGINE=MyISAM{$collation};"
-        );
-    }
-
-    if (!$db->table_exists('alert_setting_values')) {
+    if (!$db->table_exists('alert_types')) {
         $collation = $db->build_create_table_collation();
         $db->write_query(
             "CREATE TABLE " . TABLE_PREFIX . "alert_setting_values(
-            id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            user_id INT(10) NOT NULL,
-            setting_id INT(10) NOT NULL,
-            value INT(1) NOT NULL DEFAULT '1'
+                `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                `code` varchar(255) NOT NULL DEFAULT '',
+                `enabled` tinyint(4) NOT NULL DEFAULT '1',
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `unique_code` (`code`)
             ) ENGINE=MyISAM{$collation};"
         );
     }
 
-    // Settings
-    $insertArray = array(
-        0 => array(
-            'code' => 'rep',
-        ),
-        1 => array(
-            'code' => 'pm',
-        ),
-        2 => array(
-            'code' => 'buddylist',
-        ),
-        3 => array(
-            'code' => 'quoted',
-        ),
-        4 => array(
-            'code' => 'post_threadauthor',
-        ),
-    );
+    $db->add_column('users', 'myalerts_disabled_alert_types', 'TEXT NOT NULL');
 
-    $db->insert_query_multiple('alert_settings', $insertArray);
+    $alertTypeManager = new MybbStuff_MyAlerts_AlertTypeManager($db, $cache);
+
+    $insertArray = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor');
+    $alertTypesToAdd = array();
+
+    foreach ($insertArray as $type) {
+        $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
+        $alertType->setCode($type);
+        $alertType->setEnabled(true);
+
+        $alertTypesToAdd[] = $alertType;
+    }
+
+
+    $alertTypeManager->addTypes($alertTypesToAdd);
 }
 
 function myalerts_is_installed()
 {
     global $db;
 
-    return $db->table_exists('alerts');
+    return $db->table_exists('alerts') && $db->table_exists('alert_types');
 }
 
 function myalerts_uninstall()
@@ -134,21 +123,15 @@ function myalerts_uninstall()
         $db->drop_table('alerts');
     }
 
-    if ($db->table_exists('alert_settings')) {
-        $db->drop_table('alert_settings');
+    if ($db->table_exists('alert_types')) {
+        $db->drop_table('alert_types');
     }
 
-    if ($db->table_exists('alert_setting_values')) {
-        $db->drop_table('alert_setting_values');
-    }
+    $db->drop_column('users', 'myalerts_disabled_alert_types');
 
     $PL->settings_delete('myalerts', true);
     $PL->templates_delete('myalerts');
     $PL->stylesheet_delete('alerts.css');
-
-    if (!$lang->myalerts) {
-        $lang->load('myalerts');
-    }
 
     $db->delete_query('tasks', 'file = \'myalerts\'');
 }
@@ -174,7 +157,6 @@ function myalerts_activate()
     }
 
     $plugin_info  = myalerts_info();
-    $this_version = $plugin_info['version'];
 
     $euantor_plugins = $cache->read('euantor_plugins');
 //    if ($euantor_plugins['myalerts']['version'] != $plugin_info['version']) {
@@ -290,7 +272,7 @@ JAVASCRIPT;
 
 function myalerts_deactivate()
 {
-    global $Pl, $db, $lang;
+    global $PL, $db, $lang;
 
     if (!$lang->myalerts) {
         $lang->load('myalerts');

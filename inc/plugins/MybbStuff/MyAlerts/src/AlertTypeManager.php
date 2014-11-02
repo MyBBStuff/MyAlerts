@@ -88,6 +88,30 @@ class MybbStuff_MyAlerts_AlertTypeManager
     }
 
     /**
+     * Add multiple alert types.
+     *
+     * @param MybbStuff_MyAlerts_Entity_AlertType[] $alertTypes AN array of alert types to add.
+     *
+     * @return bool Whether the alert types were added successfully.
+     */
+    public function addTypes(array $alertTypes)
+    {
+        $toInsert = array();
+
+        foreach ($alertTypes as $alertType) {
+            if ($alertType instanceof MybbStuff_MyAlerts_Entity_AlertType) {
+                $toInsert[] = $alertType->toArray();
+            }
+        }
+
+        $success = (bool) $this->db->insert_query_multiple('alert_types', $toInsert);
+
+        $this->getAlertTypes(true);
+
+        return $success;
+    }
+
+    /**
      * Get an alert type by it's code.
      *
      * @param string $code The code of the alert type to fetch.
