@@ -27,7 +27,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
      *
      * @param bool $forceDatabase Whether to force the reading of alert types from the database.
      *
-     * @return MybbStuff_MyAlerts_Entity_AlertType[] All of the alert types currently in the system.
+     * @return array All of the alert types currently in the system.
      */
     public function getAlertTypes($forceDatabase = false)
     {
@@ -129,5 +129,24 @@ class MybbStuff_MyAlerts_AlertTypeManager
         }
 
         return $alertType;
+    }
+
+    /**
+     * Update a set of alert types to change their enabled/disabled status.
+     *
+     * @param MybbStuff_MyAlerts_Entity_AlertType[] $alertTypes An array of alert types to update.
+     */
+    public function updateAlertTypes(array $alertTypes)
+    {
+        foreach ($alertTypes as $alertType) {
+            $updateArray = array(
+                'enabled' => $alertType->getEnabled(),
+            );
+
+            $this->db->update_query('alert_types', $updateArray, "id = {$alertType->getId()}");
+        }
+
+        // Flush the cache
+        $this->getAlertTypes(true);
     }
 } 

@@ -416,7 +416,7 @@ function myalerts_global_start()
 
         $GLOBALS['mybbstuff_myalerts_alert_formatter_manager'] = new MybbStuff_MyAlerts_AlertFormatterManager($mybb, $lang);
 
-	    myalerts_register_core_formatters($mybb, $db, $lang);
+	    myalerts_register_core_formatters($mybb, $lang);
 
         register_shutdown_function(array($GLOBALS['mybbstuff_myalerts_alert_manager'], 'commit'));
 
@@ -853,7 +853,7 @@ function myalerts_xmlhttp()
     }
 }
 
-function myalerts_register_core_formatters($mybb, $db, $lang)
+function myalerts_register_core_formatters($mybb, $lang)
 {
     /** @var MybbStuff_Myalerts_AlertFormatterManager $formatterManager */
     $formatterManager = $GLOBALS['mybbstuff_myalerts_alert_formatter_manager'];
@@ -867,4 +867,41 @@ function myalerts_register_core_formatters($mybb, $db, $lang)
     $formatterManager->registerFormatter(
         new MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter($mybb, $lang, 'post_threadauthor')
     );
+}
+
+$plugins->add_hook('admin_config_menu', 'myalerts_acp_config_menu');
+function myalerts_acp_config_menu(&$sub_menu)
+{
+    global $lang;
+
+    if (!$lang->myalerts) {
+        $lang->load('myalerts');
+    }
+
+    $sub_menu[] = array(
+        'id' => 'myalerts_alert_types',
+        'title' => $lang->myalerts_alert_types,
+        'link' => 'index.php?module=config-myalerts_alert_types'
+    );
+}
+
+$plugins->add_hook('admin_config_action_handler', 'myalerts_acp_config_action_handler');
+function myalerts_acp_config_action_handler(&$actions)
+{
+    $actions['myalerts_alert_types'] = array(
+        'active' => 'myalerts_alert_types',
+        'file' => 'myalerts.php',
+    );
+}
+
+$plugins->add_hook('admin_config_permissions', 'myalerts_acp_config_permissions');
+function myalerts_acp_config_permissions(&$admin_permissions)
+{
+    global $lang;
+
+    if (!$lang->myalerts) {
+        $lang->load('myalerts');
+    }
+
+    $admin_permissions['myalerts_alert_types'] = $lang->myalerts_can_manage_alert_types;
 }

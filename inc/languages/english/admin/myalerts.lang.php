@@ -22,3 +22,12 @@ $l['myalerts_task_cleanup_disabled'] = 'The alerts cleanup task has been disable
 
 $l['myalerts_task_title'] = 'MyAlerts Cleanup';
 $l['myalerts_task_description'] = 'A task to cleanup old read alerts. THis is required as otherwise the alerts table could swell to massive sizes.';
+
+$l['myalerts_alert_types'] = 'Alert Types';
+$l['myalerts_can_manage_alert_types'] = 'Can manage alert types?';
+
+$l['myalerts_alert_type_code'] = 'Code';
+$l['myalerts_alert_type_enabled'] = 'Enabled?';
+$l['myalerts_no_alert_types'] = 'No alert types found!';
+$l['myalerts_update_alert_types'] = 'Update Alert Types';
+$l['myalerts_alert_types_updated'] = 'Alert types updated!';
