@@ -35,7 +35,10 @@ class MybbStuff_MyAlerts_AlertFormatterManager
     /**
      * Register a new alert type formatter.
      *
-     * @param string|MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatterClass The formatter to use. Either the name or instance of a class extending MybbStuff_MyAlerts_Formatter_AbstractFormatter.
+     * @param string|MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatterClass The formatter to use. Either the
+     *                                                                              name or instance of a class
+     *                                                                              extending
+     *                                                                              MybbStuff_MyAlerts_Formatter_AbstractFormatter.
      *
      * @return $this
      */
@@ -68,12 +71,13 @@ class MybbStuff_MyAlerts_AlertFormatterManager
      *
      * @param string $alertTypeName The name of the alert type to retrieve the formatter for.
      *
-     * @return MybbStuff_MyAlerts_Formatter_AbstractFormatter|null The located formatter or null if a registered formatter is not found.
+     * @return MybbStuff_MyAlerts_Formatter_AbstractFormatter|null The located formatter or null if a registered
+     *                                                             formatter is not found.
      */
     public function getFormatterForAlertType($alertTypeName = '')
     {
         $alertTypeName = (string) $alertTypeName;
-        $formatter     = null;
+        $formatter = null;
 
         if (isset($this->alertFormatters[$alertTypeName])) {
             $formatter = $this->alertFormatters[$alertTypeName];

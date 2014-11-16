@@ -23,7 +23,8 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter extends MybbStuff_MyAlerts_Forma
     }
 
     /**
-     * Init function called before running formatAlert(). Used to load language files and initialize other required resources.
+     * Init function called before running formatAlert(). Used to load language files and initialize other required
+     * resources.
      *
      * @return void
      */

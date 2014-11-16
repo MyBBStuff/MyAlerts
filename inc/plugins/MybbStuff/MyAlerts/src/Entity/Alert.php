@@ -32,7 +32,9 @@ class MybbStuff_MyAlerts_Entity_Alert
      * Initialise a new Alert instance.
      *
      * @param int|array                                      $user     The ID of the user this alert is for.
-     * @param int|MybbSTuff_MyAlerts_Entity_AlertType|string $type     The ID of the object this alert is linked to. Optionally pass in an AlertType object or the short code name of the alert type.
+     * @param int|MybbSTuff_MyAlerts_Entity_AlertType|string $type     The ID of the object this alert is linked to.
+     *                                                                 Optionally pass in an AlertType object or the
+     *                                                                 short code name of the alert type.
      * @param int                                            $objectId The ID of the object this alert is linked to.
      */
     public function __construct($user = 0, $type = 0, $objectId = null)
@@ -62,7 +64,8 @@ class MybbStuff_MyAlerts_Entity_Alert
      * @param int|array                               $user         The ID of the user this alert is for.
      * @param int|MybbStuff_MyAlerts_Entity_AlertType $type         The ID of the object this alert is linked to.
      * @param int                                     $objectId     The ID of the object this alert is linked to.
-     * @param array                                   $extraDetails An array of optional extra details to be stored with the alert.
+     * @param array                                   $extraDetails An array of optional extra details to be stored
+     *                                                              with the alert.
      *
      * @return MybbStuff_MyAlerts_Entity_Alert The created alert object.
      */
@@ -100,13 +103,13 @@ class MybbStuff_MyAlerts_Entity_Alert
     public function toArray()
     {
         return array(
-            'uid'           => $this->getUserId(),
-            'from_user_id'  => $this->getFromUserId(),
+            'uid' => $this->getUserId(),
+            'from_user_id' => $this->getFromUserId(),
             'alert_type_id' => $this->getTypeId(),
-            'object_id'     => $this->getObjectId(),
-            'dateline'      => $this->getCreatedAt()->format('Y-m-d H:i:s'),
+            'object_id' => $this->getObjectId(),
+            'dateline' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
             'extra_details' => json_encode($this->getExtraDetails()),
-            'unread'        => (int) $this->getUnread(),
+            'unread' => (int) $this->getUnread(),
         );
     }
 

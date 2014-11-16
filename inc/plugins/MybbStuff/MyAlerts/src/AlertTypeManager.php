@@ -14,7 +14,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
 
     public function __construct(DB_MySQLi $db, datacache $cache)
     {
-        $this->db    = $db;
+        $this->db = $db;
         $this->cache = $cache;
 
         $this->getAlertTypes();
@@ -116,7 +116,8 @@ class MybbStuff_MyAlerts_AlertTypeManager
      *
      * @param string $code The code of the alert type to fetch.
      *
-     * @return MybbStuff_MyAlerts_Entity_AlertType|null The found alert type or null if it doesn't exist (hasn't yet been registered).
+     * @return MybbStuff_MyAlerts_Entity_AlertType|null The found alert type or null if it doesn't exist (hasn't yet
+     *                                                  been registered).
      */
     public function getByCode($code = '')
     {

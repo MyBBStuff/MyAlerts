@@ -8,8 +8,8 @@
 class MybbStuff_MyAlerts_AlertManager
 {
     /** @var string The version of the AlertManager. */
-    const VERSION = '2.0.0';
-    const FIND_USERS_BY_UID = 0;
+    const VERSION                = '2.0.0';
+    const FIND_USERS_BY_UID      = 0;
     const FIND_USERS_BY_USERNAME = 1;
     /**
      * @var MybbStuff_MyAlerts_Entity_Alert[] A queue of alerts waiting to be committed to the database.
@@ -31,15 +31,17 @@ class MybbStuff_MyAlerts_AlertManager
     /**
      * Initialise a new instance of the AlertManager.
      *
-     * @param MyBB      $mybb  MyBB core object used to get settings and more.
-     * @param DB_MySQLi $db    Database connection to be used when manipulating alerts.
-     * @param datacache $cache Cache instance used to manipulate alerts and alert types.
+     * @param MyBB                                $mybb             MyBB core object used to get settings and more.
+     * @param DB_MySQLi                           $db               Database connection to be used when manipulating
+     *                                                              alerts.
+     * @param datacache                           $cache            Cache instance used to manipulate alerts and alert
+     *                                                              types.
      * @param MybbSTuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type manager instance.
      */
     public function __construct($mybb, $db, $cache, MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager)
     {
-        $this->mybb  = $mybb;
-        $this->db    = $db;
+        $this->mybb = $mybb;
+        $this->db = $db;
         $this->cache = $cache;
         $this->alertTypeManager = $alertTypeManager;
 
@@ -50,7 +52,8 @@ class MybbStuff_MyAlerts_AlertManager
     }
 
     /**
-     * Filter the current user's enabled alerts array and format it so that it is an array of just alert type codes that are enabled.
+     * Filter the current user's enabled alerts array and format it so that it is an array of just alert type codes
+     * that are enabled.
      *
      * @param array $userDisabledAlertIds The user's disabled alert types.
      *
@@ -59,16 +62,16 @@ class MybbStuff_MyAlerts_AlertManager
     private function filterEnabledAlerts($userDisabledAlertIds = array())
     {
         $userDisabledAlertIds = (array) $userDisabledAlertIds;
-	    $alertTypes = $this->alertTypeManager->getAlertTypes();
+        $alertTypes = $this->alertTypeManager->getAlertTypes();
         $enabledAlertTypes = array();
 
-	    foreach ($alertTypes as $alertType) {
+        foreach ($alertTypes as $alertType) {
             if (!isset($userDisabledAlertIds[$alertType['id']])) {
                 $enabledAlertTypes[] = (int) $alertType['id'];
             }
-	    }
+        }
 
-	    return $enabledAlertTypes;
+        return $enabledAlertTypes;
     }
 
     /**
@@ -148,7 +151,7 @@ class MybbStuff_MyAlerts_AlertManager
                 $alertTypes = $this->getAlertTypesForIn();
 
                 $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
-                $prefix                  = TABLE_PREFIX;
+                $prefix = TABLE_PREFIX;
 
                 $queryString = <<<SQL
                 SELECT COUNT(*) AS count FROM {$prefix}alerts a
@@ -194,7 +197,7 @@ SQL;
 
                 $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
 
-                $prefix      = TABLE_PREFIX;
+                $prefix = TABLE_PREFIX;
                 $queryString = <<<SQL
                 SELECT COUNT(*) AS count FROM {$prefix}alerts a
                 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
@@ -235,8 +238,8 @@ SQL;
             $alertTypes = $this->getAlertTypesForIn();
 
             $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
-            $prefix                  = TABLE_PREFIX;
-            $alertsQuery             = <<<SQL
+            $prefix = TABLE_PREFIX;
+            $alertsQuery = <<<SQL
 SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
 INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
@@ -262,10 +265,10 @@ SQL;
                         $alert->setExtraDetails(json_decode($alertRow['extra_details'], true));
 
                         $user = array(
-                            'uid'          => (int) $alertRow['uid'],
-                            'username'     => $alertRow['username'],
-                            'avatar'       => $alertRow['avatar'],
-                            'usergroup'    => $alertRow['usergroup'],
+                            'uid' => (int) $alertRow['uid'],
+                            'username' => $alertRow['username'],
+                            'avatar' => $alertRow['avatar'],
+                            'usergroup' => $alertRow['usergroup'],
                             'displaygroup' => $alertRow['displaygroup'],
                         );
 
@@ -295,8 +298,8 @@ SQL;
             $alertTypes = $this->getAlertTypesForIn();
 
             $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
-            $prefix                  = TABLE_PREFIX;
-            $alertsQuery             = <<<SQL
+            $prefix = TABLE_PREFIX;
+            $alertsQuery = <<<SQL
 SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
 INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
@@ -322,10 +325,10 @@ SQL;
                         $alert->setExtraDetails(json_decode($alertRow['extra_details'], true));
 
                         $user = array(
-                            'uid'          => (int) $alertRow['uid'],
-                            'username'     => $alertRow['username'],
-                            'avatar'       => $alertRow['avatar'],
-                            'usergroup'    => $alertRow['usergroup'],
+                            'uid' => (int) $alertRow['uid'],
+                            'username' => $alertRow['username'],
+                            'avatar' => $alertRow['avatar'],
+                            'usergroup' => $alertRow['usergroup'],
                             'displaygroup' => $alertRow['displaygroup'],
                         );
 
@@ -354,8 +357,8 @@ SQL;
         $alert = null;
 
         $this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
-        $prefix                  = TABLE_PREFIX;
-        $alertsQuery             = <<<SQL
+        $prefix = TABLE_PREFIX;
+        $alertsQuery = <<<SQL
 SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
 INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
@@ -380,10 +383,10 @@ SQL;
                     $alert->setExtraDetails(json_decode($alertRow['extra_details'], true));
 
                     $user = array(
-                        'uid'          => (int) $alertRow['uid'],
-                        'username'     => $alertRow['username'],
-                        'avatar'       => $alertRow['avatar'],
-                        'usergroup'    => $alertRow['usergroup'],
+                        'uid' => (int) $alertRow['uid'],
+                        'username' => $alertRow['username'],
+                        'avatar' => $alertRow['avatar'],
+                        'usergroup' => $alertRow['usergroup'],
                         'displaygroup' => $alertRow['displaygroup'],
                     );
 
@@ -433,9 +436,9 @@ SQL;
      */
     public function deleteAlerts(array $alerts = array())
     {
-        $success = true;
+        $success = false;
 
-        if (is_array($alerts) OR is_int($alerts)) {
+        if (is_array($alerts) || is_int($alerts)) {
             $alerts = (array) $alerts;
 
             if (!empty($alerts)) {
@@ -447,15 +450,6 @@ SQL;
                     'id IN(' . $alerts . ') AND uid = ' . (int) $this->mybb->user['uid']
                 );
             }
-        } else {
-            if ($alerts == 'allRead') {
-                $success = (bool) $this->db->delete_query(
-                    'alerts',
-                    'unread = 0 AND uid = ' . (int) $this->mybb->user['uid']
-                );
-            } elseif ($alerts = 'allAlerts') {
-                $success = (bool) $this->db->delete_query('alerts', 'uid = ' . (int) $this->mybb->user['uid']);
-            }
         }
 
         return $success;
@@ -464,24 +458,28 @@ SQL;
     /**
      * Get the users who want to receive a certain alert type.
      *
-     * @param MybbStuff_MyAlerts_Entity_AlertType $alertType The alert type to check.
-     * @param array                               $users An array of User IDs to check.
-     * @param int $findUsersBy The column to find users by. Should be one of FIND_USERS_BY_UID or FIND_USERS_BY_USERNAME
+     * @param MybbStuff_MyAlerts_Entity_AlertType $alertType   The alert type to check.
+     * @param array                               $users       An array of User IDs to check.
+     * @param int                                 $findUsersBy The column to find users by. Should be one of
+     *                                                         FIND_USERS_BY_UID or FIND_USERS_BY_USERNAME
      *
      * @return array
      */
-    public function doUsersWantAlert(MybbStuff_MyAlerts_Entity_AlertType $alertType, array $users = array(), $findUsersBy = self::FIND_USERS_BY_UID)
-    {
+    public function doUsersWantAlert(
+        MybbStuff_MyAlerts_Entity_AlertType $alertType,
+        array $users = array(),
+        $findUsersBy = self::FIND_USERS_BY_UID
+    ) {
         $usersWhoWantAlert = array();
-
-
 
         switch ($findUsersBy) {
             case self::FIND_USERS_BY_USERNAME:
                 $users = array_map(array($this->db, 'escape_string'), $users);
 
                 $usernames = "'" . implode("','", $users) . "'";
-                $query = $this->db->simple_select('users', 'uid, myalerts_disabled_alert_types, usergroup', "username IN({$usernames})");
+                $query = $this->db->simple_select('users', 'uid, myalerts_disabled_alert_types, usergroup',
+                                                  "username IN({$usernames})"
+                );
                 break;
             case self::FIND_USERS_BY_UID:
             default:
@@ -491,8 +489,6 @@ SQL;
                 $query = $this->db->simple_select('users', 'uid, myalerts_disabled_alert_types', "uid IN({$uids})");
                 break;
         }
-
-
 
         while ($user = $this->db->fetch_array($query)) {
             $disabledAlertTypes = @json_decode($user['myalerts_disabled_alert_types']);

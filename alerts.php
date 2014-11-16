@@ -113,8 +113,6 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme
 				$altbg = alt_trow();
 				$tempKey = 'myalerts_setting_' . $key;
 
-				$baseSettings = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor');
-
 				$plugins->run_hooks('myalerts_load_lang');
 
 				$langline = $lang->$tempKey;
@@ -150,9 +148,9 @@ function myalerts_delete_alert($mybb, $db, $lang)
 
         $db->delete_query('alerts', "id = {$id} AND uid = {$userId}");
 
-        redirect('usercp.php?action=alerts', $lang->myalerts_delete_deleted, $lang->myalerts_delete_deleted);
+        redirect('alerts.php?action=alerts', $lang->myalerts_delete_deleted, $lang->myalerts_delete_deleted);
     } else {
-        redirect('usercp.php?action=alerts', $lang->myalerts_delete_error, $lang->myalerts_delete_error);
+        redirect('alerts.php?action=alerts', $lang->myalerts_delete_error, $lang->myalerts_delete_error);
     }
 }
 
@@ -171,7 +169,7 @@ function myalerts_delete_read_alerts($mybb, $db, $lang)
 
     $db->delete_query('alerts', "uid = {$userId} AND unread = 0");
 
-    redirect('usercp.php?action=alerts', $lang->myalerts_delete_all_read, $lang->myalerts_delete_mass_deleted);
+    redirect('alerts.php?action=alerts', $lang->myalerts_delete_all_read, $lang->myalerts_delete_mass_deleted);
 }
 
 /**
@@ -189,7 +187,7 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
 
     $db->delete_query('alerts', "uid = {$userId}");
 
-    redirect('usercp.php?action=alerts', $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
+    redirect('alerts.php?action=alerts', $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
 }
 
 /**
@@ -208,8 +206,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
         $lang->load('myalerts');
     }
 
-    add_breadcrumb($lang->nav_usercp, 'usercp.php');
-    add_breadcrumb($lang->myalerts_page_title, 'usercp.php?action=alerts');
+    add_breadcrumb($lang->myalerts_page_title, 'alerts.php?action=alerts');
 
     require_once __DIR__ . '/inc/functions_user.php';
     usercp_menu();

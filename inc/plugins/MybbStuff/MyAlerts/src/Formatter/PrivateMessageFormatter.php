@@ -36,7 +36,8 @@ HTML;
     }
 
     /**
-     * Init function called before running formatAlert(). Used to load language files and initialize other required resources.
+     * Init function called before running formatAlert(). Used to load language files and initialize other required
+     * resources.
      *
      * @return void
      */
@@ -61,7 +62,7 @@ HTML;
     {
         $alertContent = $alert->getExtraDetails();
 
-        $pmId      = (int) $alertContent['pm_id'];
+        $pmId = (int) $alertContent['pm_id'];
 
         return "{$this->mybb->settings['bburl']}/private.php?action=read&amp;pmid={$pmId}";
     }

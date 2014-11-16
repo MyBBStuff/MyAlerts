@@ -20,7 +20,7 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter extends MybbStuff_MyAlerts_Fo
     public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
     {
         $alertContent = $alert->getExtraDetails();
-        $postLink     = $this->buildShowLink($alert);
+        $postLink = $this->buildShowLink($alert);
 
         return $this->lang->sprintf(
             $this->lang->myalerts_quoted,
@@ -32,7 +32,8 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter extends MybbStuff_MyAlerts_Fo
     }
 
     /**
-     * Init function called before running formatAlert(). Used to load language files and initialize other required resources.
+     * Init function called before running formatAlert(). Used to load language files and initialize other required
+     * resources.
      *
      * @return void
      */
@@ -56,7 +57,7 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter extends MybbStuff_MyAlerts_Fo
     public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
     {
         $alertContent = $alert->getExtraDetails();
-        $postLink     = $this->mybb->settings['bburl'] . '/' . get_post_link(
+        $postLink = $this->mybb->settings['bburl'] . '/' . get_post_link(
                 (int) $alertContent['pid'],
                 (int) $alertContent['tid']
             ) . '#pid' . (int) $alertContent['pid'];

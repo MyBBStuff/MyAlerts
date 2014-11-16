@@ -32,7 +32,8 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter extends MybbStuff_
     }
 
     /**
-     * Init function called before running formatAlert(). Used to load language files and initialize other required resources.
+     * Init function called before running formatAlert(). Used to load language files and initialize other required
+     * resources.
      *
      * @return void
      */

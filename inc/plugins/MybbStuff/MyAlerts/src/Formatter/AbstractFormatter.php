@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Base alert formatter. Alert type formatters should inherit from this base class in order to have alerts displayed correctly.
+ * Base alert formatter. Alert type formatters should inherit from this base class in order to have alerts displayed
+ * correctly.
  *
  * @package MybbStuff\MyAlerts
  */
@@ -28,8 +29,8 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
      */
     public function __construct(MyBB &$mybb, MyLanguage &$lang, $alertTypeName = '')
     {
-        $this->mybb          = $mybb;
-        $this->lang          = $lang;
+        $this->mybb = $mybb;
+        $this->lang = $lang;
         $this->alertTypeName = (string) $alertTypeName;
     }
 
@@ -82,7 +83,8 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
     }
 
     /**
-     * Init function called before running formatAlert(). Used to load language files and initialize other required resources.
+     * Init function called before running formatAlert(). Used to load language files and initialize other required
+     * resources.
      *
      * @return void
      */
@@ -92,7 +94,8 @@ abstract class MybbStuff_MyAlerts_Formatter_AbstractFormatter
      * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
      *
      * @param MybbStuff_MyAlerts_Entity_Alert $alert       The alert to format.
-     * @param array                           $outputAlert The alert output details, including formated from user name, from user profile link and more.
+     * @param array                           $outputAlert The alert output details, including formated from user name,
+     *                                                     from user profile link and more.
      *
      * @return string The formatted alert string.
      */

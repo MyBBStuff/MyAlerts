@@ -25,8 +25,8 @@ class MybbStuff_MyAlerts_Entity_AlertType
     {
         $serialized = array_merge(
             array(
-                'id'      => 0,
-                'code'    => '',
+                'id' => 0,
+                'code' => '',
                 'enabled' => false,
             ),
             $serialized
@@ -48,8 +48,8 @@ class MybbStuff_MyAlerts_Entity_AlertType
     public function toArray()
     {
         return array(
-            'id'      => $this->getId(),
-            'code'    => $this->getCode(),
+            'id' => $this->getId(),
+            'code' => $this->getCode(),
             'enabled' => $this->getEnabled(),
         );
     }
