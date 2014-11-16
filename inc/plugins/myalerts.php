@@ -603,7 +603,9 @@ function myalerts_alert_quoted()
         if (isset($alertType) && $alertType->getEnabled()) {
             $alerts = array();
             foreach ($usersWhoWantAlert as $uid) {
-                if (!isset($forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads']) OR (int) $forumPerms[$post['fid']][$uid['usergroup']]['canviewthreads'] != 0) {
+                $forumPerms = forum_permissions($post['fid'], $uid['uid']);
+
+                if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
                     $userList[] = (int) $uid['uid'];
                     $alert      = new MybbStuff_MyAlerts_Entity_Alert(
                         (int) $uid['uid'],
@@ -635,8 +637,6 @@ function myalerts_alert_post_threadauthor(&$post)
     global $mybb, $db, $cache;
 
     if (!$post->data['savedraft']) {
-        $forumPerms = $cache->read('forumpermissions');
-
         /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
         $alertType = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getByCode('post_threadauthor');
 
@@ -660,12 +660,16 @@ function myalerts_alert_post_threadauthor(&$post)
                 $thread = $db->fetch_array($query);
             }
 
+
+
             if ($thread['uid'] != $mybb->user['uid']) {
                 $usersWhoWantAlert = $GLOBALS['mybbstuff_myalerts_alert_manager']->doUsersWantAlert($alertType, array($thread['uid']), MybbStuff_MyAlerts_AlertManager::FIND_USERS_BY_USERNAME);
 
                 if (!empty($usersWhoWantAlert)) {
+                    $forumPerms = forum_permissions($thread['fid'], $usersWhoWantAlert['uid']);
+
                     // Check forum permissions
-                    if (!isset($forumPerms[$thread['fid']][$usersWhoWantAlert['usergroup']]['canviewthreads']) OR (int) $forumPerms[$thread['fid']][$usersWhoWantAlert['usergroup']]['canviewthreads'] != 0) {
+                    if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
                         //check if alerted for this thread already
                         $query = $db->simple_select(
                             'alerts',
