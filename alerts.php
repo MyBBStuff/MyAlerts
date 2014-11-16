@@ -21,6 +21,15 @@ switch ($action) {
 	case 'settings':
 		myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme);
         break;
+    case 'delete':
+        myalerts_delete_alert($mybb, $db, $lang);
+        break;
+    case 'delete_read':
+        myalerts_delete_read_alerts($mybb, $db, $lang);
+        break;
+    case 'delete_all':
+        myalerts_delete_all_alerts($mybb, $db, $lang);
+        break;
     default:
         myalerts_view_alerts($mybb, $lang, $templates, $theme);
         break;
@@ -122,6 +131,65 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme
 		eval("\$content = \"" . $templates->get('myalerts_settings_page') . "\";");
 		output_page($content);
 	}
+}
+
+/**
+ * Delete a single alert.
+ *
+ * @param MyBB $mybb MyBB core object.
+ * @param DB_MySQL|DB_MySQLi $db database object.
+ * @param MyLanguage $lang MyBB language system.
+ */
+function myalerts_delete_alert($mybb, $db, $lang)
+{
+    $id = $mybb->get_input('id', MyBB::INPUT_INT);
+    $userId = (int) $mybb->user['uid'];
+
+    if ($id > 0) {
+        verify_post_check($mybb->get_input('my_post_key'));
+
+        $db->delete_query('alerts', "id = {$id} AND uid = {$userId}");
+
+        redirect('usercp.php?action=alerts', $lang->myalerts_delete_deleted, $lang->myalerts_delete_deleted);
+    } else {
+        redirect('usercp.php?action=alerts', $lang->myalerts_delete_error, $lang->myalerts_delete_error);
+    }
+}
+
+/**
+ * Delete all read alerts.
+ *
+ * @param MyBB $mybb MyBB core object.
+ * @param DB_MySQL|DB_MySQLi $db database object.
+ * @param MyLanguage $lang MyBB language system.
+ */
+function myalerts_delete_read_alerts($mybb, $db, $lang)
+{
+    verify_post_check($mybb->get_input('my_post_key'));
+
+    $userId = (int) $mybb->user['uid'];
+
+    $db->delete_query('alerts', "uid = {$userId} AND unread = 0");
+
+    redirect('usercp.php?action=alerts', $lang->myalerts_delete_all_read, $lang->myalerts_delete_mass_deleted);
+}
+
+/**
+ * Delete all alerts.
+ *
+ * @param MyBB $mybb MyBB core object.
+ * @param DB_MySQL|DB_MySQLi $db database object.
+ * @param MyLanguage $lang MyBB language system.
+ */
+function myalerts_delete_all_alerts($mybb, $db, $lang)
+{
+    verify_post_check($mybb->get_input('my_post_key'));
+
+    $userId = (int) $mybb->user['uid'];
+
+    $db->delete_query('alerts', "uid = {$userId}");
+
+    redirect('usercp.php?action=alerts', $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
 }
 
 /**
