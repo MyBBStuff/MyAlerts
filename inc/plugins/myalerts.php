@@ -320,7 +320,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 
         $outputAlert['id'] = $alertToParse->getId();
         $outputAlert['from_user'] = format_name(
-            $fromUser['username'],
+            htmlspecialchars_uni($fromUser['username']),
             $fromUser['usergroup'],
             $fromUser['displaygroup']
         );
