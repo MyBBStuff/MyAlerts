@@ -72,7 +72,7 @@ function myalerts_install()
     if (!$db->table_exists('alert_types')) {
         $collation = $db->build_create_table_collation();
         $db->write_query(
-            "CREATE TABLE " . TABLE_PREFIX . "alert_setting_values(
+            "CREATE TABLE " . TABLE_PREFIX . "alert_types(
                 `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
                 `code` varchar(255) NOT NULL DEFAULT '',
                 `enabled` tinyint(4) NOT NULL DEFAULT '1',
@@ -96,7 +96,6 @@ function myalerts_install()
 
         $alertTypesToAdd[] = $alertType;
     }
-
 
     $alertTypeManager->addTypes($alertTypesToAdd);
 }
