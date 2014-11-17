@@ -50,8 +50,9 @@ function myalerts_install()
     );
     $cache->update('euantor_plugins', $euantor_plugins);
 
+    $collation = $db->build_create_table_collation();
+
     if (!$db->table_exists('alerts')) {
-        $collation = $db->build_create_table_collation();
         $db->write_query(
             "CREATE TABLE " . TABLE_PREFIX . "alerts(
                 `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -70,7 +71,6 @@ function myalerts_install()
     }
 
     if (!$db->table_exists('alert_types')) {
-        $collation = $db->build_create_table_collation();
         $db->write_query(
             "CREATE TABLE " . TABLE_PREFIX . "alert_types(
                 `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
