@@ -5,7 +5,7 @@
  *	A simple notification/alert system for MyBB
  *
  *	@author Euan T. <euan@euantor.com>
- *	@version 1.00
+ *	@version 1.0.0
  *	@package MyAlerts
  */
 

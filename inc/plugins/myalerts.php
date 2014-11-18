@@ -82,7 +82,9 @@ function myalerts_install()
         );
     }
 
-    $db->add_column('users', 'myalerts_disabled_alert_types', 'TEXT NOT NULL');
+    if (!$db->field_exists('myalerts_disabled_alert_types', 'users')) {
+        $db->add_column('users', 'myalerts_disabled_alert_types', 'TEXT NOT NULL');
+    }
 
     $alertTypeManager = new MybbStuff_MyAlerts_AlertTypeManager($db, $cache);
 
