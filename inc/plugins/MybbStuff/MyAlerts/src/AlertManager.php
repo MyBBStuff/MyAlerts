@@ -106,9 +106,12 @@ class MybbStuff_MyAlerts_AlertManager
     public function addAlert(MybbStuff_MyAlerts_Entity_Alert $alert)
     {
         // TODO: Check for duplicates...
-        $alert->setFromUser($this->mybb->user);
+        if ($alert->getFromUser() === null) {
+            $alert->setFromUser($this->mybb->user);
+        }
 
-        static::$alertQueue[] = $alert;
+        // Basic duplicate checking by overwrite - only one alert for each alert type/object id combination
+        static::$alertQueue[$alert->getType()->getCode() . '_' . $alert->getObjectId()] = $alert;
 
         return $this;
     }

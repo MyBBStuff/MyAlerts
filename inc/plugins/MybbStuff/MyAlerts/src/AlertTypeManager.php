@@ -5,7 +5,7 @@
  */
 class MybbStuff_MyAlerts_AlertTypeManager
 {
-    /** @var MybbStuff_MyAlerts_Entity_AlertType[] */
+    /** @var array */
     private $alertTypes = array();
     /** @var DB_MySQLi */
     private $db;
@@ -112,6 +112,43 @@ class MybbStuff_MyAlerts_AlertTypeManager
     }
 
     /**
+     * Update a set of alert types to change their enabled/disabled status.
+     *
+     * @param MybbStuff_MyAlerts_Entity_AlertType[] $alertTypes An array of alert types to update.
+     */
+    public function updateAlertTypes(array $alertTypes)
+    {
+        foreach ($alertTypes as $alertType) {
+            $updateArray = array(
+                'enabled' => $alertType->getEnabled(),
+            );
+
+            $this->db->update_query('alert_types', $updateArray, "id = {$alertType->getId()}");
+        }
+
+        // Flush the cache
+        $this->getAlertTypes(true);
+    }
+
+    /**
+     * Delete an alert type by the unique code assigned to it.
+     *
+     * @param string $code The unique code for the alert type.
+     *
+     * @return bool Whether the alert type was deleted.
+     */
+    public function deleteByCode($code = '')
+    {
+        $alertType = $this->getByCode($code);
+
+        if ($alertType !== null) {
+            return $this->deleteById($alertType->getId());
+        }
+
+        return false;
+    }
+
+    /**
      * Get an alert type by it's code.
      *
      * @param string $code The code of the alert type to fetch.
@@ -133,21 +170,20 @@ class MybbStuff_MyAlerts_AlertTypeManager
     }
 
     /**
-     * Update a set of alert types to change their enabled/disabled status.
+     * Delete an alert type by ID.
      *
-     * @param MybbStuff_MyAlerts_Entity_AlertType[] $alertTypes An array of alert types to update.
+     * @param int $id The ID of the alert type.
+     *
+     * @return bool Whether the alert type was deleted.
      */
-    public function updateAlertTypes(array $alertTypes)
+    public function deleteById($id = 0)
     {
-        foreach ($alertTypes as $alertType) {
-            $updateArray = array(
-                'enabled' => $alertType->getEnabled(),
-            );
+        $id = (int) $id;
 
-            $this->db->update_query('alert_types', $updateArray, "id = {$alertType->getId()}");
-        }
+        $queryResult = (bool) $this->db->delete_query('alert_types', "id = {$id}");
 
-        // Flush the cache
         $this->getAlertTypes(true);
+
+        return $queryResult;
     }
-} 
+}
