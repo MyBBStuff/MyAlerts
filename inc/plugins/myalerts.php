@@ -40,7 +40,7 @@ function myalerts_info()
 
 function myalerts_install()
 {
-    global $db, $cache;
+    global $db, $cache, $plugins;
 
     $plugin_info = myalerts_info();
     $euantor_plugins = $cache->read('euantor_plugins');
@@ -100,6 +100,8 @@ function myalerts_install()
     }
 
     $alertTypeManager->addTypes($alertTypesToAdd);
+
+    $plugins->run_hooks('myalerts_install');
 }
 
 function myalerts_is_installed()
@@ -111,7 +113,7 @@ function myalerts_is_installed()
 
 function myalerts_uninstall()
 {
-    global $db, $lang, $PL;
+    global $db, $lang, $PL, $plugins;
 
     if (!file_exists(PLUGINLIBRARY)) {
         flash_message($lang->myalerts_pluginlibrary_missing, 'error');
@@ -119,6 +121,8 @@ function myalerts_uninstall()
     }
 
     $PL or require_once PLUGINLIBRARY;
+
+    $plugins->run_hooks('myalerts_uninstall');
 
     if ($db->table_exists('alerts')) {
         $db->drop_table('alerts');
@@ -262,11 +266,13 @@ function myalerts_activate()
         $db->update_query('tasks', array('enabled' => 1, 'nextrun' => fetch_next_run($theTask)), 'file = \'myalerts\'');
         $cache->update_tasks();
     }
+
+    $plugins->run_hooks('myalerts_activate');
 }
 
 function myalerts_deactivate()
 {
-    global $PL, $db, $lang;
+    global $PL, $db, $lang, $plugins;
 
     if (!$lang->myalerts) {
         $lang->load('myalerts');
@@ -278,6 +284,8 @@ function myalerts_deactivate()
     }
 
     isset($PL) or require_once PLUGINLIBRARY;
+
+    $plugins->run_hooks('myalerts_deactivate');
 
     $PL->stylesheet_deactivate('alerts.css');
 
