@@ -120,7 +120,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
     {
         foreach ($alertTypes as $alertType) {
             $updateArray = array(
-                'enabled' => $alertType->getEnabled(),
+                'enabled' => (int) $alertType->getEnabled(),
             );
 
             $this->db->update_query('alert_types', $updateArray, "id = {$alertType->getId()}");

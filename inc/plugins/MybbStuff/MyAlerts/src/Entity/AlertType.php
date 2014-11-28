@@ -50,7 +50,7 @@ class MybbStuff_MyAlerts_Entity_AlertType
         return array(
             'id' => $this->getId(),
             'code' => $this->getCode(),
-            'enabled' => $this->getEnabled(),
+            'enabled' => (int) $this->getEnabled(),
         );
     }
 

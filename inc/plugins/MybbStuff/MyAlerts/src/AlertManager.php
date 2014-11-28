@@ -105,8 +105,9 @@ class MybbStuff_MyAlerts_AlertManager
      */
     public function addAlert(MybbStuff_MyAlerts_Entity_Alert $alert)
     {
+        $fromUser = $alert->getFromUser();
         // TODO: Check for duplicates...
-        if ($alert->getFromUser() === null) {
+        if (!isset($fromUser['uid'])) {
             $alert->setFromUser($this->mybb->user);
         }
 
@@ -129,7 +130,11 @@ class MybbStuff_MyAlerts_AlertManager
             $toCommit = array();
 
             foreach (static::$alertQueue as $alert) {
-                $toCommit[] = $alert->toArray();
+                $alertArray = $alert->toArray();
+
+                $alertArray['extra_details'] = $this->db->escape_string($alertArray['extra_details']);
+
+                $toCommit[] = $alertArray;
             }
 
             $success = (boolean) $this->db->insert_query_multiple('alerts', $toCommit);
@@ -244,7 +249,7 @@ SQL;
             $prefix = TABLE_PREFIX;
             $alertsQuery = <<<SQL
 SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
-INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
+LEFT JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']}
 AND (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1) AND t.enabled = 1 ORDER BY a.id DESC LIMIT {$start}, {$limit};
@@ -304,7 +309,7 @@ SQL;
             $prefix = TABLE_PREFIX;
             $alertsQuery = <<<SQL
 SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
-INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
+LEFT JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']} AND a.unread = 1
 AND (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1) AND t.enabled = 1 ORDER BY a.id DESC;
@@ -363,7 +368,7 @@ SQL;
         $prefix = TABLE_PREFIX;
         $alertsQuery = <<<SQL
 SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
-INNER JOIN {$prefix}users u ON (a.from_user_id = u.uid)
+LEFT JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']} AND a.id = {$id};
 SQL;
