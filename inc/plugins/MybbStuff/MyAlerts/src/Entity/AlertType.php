@@ -64,10 +64,14 @@ class MybbStuff_MyAlerts_Entity_AlertType
 
     /**
      * @param int $id
+     *
+     * @return MybbStuff_Myalerts_Entity_AlertType $this.
      */
     public function setId($id = 0)
     {
         $this->id = (int) $id;
+
+        return $this;
     }
 
     /**
@@ -79,11 +83,15 @@ class MybbStuff_MyAlerts_Entity_AlertType
     }
 
     /**
-     * @param string $code
+     * @param string $code The code for the alet type.
+     *
+     * @return MybbStuff_Myalerts_Entity_AlertType $this.
      */
     public function setCode($code)
     {
         $this->code = (string) $code;
+
+        return $this;
     }
 
     /**
@@ -95,10 +103,14 @@ class MybbStuff_MyAlerts_Entity_AlertType
     }
 
     /**
-     * @param boolean $enabled
+     * @param boolean $enabled Whether the alert type is enabled.
+     *
+     * @return MybbStuff_Myalerts_Entity_AlertType $this.
      */
-    public function setEnabled($enabled)
+    public function setEnabled($enabled = true)
     {
         $this->enabled = (bool) $enabled;
+
+        return $this;
     }
 }

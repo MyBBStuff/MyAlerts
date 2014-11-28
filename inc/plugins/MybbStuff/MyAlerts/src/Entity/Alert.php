@@ -88,11 +88,15 @@ class MybbStuff_MyAlerts_Entity_Alert
     }
 
     /**
-     * @param int $id
+     * @param int $id The ID to set.
+     *
+     * @return MybbStuff_MyAlerts_Entity_Alert $this
      */
     public function setId($id)
     {
-        $this->id = $id;
+        $this->id = (int) $id;
+
+        return $this;
     }
 
     /**
@@ -122,11 +126,15 @@ class MybbStuff_MyAlerts_Entity_Alert
     }
 
     /**
-     * @param int $userId
+     * @param int $userId The user ID to set.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = (int) $userId;
+
+        return $this;
     }
 
     /**
@@ -138,11 +146,15 @@ class MybbStuff_MyAlerts_Entity_Alert
     }
 
     /**
-     * @param int $fromUserId
+     * @param int $fromUserId The from user ID to set.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
      */
     public function setFromUserId($fromUserId)
     {
         $this->fromUserId = (int) $fromUserId;
+
+        return $this;
     }
 
     /**
@@ -154,11 +166,15 @@ class MybbStuff_MyAlerts_Entity_Alert
     }
 
     /**
-     * @param int $typeId
+     * @param int $typeId The ID of the alert type.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
      */
     public function setTypeId($typeId)
     {
         $this->typeId = (int) $typeId;
+
+        return $this;
     }
 
     /**
@@ -170,11 +186,15 @@ class MybbStuff_MyAlerts_Entity_Alert
     }
 
     /**
-     * @param int $objectId
+     * @param int $objectId The ID of the object this alert relates to.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
      */
-    public function setObjectId($objectId)
+    public function setObjectId($objectId = 0)
     {
-        $this->objectId = $objectId;
+        $this->objectId = (int) $objectId;
+
+        return $this;
     }
 
     /**
@@ -186,11 +206,15 @@ class MybbStuff_MyAlerts_Entity_Alert
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param \DateTime $createdAt The date the alert was created at.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
      */
     public function setCreatedAt(DateTime $createdAt)
     {
         $this->createdAt = $createdAt;
+
+        return $this;
     }
 
     /**
@@ -202,11 +226,15 @@ class MybbStuff_MyAlerts_Entity_Alert
     }
 
     /**
-     * @param array $extraDetails
+     * @param array $extraDetails Extra details about the alert.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
      */
-    public function setExtraDetails($extraDetails)
+    public function setExtraDetails(array $extraDetails = array())
     {
         $this->extraDetails = $extraDetails;
+
+        return $this;
     }
 
     /**
@@ -218,22 +246,36 @@ class MybbStuff_MyAlerts_Entity_Alert
     }
 
     /**
-     * @param boolean $unread
+     * @param boolean $unread Whether the alert is unread.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
      */
-    public function setUnread($unread)
+    public function setUnread($unread = true)
     {
-        $this->unread = $unread;
+        $this->unread = (boolean) $unread;
+
+        return $this;
     }
 
+    /**
+     * @return MybbSTuff_MyAlerts_Entity_AlertType The type of alert this is.
+     */
     public function getType()
     {
         return $this->type;
     }
 
+    /**
+     * @param MybbStuff_MyAlerts_Entity_AlertType $type The alert type to set.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
+     */
     public function setType(MybbStuff_MyAlerts_Entity_AlertType $type)
     {
         $this->type = $type;
         $this->setTypeId($type->getId());
+
+        return $this;
     }
 
     /**
@@ -246,10 +288,14 @@ class MybbStuff_MyAlerts_Entity_Alert
 
     /**
      * @param array $user The user array of the user sending the alert.
+     *
+     * @return MybbStuff_Myalerts_Entity_Alert $this.
      */
-    public function setFromUser(array $user)
+    public function setFromUser(array $user = array())
     {
         $this->fromUser = $user;
         $this->setFromUserId($user['uid']);
+
+        return $this;
     }
 }
