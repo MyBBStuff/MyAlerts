@@ -27,6 +27,22 @@ class MybbStuff_MyAlerts_AlertManager
     private $alertTypeManager;
     /** @var array An array of the currently enabled alert types for the user. */
     private $currentUserEnabledAlerts = array();
+    /** @var MybbStuff_MyAlerts_AlertManager */
+    private static $instance = null;
+
+    public static function createInstance($mybb, $db, $cache, MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager)
+    {
+        if(static::$instance === null)
+            static::$instance = new self($mybb, $db, $cache, $alertTypeManager);
+        return static::$instance;
+    }
+
+    public static function getInstance()
+    {
+        if(static::$instance === null)
+            return false;
+        return static::$instance;
+    }
 
     /**
      * Initialise a new instance of the AlertManager.
@@ -38,7 +54,7 @@ class MybbStuff_MyAlerts_AlertManager
      *                                                              types.
      * @param MybbSTuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type manager instance.
      */
-    public function __construct($mybb, $db, $cache, MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager)
+    private function __construct($mybb, $db, $cache, MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager)
     {
         $this->mybb = $mybb;
         $this->db = $db;

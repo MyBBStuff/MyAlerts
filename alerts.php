@@ -46,15 +46,15 @@ function myalerts_redirect_alert($mybb, $lang)
     $alertId = $mybb->get_input('id', MyBB::INPUT_INT);
 
     /** @var MybbStuff_MyAlerts_Entity_Alert $alert */
-    $alert = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlert($alertId);
+    $alert = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlert($alertId);
     /** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $alertTypeFormatter */
-    $alertTypeFormatter = $GLOBALS['mybbstuff_myalerts_alert_formatter_manager']->getFormatterForAlertType($alert->getType()->getCode());
+    $alertTypeFormatter = MybbStuff_MyAlerts_AlertFormatterManager::getInstance()->getFormatterForAlertType($alert->getType()->getCode());
 
     if (!$alert || !$alertTypeFormatter) {
         error($lang->myalerts_error_alert_not_found);
     }
 
-    $GLOBALS['mybbstuff_myalerts_alert_manager']->markRead(array($alertId));
+    MybbStuff_MyAlerts_AlertManager::getInstance()->markRead(array($alertId));
 
     $redirectLink = unhtmlentities($alertTypeFormatter->buildShowLink($alert));
 
@@ -73,7 +73,7 @@ function myalerts_redirect_alert($mybb, $lang)
  */
 function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme)
 {
-	$alertTypes = $GLOBALS['mybbstuff_myalerts_alert_type_manager']->getAlertTypes();
+	$alertTypes = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getAlertTypes();
 
 	if (strtolower($mybb->request_method) == 'post') { // Saving alert type settings
 		$disabledAlerts = array();
@@ -200,7 +200,7 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
  */
 function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 {
-    $alerts = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlerts(0, 10);
+    $alerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0, 10);
 
     if (!$lang->myalerts) {
         $lang->load('myalerts');
@@ -211,7 +211,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
     require_once __DIR__ . '/inc/functions_user.php';
     usercp_menu();
 
-    $numAlerts = $GLOBALS['mybbstuff_myalerts_alert_manager']->getNumAlerts();
+    $numAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getNumAlerts();
     $page      = (int) $mybb->input['page'];
     $pages     = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
 
@@ -227,7 +227,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
     }
     $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "usercp.php?action=alerts");
 
-    $alertsList = $GLOBALS['mybbstuff_myalerts_alert_manager']->getAlerts($start);
+    $alertsList = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts($start);
 
     $readAlerts = array();
 
@@ -248,7 +248,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
         eval("\$alertsListing = \"" . $templates->get('myalerts_alert_row_no_alerts') . "\";");
     }
 
-    $GLOBALS['mybbstuff_myalerts_alert_manager']->markRead($readAlerts);
+    MybbStuff_MyAlerts_AlertManager::getInstance()->markRead($readAlerts);
 
     global $headerinclude, $header, $footer, $usercpnav;
 
