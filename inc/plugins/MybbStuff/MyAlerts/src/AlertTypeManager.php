@@ -11,8 +11,24 @@ class MybbStuff_MyAlerts_AlertTypeManager
     private $db;
     /** @var datacache */
     private $cache;
+    /** @var MybbStuff_MyAlerts_AlertTypeManager */
+    private static $instance = null;
 
-    public function __construct(DB_MySQLi $db, datacache $cache)
+    public static function createInstance(DB_MySQLi $db, datacache $cache)
+    {
+        if(static::$instance === null)
+            static::$instance = new self($db, $cache);
+        return static::$instance;
+    }
+
+    public static function getInstance()
+    {
+        if(static::$instance === null)
+            return false;
+        return static::$instance;
+    }
+
+    private function __construct(DB_MySQLi $db, datacache $cache)
     {
         $this->db = $db;
         $this->cache = $cache;

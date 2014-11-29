@@ -21,11 +21,27 @@ class MybbStuff_MyAlerts_AlertFormatterManager
      * @var array
      */
     private $alertFormatters;
+    /** @var MybbStuff_MyAlerts_AlertFormatterManager */
+    private static $instance = null;
+
+    public static function createInstance(MyBB $mybb, MyLanguage $lang)
+    {
+        if(static::$instance === null)
+            static::$instance = new self($mybb, $lang);
+        return static::$instance;
+    }
+
+    public static function getInstance()
+    {
+        if(static::$instance === null)
+            return false;
+        return static::$instance;
+    }
 
     /**
      * Create a new formatter manager.
      */
-    public function __construct(MyBB $mybb, MyLanguage $lang)
+    private function __construct(MyBB $mybb, MyLanguage $lang)
     {
         $this->mybb = $mybb;
         $this->lang = $lang;

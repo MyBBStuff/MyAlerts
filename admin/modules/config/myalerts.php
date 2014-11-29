@@ -31,7 +31,7 @@ function myalerts_acp_manage_alert_types()
 {
     global $mybb, $lang, $page, $db, $cache;
 
-    $alertTypeManager = new MybbStuff_MyAlerts_AlertTypeManager($db, $cache);
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
     $alertTypes = $alertTypeManager->getAlertTypes();
 
