@@ -5,28 +5,14 @@
  */
 class MybbStuff_MyAlerts_AlertTypeManager
 {
+    /** @var MybbStuff_MyAlerts_AlertTypeManager */
+    private static $instance = null;
     /** @var array */
     private $alertTypes = array();
     /** @var DB_MySQLi */
     private $db;
     /** @var datacache */
     private $cache;
-    /** @var MybbStuff_MyAlerts_AlertTypeManager */
-    private static $instance = null;
-
-    public static function createInstance(DB_MySQLi $db, datacache $cache)
-    {
-        if(static::$instance === null)
-            static::$instance = new self($db, $cache);
-        return static::$instance;
-    }
-
-    public static function getInstance()
-    {
-        if(static::$instance === null)
-            return false;
-        return static::$instance;
-    }
 
     private function __construct(DB_MySQLi $db, datacache $cache)
     {
@@ -87,6 +73,37 @@ class MybbStuff_MyAlerts_AlertTypeManager
         }
 
         return $alertTypes;
+    }
+
+    /**
+     * Create an instance of the alert type manager.
+     *
+     * @param DB_MySQLi|DB_MySQL $db    MyBB database object.
+     * @param datacache          $cache MyBB cache object.
+     *
+     * @return MybbStuff_MyAlerts_AlertTypeManager The created instance.
+     */
+    public static function createInstance($db, datacache $cache)
+    {
+        if (static::$instance === null) {
+            static::$instance = new self($db, $cache);
+        }
+
+        return static::$instance;
+    }
+
+    /**
+     * Get a prior created instance of the alert type manager. @see createInstance().
+     *
+     * @return bool|MybbStuff_MyAlerts_AlertTypeManager The prior created instance, or false if not already instantiated.
+     */
+    public static function getInstance()
+    {
+        if (static::$instance === null) {
+            return false;
+        }
+
+        return static::$instance;
     }
 
     /**

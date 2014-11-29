@@ -10,6 +10,10 @@
 class MybbStuff_MyAlerts_AlertFormatterManager
 {
     /**
+     * @var MybbStuff_MyAlerts_AlertFormatterManager
+     */
+    private static $instance = null;
+    /**
      * @var MyBB
      */
     private $mybb;
@@ -21,31 +25,49 @@ class MybbStuff_MyAlerts_AlertFormatterManager
      * @var array
      */
     private $alertFormatters;
-    /** @var MybbStuff_MyAlerts_AlertFormatterManager */
-    private static $instance = null;
-
-    public static function createInstance(MyBB $mybb, MyLanguage $lang)
-    {
-        if(static::$instance === null)
-            static::$instance = new self($mybb, $lang);
-        return static::$instance;
-    }
-
-    public static function getInstance()
-    {
-        if(static::$instance === null)
-            return false;
-        return static::$instance;
-    }
 
     /**
      * Create a new formatter manager.
+     *
+     * @param MyBB       $mybb MyBB core object.
+     * @param MyLanguage $lang Language object.
      */
     private function __construct(MyBB $mybb, MyLanguage $lang)
     {
         $this->mybb = $mybb;
         $this->lang = $lang;
         $this->alertFormatters = array();
+    }
+
+    /**
+     * Create an instance of the alert formatter manager.
+     *
+     * @param MyBB       $mybb MyBB core object.
+     * @param MyLanguage $lang Language object.
+     *
+     * @return MybbStuff_MyAlerts_AlertFormatterManager The created instance.
+     */
+    public static function createInstance(MyBB $mybb, MyLanguage $lang)
+    {
+        if (static::$instance === null) {
+            static::$instance = new self($mybb, $lang);
+        }
+
+        return static::$instance;
+    }
+
+    /**
+     * Get an instance of the AlertFormatterManager if one has been created via @see createInstance().
+     *
+     * @return bool|MybbStuff_MyAlerts_AlertFormatterManager The existing instance, or false if not already instantiated.
+     */
+    public static function getInstance()
+    {
+        if (static::$instance === null) {
+            return false;
+        }
+
+        return static::$instance;
     }
 
     /**

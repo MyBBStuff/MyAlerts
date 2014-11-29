@@ -17,6 +17,8 @@ class MybbStuff_MyAlerts_AlertManager
     private static $alertQueue;
     /** @var  MybbStuff_MyAlerts_Entity_AlertType[] A cache of the alert types currently available in the system. */
     private static $alertTypes;
+    /** @var MybbStuff_MyAlerts_AlertManager */
+    private static $instance = null;
     /** @var MyBB MyBB core object used to get settings and more. */
     private $mybb;
     /** @var DB_MySQLi Database connection to be used when manipulating alerts. */
@@ -27,22 +29,6 @@ class MybbStuff_MyAlerts_AlertManager
     private $alertTypeManager;
     /** @var array An array of the currently enabled alert types for the user. */
     private $currentUserEnabledAlerts = array();
-    /** @var MybbStuff_MyAlerts_AlertManager */
-    private static $instance = null;
-
-    public static function createInstance($mybb, $db, $cache, MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager)
-    {
-        if(static::$instance === null)
-            static::$instance = new self($mybb, $db, $cache, $alertTypeManager);
-        return static::$instance;
-    }
-
-    public static function getInstance()
-    {
-        if(static::$instance === null)
-            return false;
-        return static::$instance;
-    }
 
     /**
      * Initialise a new instance of the AlertManager.
@@ -88,6 +74,43 @@ class MybbStuff_MyAlerts_AlertManager
         }
 
         return $enabledAlertTypes;
+    }
+
+    /** Create an instance of the alert manager.
+     *
+     * @param MyBB                                $mybb             MyBB core object.
+     * @param DB_MySQL|DB_MySQLi                  $db               MyBB database object.
+     * @param datacache                           $cache            MyBB cache object.
+     * @param MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type manager instance.
+     *
+     * @return MybbStuff_MyAlerts_AlertManager The created instance.
+     */
+    public static function createInstance(
+        MyBB $mybb,
+        $db,
+        datacache $cache,
+        MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager
+    )
+    {
+        if (static::$instance === null) {
+            static::$instance = new self($mybb, $db, $cache, $alertTypeManager);
+        }
+
+        return static::$instance;
+    }
+
+    /**
+     * Get a prior created instance of the alert manager. @see createInstance().
+     *
+     * @return bool|MybbStuff_MyAlerts_AlertManager The existing instance, or false if not already instantiated.
+     */
+    public static function getInstance()
+    {
+        if (static::$instance === null) {
+            return false;
+        }
+
+        return static::$instance;
     }
 
     /**
