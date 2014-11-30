@@ -67,6 +67,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
                 $alertType->setId($row['id']);
                 $alertType->setCode($row['code']);
                 $alertType->setEnabled((int) $row['enabled'] == 1);
+                $alertType->setCanBeUserDisabled((int) $row['can_be_user_disabled'] == 1);
 
                 $alertTypes[$row['code']] = $alertType->toArray();
             }

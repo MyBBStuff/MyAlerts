@@ -79,7 +79,7 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme
 		$disabledAlerts = array();
 
 		foreach ($alertTypes as $alertCode => $alertType) {
-			if (!isset($_POST[$alertCode])) {
+			if (!isset($_POST[$alertCode]) && $alertType['can_be_user_disabled']) {
 				$disabledAlerts[] = (int) $alertType['id'];
 			}
 		}
@@ -109,7 +109,7 @@ function myalerts_alert_settings($mybb, $db, $lang, $plugins, $templates, $theme
 		usercp_menu();
 
 		foreach ($alertTypes as $key => $value) {
-			if ($value['enabled']) {
+			if ($value['enabled'] && $value['can_be_user_disabled']) {
 				$altbg = alt_trow();
 				$tempKey = 'myalerts_setting_' . $key;
 

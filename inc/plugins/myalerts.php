@@ -76,6 +76,7 @@ function myalerts_install()
                 `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
                 `code` varchar(255) NOT NULL DEFAULT '',
                 `enabled` tinyint(4) NOT NULL DEFAULT '1',
+                `can_be_user_disabled` tinyint(4) NOT NULL DEFAULT '1',
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `unique_code` (`code`)
             ) ENGINE=MyISAM{$collation};"
@@ -95,6 +96,7 @@ function myalerts_install()
         $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
         $alertType->setCode($type);
         $alertType->setEnabled(true);
+        $alertType->setCanBeUserDisabled(true);
 
         $alertTypesToAdd[] = $alertType;
     }
@@ -387,6 +389,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
             $fromUser['usergroup'],
             $fromUser['displaygroup']
         );
+        $outputAlert['from_user_raw_profilelink'] = get_profile_link((int) $fromUser['uid']); // htmlspecialchars_uni done by get_profile_link
         $outputAlert['from_user_profilelink'] = build_profile_link($outputAlert['from_user'], $fromUser['uid']);
         $outputAlert['dateline'] = $alertToParse->getCreatedAt()->format('Y-m-d H:i');
 
