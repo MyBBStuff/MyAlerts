@@ -297,6 +297,33 @@ function myalerts_deactivate()
     $db->update_query('tasks', array('enabled' => 0), 'file = \'myalerts\'');
 }
 
+/**
+ * Check whether MyAlerts is activated. Useful for 3rd parties. Example usage:
+ *
+ * <pre>
+ * if (function_exists('myalerts_is_activated') && myalerts_is_activated()) {
+ *  // Do work with MyAlerts.
+ * }
+ * </pre>
+ *
+ * @return bool Whetehr MyAlerts is activated and installed.
+ */
+function myalerts_is_activated()
+{
+    global $cache;
+
+    $plugins = $cache->read('plugins');
+    $activePlugins = $plugins['active'];
+
+    $isActive = false;
+
+    if(in_array('myalerts', $activePlugins)) {
+        $isActive = true;
+    }
+
+    return myalerts_is_installed() && $isActive;
+}
+
 function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 {
     global $mybb, $lang, $plugins;
@@ -306,9 +333,8 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
     }
 
     /** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatter */
-    $formatter = MybbStuff_MyAlerts_AlertFormatterManager::getInstance()->getFormatterForAlertType($alertToParse->getType(
-        )->getCode()
-    );
+    $formatter = MybbStuff_MyAlerts_AlertFormatterManager::getInstance()
+        ->getFormatterForAlertType($alertToParse->getType()->getCode());
 
     $outputAlert = array();
 
@@ -351,29 +377,12 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
     return $outputAlert;
 }
 
-$plugins->add_hook('member_do_register_end', 'myalerts_register_do_end');
-function myalerts_register_do_end()
-{
-    global $user_info, $db;
-
-    $query = $db->simple_select('alert_settings', '*');
-    $userSettings = array();
-    while ($setting = $db->fetch_array($query)) {
-        $userSettings[] = array(
-            'user_id' => (int) $user_info['uid'],
-            'setting_id' => (int) $setting['id'],
-            'value' => 1,
-        );
-    }
-    $db->insert_query_multiple('alert_setting_values', $userSettings);
-}
 
 $plugins->add_hook('admin_user_users_delete_commit', 'myalerts_user_delete');
 function myalerts_user_delete()
 {
     global $db, $user;
     $user['uid'] = (int) $user['uid'];
-    $db->delete_query('alert_setting_values', "user_id='{$user['uid']}'");
     $db->delete_query('alerts', "uid='{$user['uid']}'");
 }
 
@@ -469,9 +478,8 @@ function myalerts_global_intermediate()
             $lang->load('myalerts');
         }
 
-        $userAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0,
-                                                                              $mybb->settings['myalerts_dropdown_limit']
-        );
+        $userAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()
+            ->getAlerts(0, $mybb->settings['myalerts_dropdown_limit']);
 
         $alerts = '';
 
