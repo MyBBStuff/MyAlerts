@@ -13,8 +13,8 @@ $l['setting_myalerts_dropdown_limit'] = "Number of alerts to show in dropdown";
 $l['setting_myalerts_dropdown_limit_desc'] = "How many alerts do you wish to display in the global alerts dropdown? (default is 5)";
 $l['setting_myalerts_autorefresh'] = "MyAlerts page AJAX autorefresh";
 $l['setting_myalerts_autorefresh_desc'] = "How often (in seconds) do you wish the MyAlerts page to refresh the alerts listing via AJAX? (0 for no autorefresh)";
-$l['setting_myalerts_default_avatar'] = "Default Avatar URL";
-$l['setting_myalerts_default_avatar_desc'] = "Specify a URL to an image to use as the default avatar in MyAlerts for users without an avatar set.";
+$l['setting_myalerts_avatar_size'] = "Avatar Dimensions";
+$l['setting_myalerts_default_avatar_desc'] = "The dimensions to use when displaying avatars in alert listings. In the form x|y. Example: 64|64.";
 
 $l['myalerts_task_cleanup_ran'] = 'Read alerts over a week old were deleted successfully!';
 $l['myalerts_task_cleanup_error'] = 'Something went wrong while cleaning up the alerts...';

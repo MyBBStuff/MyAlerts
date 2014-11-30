@@ -199,11 +199,11 @@ function myalerts_activate()
                 'value' => '0',
                 'optionscode' => 'text',
             ),
-            'default_avatar' => array(
-                'title' => $lang->setting_myalerts_default_avatar,
-                'description' => $lang->setting_myalerts_default_avatar_desc,
+            'avatar_size' => array(
+                'title' => $lang->setting_myalerts_avatar_size,
+                'description' => $lang->setting_myalerts_avatar_size_desc,
                 'optionscode' => 'text',
-                'value' => './images/alerts/default-avatar.png',
+                'value' => '64|64',
             ),
         )
     );
@@ -375,13 +375,10 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 
         $fromUser = $alertToParse->getFromUser();
 
-        if (empty($fromUser['avatar'])) {
-            $outputAlert['avatar'] = htmlspecialchars_uni($mybb->get_asset_url($mybb->settings['myalerts_default_avatar']
-                )
-            );
-        } else {
-            $outputAlert['avatar'] = htmlspecialchars_uni($mybb->get_asset_url($fromUser['avatar']));
-        }
+        $maxDimensions = str_replace('|', 'x', $mybb->settings['myalerts_avatar_size']);
+
+        $outputAlert['avatar'] = format_avatar($fromUser['avatar'], $mybb->settings['myalerts_avatar_size'], $maxDimensions);
+        $outputAlert['avatar']['image'] = htmlspecialchars_uni($outputAlert['avatar']['image']);
 
         $outputAlert['id'] = $alertToParse->getId();
         $outputAlert['from_user'] = format_name(
