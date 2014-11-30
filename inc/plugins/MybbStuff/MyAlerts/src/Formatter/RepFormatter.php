@@ -16,8 +16,7 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter extends MybbStuff_MyAlerts_Forma
     {
         return $this->lang->sprintf(
             $this->lang->myalerts_rep,
-            $outputAlert['from_user_profilelink'],
-            $this->buildShowLink($alert),
+            $outputAlert['from_user'],
             $outputAlert['dateline']
         );
     }

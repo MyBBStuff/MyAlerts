@@ -16,7 +16,7 @@ class MybbStuff_MyAlerts_Formatter_BuddylistFormatter extends MybbStuff_MyAlerts
     {
         return $this->lang->sprintf(
             $this->lang->myalerts_buddylist,
-            $outputAlert['from_user_profilelink'],
+            $outputAlert['from_user'],
             $outputAlert['dateline']
         );
     }

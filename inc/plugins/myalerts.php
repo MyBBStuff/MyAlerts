@@ -612,6 +612,8 @@ function myalerts_addAlert_pm()
 
         $pmUsers = array_map("trim", $toUsers);
         $pmUsers = array_unique($pmUsers);
+        $pmUsers = array_filter($pmUsers); // Remove blank entries that may be caused by merging arrays.
+        $pmUsers = array_values($pmUsers); // Reset array keys after removing entries
 
         /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
         $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
@@ -619,15 +621,31 @@ function myalerts_addAlert_pm()
         $userNames = array_map(array($db, 'escape_string'), $pmUsers);
 
         $userNames = "'" . implode("','", $userNames) . "'";
-        $query = $db->simple_select('users', 'uid', "username IN({$userNames})");
+        $query = $db->simple_select('users', 'uid,username', "username IN({$userNames})");
+
+        $pmId = 0;
 
         $alerts = array();
         while ($user = $db->fetch_array($query)) {
+            if (is_array($pmhandler->pmid)) {
+                $foundKey = array_search($user['username'], $pmUsers);
+                
+                if ($foundKey !== false) {
+                    if (isset($pmhandler->pmid[$foundKey])) {
+                        $pmId = (int) $pmhandler->pmid[$foundKey];
+                    } else {
+                        $pmId = $pmhandler->pmid[0]; // Really broken, just use first ID in the array and hope for the best...
+                    }
+                }
+            } else {
+                $pmId = (int) $pmhandler->pmid;
+            }
+
             $alert = new MybbStuff_MyAlerts_Entity_Alert((int) $user['uid'], $alertType, 0);
             $alert->setExtraDetails(
                 array(
                     'pm_title' => $pm['subject'],
-                    'pm_id' => (int) $pmhandler->pmid,
+                    'pm_id' => $pmId,
                 )
             );
             $alerts[] = $alert;

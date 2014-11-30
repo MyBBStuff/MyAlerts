@@ -23,14 +23,10 @@ class MybbStuff_MyAlerts_Formatter_PrivateMessageFormatter extends MybbStuff_MyA
 
         $pmSubject = htmlspecialchars_uni($this->parser->parse_badwords($alertContent['pm_title']));
 
-        $pmLink = <<<HTML
-    <a href="{$this->buildShowLink($alert)}">{$pmSubject}</a>
-HTML;
-
         return $this->lang->sprintf(
             $this->lang->myalerts_pm,
-            $outputAlert['from_user_profilelink'],
-            $pmLink,
+            $outputAlert['from_user'],
+            $pmSubject,
             $outputAlert['dateline']
         );
     }
