@@ -536,8 +536,36 @@ function myalerts_global_intermediate()
             $alerts = eval($templates->render('myalerts_alert_row_popup_no_alerts'));
         }
 
+        $myalerts_return_link = htmlspecialchars_uni(myalerts_get_current_url());
+
         $myalerts_headericon = eval($templates->render('myalerts_headericon'));
     }
+}
+
+/**
+ * Returns the full current URL.
+ *
+ * @return The current URL, including query parameters.
+ */
+function myalerts_get_current_url()
+{
+    global $mybb;
+
+    $format = $mybb->settings['bburl'] . '/' . THIS_SCRIPT;
+
+    if (!empty($_GET)) {
+        $format .= '?';
+
+        foreach ($_GET as $key => $val) {
+            $key = urlencode($key);
+            $val = urlencode($val);
+            $format .= "{$key}={$val}&";
+        }
+    }
+
+    $format = rtrim($format, '&');
+
+    return $format;
 }
 
 $plugins->add_hook('member_do_register_end', 'myalerts_register_do_end');

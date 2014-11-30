@@ -169,7 +169,11 @@ function myalerts_delete_read_alerts($mybb, $db, $lang)
 
     $db->delete_query('alerts', "uid = {$userId} AND unread = 0");
 
-    redirect('alerts.php?action=alerts', $lang->myalerts_delete_all_read, $lang->myalerts_delete_mass_deleted);
+    if (($retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING)) !== '') {
+        redirect($retLink, $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
+    } else {
+        redirect('alerts.php?action=alerts', $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
+    }
 }
 
 /**
@@ -187,7 +191,11 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
 
     $db->delete_query('alerts', "uid = {$userId}");
 
-    redirect('alerts.php?action=alerts', $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
+    if (($retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING)) !== '') {
+        redirect($retLink, $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
+    } else {
+        redirect('alerts.php?action=alerts', $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
+    }
 }
 
 /**
