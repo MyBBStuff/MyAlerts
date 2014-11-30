@@ -420,7 +420,7 @@ function myalerts_user_delete()
 $plugins->add_hook('global_start', 'myalerts_global_start', -1);
 function myalerts_global_start()
 {
-    global $mybb, $templatelist, $cache, $templates, $myalerts_js;
+    global $mybb, $templatelist, $templates, $myalerts_js;
 
     if (isset($templatelist)) {
         $templatelist .= ',';
@@ -515,7 +515,7 @@ function myalerts_global_intermediate()
         $alerts = '';
 
         if ($mybb->user['unreadAlerts']) {
-            $newAlertsIndicator = ' newAlerts';
+            $newAlertsIndicator = 'alerts--new';
         }
 
         if (is_array($userAlerts) && !empty($userAlerts)) {
@@ -538,6 +538,30 @@ function myalerts_global_intermediate()
 
         $myalerts_headericon = eval($templates->render('myalerts_headericon'));
     }
+}
+
+$plugins->add_hook('member_do_register_end', 'myalerts_register_do_end');
+function myalerts_register_do_end()
+{
+    global $user_info, $db;
+
+    $updateArray = array(
+        'myalerts_disabled_alert_types' => $db->escape_string(json_encode(array())),
+    );
+    $uid = (int) $user_info['uid'];
+    $db->update_query('users', $updateArray, "uid={$uid}");
+}
+
+$plugins->add_hook('admin_user_users_add_commit', 'myalerts_acp_add_user');
+function myalerts_acp_add_user()
+{
+    global $user_info, $db;
+
+    $updateArray = array(
+        'myalerts_disabled_alert_types' => $db->escape_string(json_encode(array())),
+    );
+    $uid = (int) $user_info['uid'];
+    $db->update_query('users', $updateArray, "uid={$uid}");
 }
 
 $plugins->add_hook('build_friendly_wol_location_end', 'myalerts_online_location');

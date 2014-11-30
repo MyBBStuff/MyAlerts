@@ -4,11 +4,7 @@
 
     this.MybbStuff.MyAlerts = (function MyAlertsModule(window, $) {
         var module = function MyAlerts() {
-            $("body").on("click", ".myalerts_popup_hook", this.openPopup);
-
-            $("body").on("click", ".myalerts_popup", this.stopMultiSlide);
-
-            $("body").on("click", "body:not('.myalerts_popup:visible')", this.closeVisiblePopup);
+            $('a.open_modal').click(this.openModal).bind(this);
 
             $("body").on("click", "#getUnreadAlerts", this.getUnreadAlerts);
 
@@ -29,32 +25,18 @@
             }
         };
 
-        module.prototype.openPopup = function openPopup(event) {
+        module.prototype.openModal = function openModal(event) {
+            var originalTarget = $(event.currentTarget),
+                modalSelector = originalTarget.attr('data-selector');
+
             event.preventDefault();
-            var clickedElement = $(event.currentTarget),
-                popup_id = "#" + clickedElement.attr("id") + "_popup";
 
-            if ($(popup_id).length > 0) {
-                $(popup_id).attr("top", clickedElement.height() + "px").slideToggle("fast", function() {
-                    var toMarkRead = [];
-                    $('[id^="alert_row_popup_"]').each(function() {
-                        toMarkRead.push($(this).attr('id').substr(16));
-                    });
+            $(modalSelector).modal({
+                fadeDuration: 250,
+                keepelement: true
+            });
 
-                    $.get('xmlhttp.php?action=markRead', {
-                        my_post_key: my_post_key,
-                        toMarkRead: toMarkRead
-                    });
-                });
-            }
-        };
-
-        module.prototype.stopMultiSlide = function stopMultiSlide(event) {
-            event.preventPropagation();
-        };
-
-        module.prototype.closeVisiblePopup = function closeVisiblePopup(event) {
-            $('.myalerts_popup:visible').hide();
+            return false;
         };
 
         module.prototype.getUnreadAlerts = function getUnreadAlerts(event) {
