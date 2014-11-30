@@ -545,7 +545,7 @@ function myalerts_global_intermediate()
 /**
  * Returns the full current URL.
  *
- * @return The current URL, including query parameters.
+ * @return string The current URL, including query parameters.
  */
 function myalerts_get_current_url()
 {
@@ -906,12 +906,14 @@ function myalerts_xmlhttp()
 
             MybbStuff_MyAlerts_AlertManager::getInstance()->markRead($toMarkRead);
         } else {
-            if ($mybb->get_input('from') == 'header') {
-                if (isset($mybb->input['from']) AND $mybb->input['from'] == 'header') {
-                    $alertsListing = eval($templates->render('myalerts_alert_row_popup_no_alerts', true, false));
-                } else {
-                    $alertsListing = eval($templates->render('myalerts_alert_row_no_alerts', true, false));
-                }
+            $from = $mybb->get_input('from', MyBB::INPUT_STRING);
+
+            $altbg = alt_trow();
+
+            if (!empty($from) && $from == 'header') {
+                $alertsListing = eval($templates->render('myalerts_alert_row_popup_no_alerts', true, false));
+            } else {
+                $alertsListing = eval($templates->render('myalerts_alert_row_no_alerts', true, false));
             }
         }
 
