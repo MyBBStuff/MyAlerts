@@ -41,15 +41,18 @@ function myalerts_acp_manage_alert_types()
             admin_redirect("index.php?module=config-myalerts_alert_types");
         }
 
-        $enabledAlertTypes = $mybb->get_input('alert_types', MyBB::INPUT_ARRAY);
+        $enabledAlertTypes = $mybb->get_input('alert_types_enabled', MyBB::INPUT_ARRAY);
+        $canBeUserDisabled = $mybb->get_input('alert_types_can_be_user_disabled', MyBB::INPUT_ARRAY);
 
         $enabledAlertTypes = array_map('intval', array_keys($enabledAlertTypes));
+        $canBeUserDisabled = array_map('intval', array_keys($canBeUserDisabled));
 
         $updateArray = array();
 
         foreach ($alertTypes as $alertType) {
             $type = MybbStuff_MyAlerts_Entity_AlertType::unserialize($alertType);
             $type->setEnabled(in_array($type->getId(), $enabledAlertTypes));
+            $type->setCanBeUserDisabled(in_array($type->getId(), $canBeUserDisabled));
             $updateArray[] = $type;
         }
 
@@ -65,6 +68,7 @@ function myalerts_acp_manage_alert_types()
         $table = new Table;
         $table->construct_header($lang->myalerts_alert_type_code);
         $table->construct_header($lang->myalerts_alert_type_enabled, array('width' => '5%', 'class' => 'align_center'));
+        $table->construct_header($lang->myalerts_alert_type_can_be_user_disabled, array('width' => '10%', 'class' => 'align_center'));
 
         $noResults = false;
 
@@ -72,7 +76,8 @@ function myalerts_acp_manage_alert_types()
             foreach ($alertTypes as $type) {
                 $alertCode = htmlspecialchars_uni($type['code']);
                 $table->construct_cell($alertCode);
-                $table->construct_cell($form->generate_check_box('alert_types[' . $type['id'] . ']', '', '', array('checked' => $type['enabled'])));
+                $table->construct_cell($form->generate_check_box('alert_types_enabled[' . $type['id'] . ']', '', '', array('checked' => $type['enabled'])));
+                $table->construct_cell($form->generate_check_box('alert_types_can_be_user_disabled[' . $type['id'] . ']', '', '', array('checked' => $type['can_be_user_disabled'])));
                 $table->construct_row();
             }
         } else {

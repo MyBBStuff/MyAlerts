@@ -155,6 +155,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
         foreach ($alertTypes as $alertType) {
             $updateArray = array(
                 'enabled' => (int) $alertType->getEnabled(),
+                'can_be_user_disabled' => (int) $alertType->getCanBeUserDisabled(),
             );
 
             $this->db->update_query('alert_types', $updateArray, "id = {$alertType->getId()}");
