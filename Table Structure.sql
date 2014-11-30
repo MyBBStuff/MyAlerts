@@ -1,6 +1,6 @@
 CREATE TABLE `mybb_alert_types` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `code` varchar(255) NOT NULL DEFAULT '',
+  `code` varchar(100) NOT NULL DEFAULT '',
   `enabled` tinyint(4) NOT NULL DEFAULT '1',
   `can_be_user_disabled` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
