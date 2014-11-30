@@ -224,6 +224,19 @@ function myalerts_activate()
 
     $PL->stylesheet('alerts.css', $stylesheet);
 
+    // Attach usercp.css to alerts.php
+    $query = $db->simple_select('themestylesheets', 'sid,attachedto,tid', "name = 'usercp.css'");
+
+    while ($userCpStylesheet = $db->fetch_array($query)) {
+        $sid = (int) $userCpStylesheet['sid'];
+
+        $db->update_query('themestylesheets', array(
+                'attachedto' => $db->escape_string($userCpStylesheet['attachedto'] . '|alerts.php'),
+            ), "sid = {$sid}");
+
+        update_theme_stylesheet_list((int) $userCpStylesheet['tid']);
+    }
+
     require_once MYBB_ROOT . '/inc/adminfunctions_templates.php';
 
 
@@ -288,6 +301,21 @@ function myalerts_deactivate()
     $plugins->run_hooks('myalerts_deactivate');
 
     $PL->stylesheet_deactivate('alerts.css');
+
+    // remove usercp.css from alerts.php
+    $query = $db->simple_select('themestylesheets', 'sid,attachedto,tid', "name = 'usercp.css'");
+
+    while ($userCpStylesheet = $db->fetch_array($query)) {
+        $sid = (int) $userCpStylesheet['sid'];
+
+        $attachedTo = str_replace('|alerts.php', '', $userCpStylesheet['attachedto']);
+
+        $db->update_query('themestylesheets', array(
+                'attachedto' => $db->escape_string($attachedTo),
+            ), "sid = {$sid}");
+
+        update_theme_stylesheet_list((int) $userCpStylesheet['tid']);
+    }
 
     require_once MYBB_ROOT . "/inc/adminfunctions_templates.php";
 
