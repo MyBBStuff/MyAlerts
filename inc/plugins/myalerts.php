@@ -481,6 +481,8 @@ function myalerts_global_intermediate()
 
         if (is_array($userAlerts) && !empty($userAlerts)) {
             foreach ($userAlerts as $alertObject) {
+                $altbg = alt_trow();
+
                 $alert = parse_alert($alertObject);
 
                 if ($alert['message']) {
@@ -490,6 +492,8 @@ function myalerts_global_intermediate()
                 $readAlerts[] = $alert['id'];
             }
         } else {
+            $altbg = 'trow1';
+
             $alerts = eval($templates->render('myalerts_alert_row_popup_no_alerts'));
         }
 
