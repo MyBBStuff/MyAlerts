@@ -444,8 +444,6 @@ function myalerts_global_start()
         $templatelist .= ',myalerts_setting_row,myalerts_settings_page';
     }
 
-    $myalerts_js = eval($templates->render('myalerts_scripts'));
-
     $mybb->user['unreadAlerts'] = 0;
 
     if ($mybb->user['uid'] > 0) {
@@ -472,6 +470,8 @@ function myalerts_global_start()
             )
         );
     }
+
+    $myalerts_js = eval($templates->render('myalerts_scripts'));
 }
 
 $plugins->add_hook('admin_tabs', 'myalerts_create_instances', -1);
