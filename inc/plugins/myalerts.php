@@ -861,7 +861,7 @@ function myalerts_usercp_menu()
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp', -1);
 function myalerts_xmlhttp()
 {
-    global $mybb, $lang, $templates;
+    global $mybb, $lang, $templates, $db;
 
     if (!$lang->myalerts) {
         $lang->load('myalerts');
@@ -869,7 +869,7 @@ function myalerts_xmlhttp()
 
     myalerts_create_instances();
 
-    if ($mybb->input['action'] == 'getNewAlerts') {
+    if ($mybb->get_input('action') == 'getNewAlerts') {
         header('Content-Type: application/json');
 
         $newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getUnreadAlerts();
@@ -919,6 +919,78 @@ function myalerts_xmlhttp()
                              'template' => $alertsListing,
                          )
         );
+    }
+
+    if ($mybb->get_input('action') == 'myalerts_delete') {
+        header('Content-Type: application/json');
+
+        $id = $mybb->get_input('id', MyBB::INPUT_INT);
+        $userId = (int) $mybb->user['uid'];
+
+        $toReturn = array();
+
+        if ($id > 0) {
+            if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
+                $toReturn = array(
+                    'errors' => array($lang->invalid_post_code),
+                );
+            } else {
+                $db->delete_query('alerts', "id = {$id} AND uid = {$userId}");
+
+                $newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getUnreadAlerts();
+
+                $alertsListing = '';
+
+                $alertsToReturn = array();
+
+                if (is_array($newAlerts) && !empty($newAlerts)) {
+                    $toMarkRead = array();
+
+                    foreach ($newAlerts as $alertObject) {
+                        $altbg = alt_trow();
+
+                        $alert = parse_alert($alertObject);
+
+                        $alertsToReturn[] = $alert;
+
+                        if (isset($mybb->input['from']) && $mybb->input['from'] == 'header') {
+                            if ($alert['message']) {
+                                $alertsListing .= eval($templates->render('myalerts_alert_row_popup', true, false));
+                            }
+                        } else {
+                            if ($alert['message']) {
+                                $alertsListing .= eval($templates->render('myalerts_alert_row', true, false));
+                            }
+                        }
+
+                        $toMarkRead[] = $alertObject->getId();
+                    }
+
+                    MybbStuff_MyAlerts_AlertManager::getInstance()->markRead($toMarkRead);
+                } else {
+                    $from = $mybb->get_input('from', MyBB::INPUT_STRING);
+
+                    $altbg = alt_trow();
+
+                    if (!empty($from) && $from == 'header') {
+                        $alertsListing = eval($templates->render('myalerts_alert_row_popup_no_alerts', true, false));
+                    } else {
+                        $alertsListing = eval($templates->render('myalerts_alert_row_no_alerts', true, false));
+                    }
+                }
+
+                $toReturn = array(
+                    'success' => true,
+                    'template' => $alertsListing,
+                );
+            }
+        } else {
+            $toReturn = array(
+                'errors' => array($lang->myalerts_error_alert_not_found),
+            );
+        }
+
+        echo json_encode($toReturn);
     }
 
     if ($mybb->input['action'] == 'getNumUnreadAlerts') {
