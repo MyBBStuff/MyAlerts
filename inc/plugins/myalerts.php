@@ -565,28 +565,12 @@ function myalerts_get_current_url()
     return $format;
 }
 
-$plugins->add_hook('member_do_register_end', 'myalerts_register_do_end');
-function myalerts_register_do_end()
+$plugins->add_hook('datahandler_user_insert', 'myalerts_datahandler_user_insert');
+function myalerts_datahandler_user_insert(&$dataHandler)
 {
-    global $user_info, $db;
+    global $db;
 
-    $updateArray = array(
-        'myalerts_disabled_alert_types' => $db->escape_string(json_encode(array())),
-    );
-    $uid = (int) $user_info['uid'];
-    $db->update_query('users', $updateArray, "uid={$uid}");
-}
-
-$plugins->add_hook('admin_user_users_add_commit', 'myalerts_acp_add_user');
-function myalerts_acp_add_user()
-{
-    global $user_info, $db;
-
-    $updateArray = array(
-        'myalerts_disabled_alert_types' => $db->escape_string(json_encode(array())),
-    );
-    $uid = (int) $user_info['uid'];
-    $db->update_query('users', $updateArray, "uid={$uid}");
+    $dataHandler->user_insert_data['myalerts_disabled_alert_types'] = $db->escape_string(json_encode(array()));
 }
 
 $plugins->add_hook('build_friendly_wol_location_end', 'myalerts_online_location');
