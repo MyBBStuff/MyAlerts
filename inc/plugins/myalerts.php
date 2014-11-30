@@ -629,7 +629,7 @@ function myalerts_addAlert_pm()
         while ($user = $db->fetch_array($query)) {
             if (is_array($pmhandler->pmid)) {
                 $foundKey = array_search($user['username'], $pmUsers);
-                
+
                 if ($foundKey !== false) {
                     if (isset($pmhandler->pmid[$foundKey])) {
                         $pmId = (int) $pmhandler->pmid[$foundKey];
@@ -641,11 +641,10 @@ function myalerts_addAlert_pm()
                 $pmId = (int) $pmhandler->pmid;
             }
 
-            $alert = new MybbStuff_MyAlerts_Entity_Alert((int) $user['uid'], $alertType, 0);
+            $alert = new MybbStuff_MyAlerts_Entity_Alert((int) $user['uid'], $alertType, $pmId);
             $alert->setExtraDetails(
                 array(
                     'pm_title' => $pm['subject'],
-                    'pm_id' => $pmId,
                 )
             );
             $alerts[] = $alert;

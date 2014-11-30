@@ -56,9 +56,7 @@ class MybbStuff_MyAlerts_Formatter_PrivateMessageFormatter extends MybbStuff_MyA
      */
     public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
     {
-        $alertContent = $alert->getExtraDetails();
-
-        $pmId = (int) $alertContent['pm_id'];
+        $pmId = $alert->getObjectId();
 
         return "{$this->mybb->settings['bburl']}/private.php?action=read&amp;pmid={$pmId}";
     }

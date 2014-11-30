@@ -155,7 +155,7 @@ class MybbStuff_MyAlerts_AlertManager
         $usersWhoWantAlert = $this->doUsersWantAlert($alert->getType(), array($alert->getUserId()));
         if ($alertType->getEnabled() && (!empty($usersWhoWantAlert) || !$alertType->getCanBeUserDisabled())) {
             // Basic duplicate checking by overwrite - only one alert for each alert type/object id combination
-            static::$alertQueue[$alert->getType()->getCode() . '_' . $alert->getObjectId()] = $alert;
+            static::$alertQueue[$alert->getType()->getCode() . '_' . $alert->getUserId() . '_' . $alert->getObjectId()] = $alert;
         }
 
         return $this;
