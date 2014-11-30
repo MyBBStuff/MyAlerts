@@ -394,7 +394,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
         $outputAlert['dateline'] = $alertToParse->getCreatedAt()->format('Y-m-d H:i');
 
         $outputAlert['alert_status'] = ' alert--read';
-        if ($outputAlert['unread'] == 1) {
+        if ($alertToParse->getUnread()) {
             $outputAlert['alert_status'] = ' alert--unread';
         }
 
