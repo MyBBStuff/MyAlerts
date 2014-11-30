@@ -1,17 +1,18 @@
 <tr class="alert-row alert--{$alert['alert_code']} {$alert['alert_status']}" id="alert_row_{$alert['id']}">
-	<td class="{$altbg}" width="50">
-		<a class="avatar" href="{$alert['from_user_raw_profilelink']}"><img src="{$alert['avatar']}" alt="{$alert['username']}'s avatar"
-		                                                   width="48" height="48"/></a>
-	</td>
-	<td class="{$altbg}">
+    <td class="{$altbg}" width="50">
+        <a class="avatar" href="{$alert['from_user_raw_profilelink']}"><img src="{$alert['avatar']}"
+                                                                            alt="{$alert['username']}'s avatar"
+                                                                            width="48" height="48"/></a>
+    </td>
+    <td class="{$altbg}">
         <a href="{$mybb->settings['bburl']}/alerts.php?action=view&amp;id={$alert['id']}">
             {$alert['message']}
         </a>
-		<br/>
+        <br/>
 		<span class="smalltext float_right">
 			<a href="{$mybb->settings['bburl']}/usercp.php?action=deleteAlert&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}"
-			   class="deleteAlertButton" id="delete_alert_{$alert['id']}">{$lang->myalerts_delete}</a>
+               class="deleteAlertButton" id="delete_alert_{$alert['id']}">{$lang->myalerts_delete}</a>
 		</span>
-		<br class="clear"/>
-	</td>
+        <br class="clear"/>
+    </td>
 </tr>

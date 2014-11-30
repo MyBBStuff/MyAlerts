@@ -1,27 +1,30 @@
 <li class="alerts {$newAlertsIndicator}">
-	<a href="{$mybb->settings['bburl']}/usercp.php?action=alerts" class="myalerts open_modal" data-selector="#myalerts_alerts_modal" rel="modal:open">{$lang->myalerts_alerts} ({$mybb->user['unreadAlerts']})</a>
+    <a href="{$mybb->settings['bburl']}/usercp.php?action=alerts" class="myalerts open_modal"
+       data-selector="#myalerts_alerts_modal" rel="modal:open">{$lang->myalerts_alerts}
+        ({$mybb->user['unreadAlerts']})</a>
 </li>
 
 
 <div id="myalerts_alerts_modal" style="display: none;">
     <table class="tborder" cellspacing="0">
         <thead>
-            <tr>
-                <th class="thead" colspan="2">
-                    <strong>{$lang->myalerts_page_title}</strong>
-                </th>
-            </tr>
+        <tr>
+            <th class="thead" colspan="2">
+                <strong>{$lang->myalerts_page_title}</strong>
+            </th>
+        </tr>
         </thead>
         <tbody>
-            {$alerts}
+        {$alerts}
         </tbody>
         <tr>
             <td class="tfoot smalltext" colspan="2">
                 <a href="{$mybb->settings['bburl']}/alerts.php">{$lang->myalerts_usercp_nav_alerts}</a>
                 <span class="float_right">
-                    <a href="{$mybb->settings['bburl']}/alerts.php?action=delete_all&amp;my_post_key={$mybb->post_code}&amp;ret_link={$myalerts_return_link}">{$lang->myalerts_usercp_nav_delete_all}</a>
+                    <a href="{$mybb->settings['bburl']}/alerts.php?action=delete_all&amp;my_post_key={$mybb->post_code}&amp;ret_link={$myalerts_return_link}"
+                       onclick="return confirm('{$lang->myalerts_delete_all_confirm}')">{$lang->myalerts_usercp_nav_delete_all}</a>
                 </span>
-                <br class="clear" />
+                <br class="clear"/>
                 <!-- Clear alerts link goes here... -->
             </td>
         </tr>

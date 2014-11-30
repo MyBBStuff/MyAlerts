@@ -1,39 +1,39 @@
 <tr>
-	<td class="tcat tcat_menu tcat_collapse">
-		<div class="expcolimage">
-			<img src="{$theme['imgdir']}/collapse{$collapsedimg['usercpalerts']}.png" id="usercpalerts_img"
-			     class="expander" alt="[-]" title="[-]"/>
-		</div>
-		<div>
+    <td class="tcat tcat_menu tcat_collapse">
+        <div class="expcolimage">
+            <img src="{$theme['imgdir']}/collapse{$collapsedimg['usercpalerts']}.png" id="usercpalerts_img"
+                 class="expander" alt="[-]" title="[-]"/>
+        </div>
+        <div>
 			<span class="smalltext">
 				<strong>{$lang->myalerts_usercp_nav}</strong>
 			</span>
-		</div>
-	</td>
+        </div>
+    </td>
 </tr>
 <tbody style="{$collapsed['usercpalerts_e']}" id="usercpalerts_e">
 <tr>
-	<td class="trow1 smalltext">
-		<a href="alerts.php" class="usercp_nav_item usercp_nav_myalerts">{$lang->myalerts_usercp_nav_alerts}</a>
-	</td>
+    <td class="trow1 smalltext">
+        <a href="alerts.php" class="usercp_nav_item usercp_nav_myalerts">{$lang->myalerts_usercp_nav_alerts}</a>
+    </td>
 </tr>
 <tr>
-	<td class="trow1 smalltext">
-		<a href="alerts.php?action=settings" class="usercp_nav_item usercp_nav_options">{$lang->myalerts_usercp_nav_settings}</a>
-	</td>
+    <td class="trow1 smalltext">
+        <a href="alerts.php?action=settings" class="usercp_nav_item usercp_nav_options">{$lang->myalerts_usercp_nav_settings}</a>
+    </td>
 </tr>
 <tr>
-	<td class="trow1 smalltext">
-		<a href="alerts.php?action=delete_read&amp;my_post_key={$mybb->post_code}"
-		   onclick="return confirm('{$lang->myalerts_delete_read_confirm}')"
-		   class="usercp_nav_item usercp_nav_myalerts_delete_read">{$lang->myalerts_usercp_nav_delete_read}</a>
-	</td>
+    <td class="trow1 smalltext">
+        <a href="alerts.php?action=delete_read&amp;my_post_key={$mybb->post_code}"
+           onclick="return confirm('{$lang->myalerts_delete_read_confirm}')"
+           class="usercp_nav_item usercp_nav_myalerts_delete_read">{$lang->myalerts_usercp_nav_delete_read}</a>
+    </td>
 </tr>
 <tr>
-	<td class="trow1 smalltext">
-		<a href="alerts.php?action=delete_all&amp;my_post_key={$mybb->post_code}"
-		   onclick="return confirm('{$lang->myalerts_delete_all_confirm}')"
-		   class="usercp_nav_item usercp_nav_myalerts_delete_all">{$lang->myalerts_usercp_nav_delete_all}</a>
-	</td>
+    <td class="trow1 smalltext">
+        <a href="alerts.php?action=delete_all&amp;my_post_key={$mybb->post_code}"
+           onclick="return confirm('{$lang->myalerts_delete_all_confirm}')"
+           class="usercp_nav_item usercp_nav_myalerts_delete_all">{$lang->myalerts_usercp_nav_delete_all}</a>
+    </td>
 </tr>
 </tbody>

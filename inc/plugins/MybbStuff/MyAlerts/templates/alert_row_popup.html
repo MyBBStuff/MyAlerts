@@ -1,11 +1,12 @@
 <tr class="alert {$alert['alert_status']} alert--{$alert['alert_code']}" id="alert_row_popup_{$alert['id']}">
     <td class="{$altbg}" class="align-center alert__avatar" align="center">
-        <a class="avatar" href="{$alert['from_user_raw_profilelink']}"><img src="{$alert['avatar']}" alt="{$alert['username']}'s avatar"
+        <a class="avatar" href="{$alert['from_user_raw_profilelink']}"><img src="{$alert['avatar']}"
+                                                                            alt="{$alert['username']}'s avatar"
                                                                             width="24" height="24"/></a>
     </td>
-	<td class="{$altbg} alert__content">
+    <td class="{$altbg} alert__content">
         <a href="{$mybb->settings['bburl']}/alerts.php?action=view&amp;id={$alert['id']}">
             {$alert['message']}
         </a>
-	</td>
+    </td>
 </tr>
