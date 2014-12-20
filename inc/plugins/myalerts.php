@@ -533,7 +533,7 @@ function myalerts_global_intermediate()
             $alerts = eval($templates->render('myalerts_alert_row_popup_no_alerts'));
         }
 
-        $myalerts_return_link = htmlspecialchars_uni(myalerts_get_current_url());
+        $myalerts_return_link = urlencode(myalerts_get_current_url());
 
         $myalerts_headericon = eval($templates->render('myalerts_headericon'));
     }
