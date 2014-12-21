@@ -89,7 +89,7 @@ function myalerts_install()
 
     $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
 
-    $insertArray = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor');
+    $insertArray = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor', 'subscribed_thread');
     $alertTypesToAdd = array();
 
     foreach ($insertArray as $type) {
@@ -820,6 +820,40 @@ function myalerts_alert_post_threadauthor(&$post)
                 }
             }
         }
+    }
+}
+
+$plugins->add_hook('datahandler_post_insert_post', 'myalertsrow_subscribed');
+function myalertsrow_subscribed(&$this) {
+    global $db, $post;
+    
+    $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('subscribed');
+
+    $thread = get_thread($post['tid']);
+    $alerts = array();
+
+    $query = $db->query("
+        SELECT s.uid
+        FROM ".TABLE_PREFIX."threadsubscriptions s
+        LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=s.uid)
+        WHERE (s.notification = 0 OR s.notification = 1) AND s.tid='{$post['tid']}'
+        AND s.uid != '{$post['uid']}'
+        AND u.lastactive>'{$thread['lastpost']}'
+        ");
+    while($poster = $db->fetch_array($query))
+    {
+        $alert = new MybbStuff_MyAlerts_Entity_Alert((int) $poster['uid'], $alertType, $thread['tid']);
+        $alert->setExtraDetails(
+            array(
+                'thread_title' => $thread['subject'],
+                'tid' => $thread['tid']
+                )
+            );
+        $alerts[] = $alert;
+    }
+
+    if (!empty($alerts)) {
+        MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
     }
 }
 
