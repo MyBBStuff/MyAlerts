@@ -233,7 +233,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
         $start = 0;
         $page  = 1;
     }
-    $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "usercp.php?action=alerts");
+    $multipage = multipage($numAlerts, $mybb->settings['myalerts_perpage'], $page, "alerts.php");
 
     $alertsList = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts($start);
 
