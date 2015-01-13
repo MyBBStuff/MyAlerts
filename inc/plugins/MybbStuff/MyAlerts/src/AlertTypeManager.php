@@ -5,6 +5,7 @@
  */
 class MybbStuff_MyAlerts_AlertTypeManager
 {
+    const CACHE_NAME = 'mybbstuff_myalerts_alert_types';
     /** @var MybbStuff_MyAlerts_AlertTypeManager */
     private static $instance = null;
     /** @var array */
@@ -37,9 +38,9 @@ class MybbStuff_MyAlerts_AlertTypeManager
 
         $this->alertTypes = array();
 
-        if (!($cachedAlertTypes = $this->cache->read('mybbstuff_myalerts_alert_types')) || $forceDatabase) {
+        if (!($cachedAlertTypes = $this->cache->read(self::CACHE_NAME)) || $forceDatabase) {
             $this->alertTypes = $this->loadAlertTypes();
-            $this->cache->update('mybbstuff_myalerts_alert_types', $this->alertTypes);
+            $this->cache->update(self::CACHE_NAME, $this->alertTypes);
         } else {
             $this->alertTypes = $cachedAlertTypes;
         }

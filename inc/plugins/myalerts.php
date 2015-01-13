@@ -336,7 +336,7 @@ function myalerts_deactivate()
  * }
  * </pre>
  *
- * @return bool Whetehr MyAlerts is activated and installed.
+ * @return bool Whether MyAlerts is activated and installed.
  */
 function myalerts_is_activated()
 {
@@ -352,6 +352,16 @@ function myalerts_is_activated()
     }
 
     return myalerts_is_installed() && $isActive;
+}
+
+/**
+ * Cache reload function.
+ *
+ * MyBB's cache page in the ACP checks for a function named "reload_{$cacheitem['title']}" to add the reload button for a cache. Having this function in place fixes that.
+ */
+function reload_mybbstuff_myalerts_alert_types()
+{
+    MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getAlertTypes(true);
 }
 
 function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
