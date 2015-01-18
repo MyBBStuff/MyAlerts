@@ -727,32 +727,26 @@ function myalerts_alert_quoted()
 
     $message = $post['message'];
 
-    $pattern = "#\[quote=([\"']|&quot;|)(.*?)(?:\\1)(.*?)(?:[\"']|&quot;)?\](.*?)\[/quote\](\r\n?|\n?)#esi";
+    $pattern = "#\\[quote=(?:\"|'|&quot;|)(?<username>.*?)(?:\"|'|&quot;|)(?: pid=(?:\"|'|&quot;|)[\\d]*(?:\"|'|&quot;|))?(?:\"|'|&quot;|)(?: dateline=(?:\"|'|&quot;|)[\\d]*(?:\"|'|&quot;|))?(?:\"|'|&quot;|)\](?<message>.*?)\\[\\/quote\\]#si";
 
-    preg_match_all($pattern, $message, $match);
+    preg_match_all($pattern, $message, $matches);
 
-    if (!array_key_exists('2', $match)) {
-        return;
-    }
+    $matches = array_filter($matches);
 
-    foreach ($match as $key => $value) {
-        if (empty($value)) {
-            unset($match[$key]);
-        }
-    }
-
-    if (isset($match[2])) {
-        $users = array_values($match[2]);
+    if (isset($matches['username'])) {
+        $users = array_unique(array_values($matches['username']));
 
         if (!empty($users)) {
             /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
             $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('quoted');
 
             if ($alertType != null && $alertType->getEnabled()) {
-                $userNames = array_map(array($db, 'escape_string'), $users);
+                $userNames = array_map('stripslashes', $users);
+                $userNames = array_map(array($db, 'escape_string'), $userNames);
 
-                $userNames = "'" . implode("','", $userNames) . "'";
-                $query = $db->simple_select('users', 'uid', "username IN({$userNames})");
+                $userNames = "'" . implode("','", $userNames) . "'"; // TODO: When imploding, usernames with quotes in them might be breaking the query...
+
+                $query = $db->simple_select('users', 'uid, username', "username IN({$userNames})");
 
                 $alerts = array();
                 while ($uid = $db->fetch_array($query)) {

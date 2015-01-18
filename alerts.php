@@ -14,6 +14,10 @@ if (!isset($lang->myalerts)) {
     $lang->load('myalerts');
 }
 
+if ((int) $mybb->user['uid'] < 1) {
+    error_no_permission();
+}
+
 switch ($action) {
     case 'view':
         myalerts_redirect_alert($mybb, $lang);
