@@ -682,7 +682,7 @@ function myalerts_addAlert_pm()
         if (!empty($users)) {
             $Alerts->addMassAlert($users, 'pm', 0, $mybb->user['uid'], array(
                 'pm_title'  =>  $pm['subject'],
-                'pm_id'     =>  $pmhandler->pmid,
+                'pm_id'     =>  implode($pmhandler->pmid),
                 )
             );
         }
