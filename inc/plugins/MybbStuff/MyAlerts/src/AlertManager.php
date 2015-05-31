@@ -21,7 +21,7 @@ class MybbStuff_MyAlerts_AlertManager
     private static $instance = null;
     /** @var MyBB MyBB core object used to get settings and more. */
     private $mybb;
-    /** @var DB_MySQLi Database connection to be used when manipulating alerts. */
+    /** @var DB_Base Database connection to be used when manipulating alerts. */
     private $db;
     /** @var datacache Cache instance used to manipulate alerts. */
     private $cache;
@@ -34,13 +34,13 @@ class MybbStuff_MyAlerts_AlertManager
      * Initialise a new instance of the AlertManager.
      *
      * @param MyBB                                $mybb             MyBB core object used to get settings and more.
-     * @param DB_MySQLi                           $db               Database connection to be used when manipulating
+     * @param DB_Base                           $db               Database connection to be used when manipulating
      *                                                              alerts.
      * @param datacache                           $cache            Cache instance used to manipulate alerts and alert
      *                                                              types.
      * @param MybbSTuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type manager instance.
      */
-    private function __construct($mybb, $db, $cache, MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager)
+    private function __construct($mybb, DB_Base $db, $cache, MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager)
     {
         $this->mybb = $mybb;
         $this->db = $db;
@@ -79,7 +79,7 @@ class MybbStuff_MyAlerts_AlertManager
     /** Create an instance of the alert manager.
      *
      * @param MyBB                                $mybb             MyBB core object.
-     * @param DB_MySQL|DB_MySQLi                  $db               MyBB database object.
+     * @param DB_Base                  $db               MyBB database object.
      * @param datacache                           $cache            MyBB cache object.
      * @param MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type manager instance.
      *
@@ -87,7 +87,7 @@ class MybbStuff_MyAlerts_AlertManager
      */
     public static function createInstance(
         MyBB $mybb,
-        $db,
+        DB_Base $db,
         datacache $cache,
         MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager
     )

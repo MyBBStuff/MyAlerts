@@ -10,12 +10,12 @@ class MybbStuff_MyAlerts_AlertTypeManager
     private static $instance = null;
     /** @var array */
     private $alertTypes = array();
-    /** @var DB_MySQLi */
+    /** @var DB_Base */
     private $db;
     /** @var datacache */
     private $cache;
 
-    private function __construct(DB_MySQLi $db, datacache $cache)
+    private function __construct(DB_Base $db, datacache $cache)
     {
         $this->db = $db;
         $this->cache = $cache;
@@ -80,12 +80,12 @@ class MybbStuff_MyAlerts_AlertTypeManager
     /**
      * Create an instance of the alert type manager.
      *
-     * @param DB_MySQLi|DB_MySQL $db    MyBB database object.
+     * @param DB_Base $db    MyBB database object.
      * @param datacache          $cache MyBB cache object.
      *
      * @return MybbStuff_MyAlerts_AlertTypeManager The created instance.
      */
-    public static function createInstance($db, datacache $cache)
+    public static function createInstance(DB_Base $db, datacache $cache)
     {
         if (static::$instance === null) {
             static::$instance = new self($db, $cache);

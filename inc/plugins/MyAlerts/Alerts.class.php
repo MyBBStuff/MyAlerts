@@ -20,14 +20,10 @@ class Alerts
      *  @param Object MyBB Object
      *  @param Object MyBB Database Object
      */
-    public function __construct($mybbIn, $dbIn)
+    public function __construct(MyBB $mybbIn, DB_Base $dbIn)
     {
-        if ($mybbIn instanceof MyBB AND ($dbIn instanceof DB_MySQL OR $dbIn instanceof DB_MySQLi OR $dbIn instanceof DB_PgSQL OR $dbIn instanceof DB_SQLite)) {
-            $this->mybb = $mybbIn;
-            $this->db = $dbIn;
-        } else {
-            throw new Exception('You must pass valid $mybb and $db objects as parameters to the Alerts class');
-        }
+	    $this->mybb = $mybbIn;
+	    $this->db = $dbIn;
     }
     
     /**
