@@ -211,8 +211,10 @@ function myalerts_activate()
     $dir = new DirectoryIterator(MYALERTS_PLUGIN_PATH . '/templates');
     $templates = array();
     foreach ($dir as $file) {
-        if (!$file->isDot() AND !$file->isDir() AND pathinfo($file->getFilename(), PATHINFO_EXTENSION) == 'html') {
-            $templates[$file->getBasename('.html')] = file_get_contents($file->getPathName());
+        if (!$file->isDot() AND !$file->isDir() AND $file->getPathInfo()->getExtension() === 'html') {
+	        $templateName = $file->getPathname();
+	        $templateName = basename($templateName, '.html');
+            $templates[$templateName] = file_get_contents($file->getPathName());
         }
     }
 
