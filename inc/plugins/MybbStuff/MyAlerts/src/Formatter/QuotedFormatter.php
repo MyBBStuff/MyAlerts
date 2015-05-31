@@ -25,8 +25,7 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter extends MybbStuff_MyAlerts_Fo
         return $this->lang->sprintf(
             $this->lang->myalerts_quoted,
             $outputAlert['from_user'],
-            htmlspecialchars_uni($this->parser->parse_badwords($alertContent['subject'])),
-            $outputAlert['dateline']
+            htmlspecialchars_uni($this->parser->parse_badwords($alertContent['subject']))
         );
     }
 

@@ -25,8 +25,7 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter extends MybbStuff_
         return $this->lang->sprintf(
             $this->lang->myalerts_post_threadauthor,
             $outputAlert['from_user'],
-            htmlspecialchars_uni($this->parser->parse_badwords($alertContent['t_subject'])),
-            $outputAlert['dateline']
+            htmlspecialchars_uni($this->parser->parse_badwords($alertContent['t_subject']))
         );
     }
 

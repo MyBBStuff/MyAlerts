@@ -26,8 +26,7 @@ class MybbStuff_MyAlerts_Formatter_PrivateMessageFormatter extends MybbStuff_MyA
         return $this->lang->sprintf(
             $this->lang->myalerts_pm,
             $outputAlert['from_user'],
-            $pmSubject,
-            $outputAlert['dateline']
+            $pmSubject
         );
     }
 

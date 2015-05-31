@@ -19,8 +19,7 @@ class MybbStuff_MyAlerts_Formatter_SubscribedThreadFormatter extends MybbStuff_M
         return $this->lang->sprintf(
             $this->lang->myalerts_subscribed_thread,
             $outputAlert['from_user'],
-            $alertContent['thread_title'],
-            $outputAlert['dateline']
+            $alertContent['thread_title']
             );
     }
 

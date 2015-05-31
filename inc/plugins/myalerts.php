@@ -211,7 +211,7 @@ function myalerts_activate()
     $dir = new DirectoryIterator(MYALERTS_PLUGIN_PATH . '/templates');
     $templates = array();
     foreach ($dir as $file) {
-        if (!$file->isDot() AND !$file->isDir() AND $file->getPathInfo()->getExtension() === 'html') {
+        if (!$file->isDot() && !$file->isDir() && $file->getExtension() == 'html') {
 	        $templateName = $file->getPathname();
 	        $templateName = basename($templateName, '.html');
             $templates[$templateName] = file_get_contents($file->getPathName());
@@ -407,7 +407,6 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
         $outputAlert['from_user_raw_profilelink'] = get_profile_link((int) $fromUser['uid']
         ); // htmlspecialchars_uni done by get_profile_link
         $outputAlert['from_user_profilelink'] = build_profile_link($outputAlert['from_user'], $fromUser['uid']);
-        $outputAlert['dateline'] = $alertToParse->getCreatedAt()->format('Y-m-d H:i');
 
         $outputAlert['alert_status'] = ' alert--read';
         if ($alertToParse->getUnread()) {
@@ -417,6 +416,10 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
         $outputAlert['message'] = $formatter->formatAlert($alertToParse, $outputAlert);
 
         $outputAlert['alert_code'] = $alertToParse->getType()->getCode();
+
+	    $outputAlert['received_at'] = htmlspecialchars_uni(
+		    my_date($mybb->settings['dateformat'], $alertToParse->getCreatedAt()->getTimestamp())
+	    );
 
         $plugins->run_hooks('myalerts_alerts_output_end', $alert);
     }
