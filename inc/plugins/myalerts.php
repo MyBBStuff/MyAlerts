@@ -847,7 +847,7 @@ function myalertsrow_subscribed(&$dataHandler)
 {
     global $db, $post;
 
-    $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('subscribed');
+    $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('subscribed_thread');
 
     if ($alertType != null && $alertType->getEnabled()) {
         $thread = get_thread($post['tid']);
@@ -1058,6 +1058,9 @@ function myalerts_register_core_formatters($mybb, $lang)
     $formatterManager->registerFormatter(
         new MybbStuff_MyAlerts_Formatter_ThreadAuthorReplyFormatter($mybb, $lang, 'post_threadauthor')
     );
+	$formatterManager->registerFormatter(
+		new MybbStuff_MyAlerts_Formatter_SubscribedThreadFormatter($mybb, $lang, 'subscribed_thread')
+	);
 }
 
 $plugins->add_hook('admin_config_menu', 'myalerts_acp_config_menu');
