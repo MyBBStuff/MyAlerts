@@ -1,9 +1,9 @@
 MyAlerts: Alerts System for MyBB
 ==========================
 
-Current Version: 1.04
+Current Version: 2.0.0
 
-Dependencies: [Plugin Library](http://mods.mybb.com/view/pluginlibrary)
+Dependencies: [Plugin Library](http://mods.mybb.com/view/pluginlibrary), [Plugins.Core](https://github.com/MyBBStuff/Plugins.Core)
 
 Creator: [Euan T.](http://www.euantor.com)
 
