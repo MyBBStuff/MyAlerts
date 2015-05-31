@@ -110,7 +110,7 @@ function myalerts_is_installed()
 {
     global $db;
 
-    return $db->table_exists('alerts') && $db->table_exists('alert_types');
+    return $db->table_exists('alerts');
 }
 
 function myalerts_uninstall()
@@ -166,10 +166,6 @@ function myalerts_activate()
     $plugin_info = myalerts_info();
 
     $euantorPlugins = $cache->read('euantor_plugins');
-//    if ($euantor_plugins['myalerts']['version'] != $plugin_info['version']) {
-//        require MYALERTS_PLUGIN_PATH . '/upgrader.php';
-//        myalerts_upgrader_run($plugin_info['version'], $euantor_plugins['myalerts']['version']);
-//    }
 
 	if (!empty($euantorPlugins) && isset($euantorPlugins['myalerts'])) {
 		$oldVersion = $euantorPlugins['myalerts'];
@@ -299,25 +295,42 @@ function myalerts_activate()
 
 function myalerts_upgrade_105_200()
 {
-	global $db, $lang;
+	global $db, $lang, $cache, $plugins;
 
-	$db->add_column('alerts', 'alert_type_id', 'INT(10) unsigned');
+	if (!$db->field_exists('alert_type_id', 'alerts')) {
+		$db->add_column('alerts', 'alert_type_id', 'INT(10) unsigned');
+	}
 
-	$db->modify_column('alerts', 'dateline', 'dateline DATETIME');
+	if ($db->field_exists('alert_type', 'alerts')) {
+		$db->drop_column('alerts', 'alert_type');
+	}
 
-	$db->rename_column('alerts', 'tid', 'object_id', '');
+	$db->modify_column('alerts', 'dateline', 'DATETIME');
 
-	$db->rename_column('alerts', 'from_id', 'from_user_id', '');
+	if ($db->field_exists('tid', 'alerts')) {
+		$db->rename_column('alerts', 'tid', 'object_id', 'INT(10)');
+	}
+
+	if ($db->field_exists('from_id', 'users')) {
+		$db->rename_column('alerts', 'from_id', 'from_user_id', 'INT(10)');
+	}
 
 	// Check if the 'forced' column exists due to earlier issues with the upgrade script in past releases
 	if (!$db->field_exists('forced', 'alerts')) {
 		$db->add_column('alerts', 'forced', "INT(1) NOT NULL DEFAULT '0'");
 	}
 
-	$db->rename_column('alerts', 'content', 'extra_details', '');
+	if ($db->field_exists('content', 'alerts')) {
+		$db->rename_column('alerts', 'content', 'extra_details', 'TEXT');
+	}
 
-	$db->drop_table('alert_settings');
-	$db->drop_table('alert_setting_values');
+	if ($db->table_exists('alert_settings')) {
+		$db->drop_table('alert_settings');
+	}
+
+	if ($db->table_exists('alert_setting_values')) {
+		$db->drop_table('alert_setting_values');
+	}
 
 	$collation = $db->build_create_table_collation();
 
@@ -337,6 +350,24 @@ function myalerts_upgrade_105_200()
 	if (!$db->field_exists('myalerts_disabled_alert_types', 'users')) {
 		$db->add_column('users', 'myalerts_disabled_alert_types', 'TEXT NOT NULL');
 	}
+
+	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+
+	$insertArray = array('rep', 'pm', 'buddylist', 'quoted', 'post_threadauthor', 'subscribed_thread');
+	$alertTypesToAdd = array();
+
+	foreach ($insertArray as $type) {
+		$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
+		$alertType->setCode($type);
+		$alertType->setEnabled(true);
+		$alertType->setCanBeUserDisabled(true);
+
+		$alertTypesToAdd[] = $alertType;
+	}
+
+	$alertTypeManager->addTypes($alertTypesToAdd);
+
+	$plugins->run_hooks('myalerts_install');
 
 	flash_message($lang->myalerts_upgraded, 'success');
 }
