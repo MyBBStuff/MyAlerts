@@ -1,0 +1,19 @@
+.usercp_nav_myalerts {
+    background: url(images/usercp/transmit_blue.png) no-repeat left center;
+}
+
+.usercp_nav_myalerts_delete_all {
+    background: url(images/usercp/delete.png) no-repeat left center;
+}
+
+.usercp_nav_myalerts_delete_read {
+    background: url(images/usercp/bin.png) no-repeat left center;
+}
+
+.newAlerts > a {
+    color: red !important;
+}
+
+ul.panel_links a.myalerts {
+    background-position: 0 -180px;
+}

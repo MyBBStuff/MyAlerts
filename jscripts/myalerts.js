@@ -1,77 +1,85 @@
-jQuery.noConflict();
+;
+(function ($, window, document, my_post_key, undefined) {
+    this.MybbStuff = this.MybbStuff || {};
 
-jQuery(document).ready(function($)
-{
-	$('body').on({
-		click: function(event)
-		{
-			event.preventDefault();
-			var popup_id = $(this).attr('id') + '_popup';
+    this.MybbStuff.MyAlerts = (function MyAlertsModule(window, $) {
+        var module = function MyAlerts() {
+            $('a.open_modal').click(this.openModal).bind(this);
 
-			$('#' + popup_id).attr('top', $(this).height() + 'px').slideToggle('fast', function() {
-				var toMarkRead = [];
-				$('[id^="alert_row_popup_"]').each(function() {
-					toMarkRead.push($(this).attr('id').substr(16));
-				});
+            $("body").on("click", "#getUnreadAlerts", this.getUnreadAlerts);
 
-				$.get('xmlhttp.php?action=markRead', {
-					my_post_key: my_post_key,
-					toMarkRead: toMarkRead
-				}, function(data) {
+            $("body").on("click", ".deleteAlertButton", this.deleteAlert).bind(this);
 
-				});
-			});
-			return false;
-		}
-	}, '.myalerts_popup_hook');
+            if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0)
+            {
+                window.setInterval(function() {
+                    $.get('xmlhttp.php?action=getNewAlerts', function(data) {
+                        $('#latestAlertsListing').prepend(data);
+                    });
+                }, myalerts_autorefresh * 1000);
+            }
 
-	$('.myalerts_popup *').on('click', function(event) {
-		event.stopPropagation();
-	});
+            if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0)
+            {
+                document.title = document.title + ' (' + unreadAlerts + ')';
+            }
+        };
 
-	$("body:not('.myalerts_popup:visible')").on('click', function() {
-        $('.myalerts_popup:visible').hide();
-	});
+        module.prototype.openModal = function openModal(event) {
+            event.preventDefault();
 
-	$('#getUnreadAlerts').on('click', function(event) {
-		event.preventDefault();
-		$.get('xmlhttp.php?action=getNewAlerts', function(data) {
-			$('#latestAlertsListing').prepend(data);
-		});
-	});
+            var originalTarget = $(event.currentTarget),
+                modalSelector = originalTarget.attr('data-selector');
 
-	$('.deleteAlertButton').on('click', function(event) {
-		event.preventDefault();
-		var deleteButton = $(this);
+            $(modalSelector).modal({
+                fadeDuration: 250,
+                keepelement: true
+            });
 
-		$.getJSON(deleteButton.attr('href'), {accessMethod: 'js'}, function(data) {
-			if (data.success)
-			{
-				deleteButton.parents('tr').get(0).remove();
-				if (data.template)
-				{
-					$('#latestAlertsListing').html(data.template);
-				}
-			}
-			else
-			{
-				alert(data.error);
-			}
-		});
-	});
+            return false;
+        };
 
-	if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0)
-	{
-		window.setInterval(function() {
-			$.get('xmlhttp.php?action=getNewAlerts', function(data) {
-				$('#latestAlertsListing').prepend(data);
-			});
-		}, myalerts_autorefresh * 1000);
-	}
+        module.prototype.getUnreadAlerts = function getUnreadAlerts(event) {
+            event.preventDefault();
+            $.get('xmlhttp.php?action=getNewAlerts', function(data) {
+                $('#latestAlertsListing').html(data.template);
+            });
+        };
 
-	if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0)
-	{
-		document.title = document.title + ' (' + unreadAlerts + ')';
-	}
+        module.prototype.deleteAlert = function deleteAlert(event) {
+            event.preventDefault();
 
-});
+            var deleteButton = $(event.currentTarget),
+                alertId = deleteButton.attr("id").substring(13);
+
+            $.getJSON('xmlhttp.php?action=myalerts_delete', {accessMethod: 'js', id: alertId, my_post_key: my_post_key}, function(data) {
+                if (data.success)
+                {
+                    deleteButton.parents('tr').get(0).remove();
+                    if (data.template)
+                    {
+                        $('#latestAlertsListing').html(data.template);
+                    }
+                }
+                else
+                {
+                    for (var i = 0; i < data.errors.length; ++i) {
+                        console.log(data.errors[i]);
+                    }
+                    alert(data.errors[0]);
+                }
+            });
+
+            return false;
+        };
+
+        return module;
+    })(window, jQuery);
+
+    $(document).ready(function() {
+        var myalerts = new MybbStuff.MyAlerts();
+    });
+})(jQuery, window, document, my_post_key);
+
+
+
