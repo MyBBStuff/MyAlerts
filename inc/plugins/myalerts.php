@@ -35,6 +35,7 @@ function myalerts_info()
         'authorsite' => 'http://euantor.com',
         'version' => '2.0.0',
         'compatibility' => '18*',
+	    'codename' => 'mybbstuff_myalerts',
     );
 }
 
