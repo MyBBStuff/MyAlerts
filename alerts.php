@@ -62,6 +62,10 @@ function myalerts_redirect_alert($mybb, $lang)
 
     $redirectLink = unhtmlentities($alertTypeFormatter->buildShowLink($alert));
 
+	if (empty($redirectLink)) {
+		$redirectLink = $mybb->settings['bburl'] . '/alerts.php';
+	}
+
     header('Location: ' . $redirectLink);
 }
 

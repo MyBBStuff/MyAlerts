@@ -1,7 +1,6 @@
 <?php
 $l['myalerts'] = "MyAlerts";
 $l['myalerts_pluginlibrary_missing'] = "The selected plugin could not be installed because <a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing.";
-$l['myalerts_class_outdated'] = "It seems the Alerts class is not up to date. Please ensure the /inc/plugins/MyAlerts/ folder is up to date. (MyAlerts version: {1}, MyAlerts Class version: {2})";
 
 $l['setting_group_myalerts'] = "MyAlerts Settings";
 $l['setting_group_myalerts_desc'] = "Settings for the MyAlerts plugin";
