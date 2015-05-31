@@ -165,16 +165,25 @@ function myalerts_activate()
 
     $plugin_info = myalerts_info();
 
-    $euantor_plugins = $cache->read('euantor_plugins');
+    $euantorPlugins = $cache->read('euantor_plugins');
 //    if ($euantor_plugins['myalerts']['version'] != $plugin_info['version']) {
 //        require MYALERTS_PLUGIN_PATH . '/upgrader.php';
 //        myalerts_upgrader_run($plugin_info['version'], $euantor_plugins['myalerts']['version']);
 //    }
-    $euantor_plugins['myalerts'] = array(
+
+	if (!empty($euantorPlugins) && isset($euantorPlugins['myalerts'])) {
+		$oldVersion = $euantorPlugins['myalerts'];
+
+		if ($oldVersion['version'] == '1.05') {
+			myalerts_upgrade_105_200();
+		}
+	}
+
+    $euantorPlugins['myalerts'] = array(
         'title' => 'MyAlerts',
         'version' => $plugin_info['version'],
     );
-    $cache->update('euantor_plugins', $euantor_plugins);
+    $cache->update('euantor_plugins', $euantorPlugins);
 
     $PL->settings(
         'myalerts',
@@ -286,6 +295,50 @@ function myalerts_activate()
     }
 
     $plugins->run_hooks('myalerts_activate');
+}
+
+function myalerts_upgrade_105_200()
+{
+	global $db, $lang;
+
+	$db->add_column('alerts', 'alert_type_id', 'INT(10) unsigned');
+
+	$db->modify_column('alerts', 'dateline', 'dateline DATETIME');
+
+	$db->rename_column('alerts', 'tid', 'object_id', '');
+
+	$db->rename_column('alerts', 'from_id', 'from_user_id', '');
+
+	// Check if the 'forced' column exists due to earlier issues with the upgrade script in past releases
+	if (!$db->field_exists('forced', 'alerts')) {
+		$db->add_column('alerts', 'forced', "INT(1) NOT NULL DEFAULT '0'");
+	}
+
+	$db->rename_column('alerts', 'content', 'extra_details', '');
+
+	$db->drop_table('alert_settings');
+	$db->drop_table('alert_setting_values');
+
+	$collation = $db->build_create_table_collation();
+
+	if (!$db->table_exists('alert_types')) {
+		$db->write_query(
+			"CREATE TABLE " . TABLE_PREFIX . "alert_types(
+                `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                `code` varchar(100) NOT NULL DEFAULT '',
+                `enabled` tinyint(4) NOT NULL DEFAULT '1',
+                `can_be_user_disabled` tinyint(4) NOT NULL DEFAULT '1',
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `unique_code` (`code`)
+            ) ENGINE=MyISAM{$collation};"
+		);
+	}
+
+	if (!$db->field_exists('myalerts_disabled_alert_types', 'users')) {
+		$db->add_column('users', 'myalerts_disabled_alert_types', 'TEXT NOT NULL');
+	}
+
+	flash_message($lang->myalerts_upgraded, 'success');
 }
 
 function myalerts_deactivate()

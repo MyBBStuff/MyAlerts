@@ -31,3 +31,5 @@ $l['myalerts_alert_type_can_be_user_disabled'] = 'Can be disabled by users?';
 $l['myalerts_no_alert_types'] = 'No alert types found!';
 $l['myalerts_update_alert_types'] = 'Update Alert Types';
 $l['myalerts_alert_types_updated'] = 'Alert types updated!';
+
+$l['myalerts_upgraded'] = 'MyAlerts has been upgraded. All old user alert settings have been lost - make sure you warn your users!';
