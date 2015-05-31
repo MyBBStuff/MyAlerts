@@ -1,3 +1,6 @@
 [submodule "PluginLibrary"]
 	path = PluginLibrary
 	url = git://github.com/frostschutz/PluginLibrary.git
+[submodule "inc/plugins/MybbStuff/Core"]
+	path = inc/plugins/MybbStuff/Core
+	url = git@github.com:MyBBStuff/Plugins.Core.git
