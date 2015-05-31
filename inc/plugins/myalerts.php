@@ -440,7 +440,7 @@ function myalerts_global_start()
         $templatelist .= ',';
     }
 
-    $templatelist .= 'myalerts_headericon,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_scripts';
+    $templatelist .= 'myalerts_headericon,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_js_popup';
 
     if (THIS_SCRIPT == 'usercp.php' || THIS_SCRIPT == 'alerts.php') {
         $templatelist .= ',myalerts_usercp_nav';
@@ -485,7 +485,7 @@ function myalerts_global_start()
         );
     }
 
-    $myalerts_js = eval($templates->render('myalerts_scripts'));
+    $myalerts_js = eval($templates->render('myalerts_js_popup'));
 }
 
 $plugins->add_hook('admin_tabs', 'myalerts_create_instances', -1);
