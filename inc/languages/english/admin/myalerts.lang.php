@@ -4,8 +4,6 @@ $l['myalerts_pluginlibrary_missing'] = "The selected plugin could not be install
 
 $l['setting_group_myalerts'] = "MyAlerts Settings";
 $l['setting_group_myalerts_desc'] = "Settings for the MyAlerts plugin";
-$l['setting_myalerts_enabled'] = "Enable MyAlerts?";
-$l['setting_myalerts_enabled_desc'] = "This switch can be used to globally disable all MyAlerts features";
 $l['setting_myalerts_perpage'] = "Alerts per page";
 $l['setting_myalerts_perpage_desc'] = "How many alerts do you wish to display on the alerts listing page? (default is 10)";
 $l['setting_myalerts_dropdown_limit'] = "Number of alerts to show in dropdown";
@@ -17,7 +15,6 @@ $l['setting_myalerts_default_avatar_desc'] = "The dimensions to use when display
 
 $l['myalerts_task_cleanup_ran'] = 'Read alerts over a week old were deleted successfully!';
 $l['myalerts_task_cleanup_error'] = 'Something went wrong while cleaning up the alerts...';
-$l['myalerts_task_cleanup_disabled'] = 'The alerts cleanup task has been disabled via the settings.';
 
 $l['myalerts_task_title'] = 'MyAlerts Cleanup';
 $l['myalerts_task_description'] = 'A task to cleanup old read alerts. THis is required as otherwise the alerts table could swell to massive sizes.';
