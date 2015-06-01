@@ -1019,7 +1019,7 @@ function myalerts_xmlhttp()
     if ($mybb->get_input('action') == 'getNewAlerts') {
         header('Content-Type: application/json');
 
-        $newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getUnreadAlerts();
+        $newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0, $mybb->settings['myalerts_dropdown_limit']);
 
         $alertsListing = '';
 
