@@ -257,6 +257,11 @@ function myalerts_activate()
         "#" . preg_quote('{$modcplink}') . "#i",
         '{$myalerts_headericon}{$modcplink}'
     );
+	find_replace_templatesets(
+		'footer',
+		'/$/',
+		'{$myalerts_modal}'
+	);
 
     $taskExists = $db->simple_select('tasks', 'tid', 'file = \'myalerts\'', array('limit' => '1'));
     if ($db->num_rows($taskExists) == 0) {
@@ -412,6 +417,11 @@ function myalerts_deactivate()
 
     find_replace_templatesets('headerinclude', "#" . preg_quote('{$myalerts_js}') . "#i", '');
     find_replace_templatesets('header_welcomeblock_member', "#" . preg_quote('{$myalerts_headericon}') . "#i", '');
+	find_replace_templatesets(
+		'footer',
+		"#" . preg_quote('{$myalerts_modal}') . "#i",
+		''
+	);
 
     $db->update_query('tasks', array('enabled' => 0), 'file = \'myalerts\'');
 }
@@ -530,7 +540,7 @@ function myalerts_global_start()
         $templatelist .= ',';
     }
 
-    $templatelist .= 'myalerts_headericon,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_js_popup';
+    $templatelist .= 'myalerts_headericon,myalerts_modal,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_js_popup';
 
     if (THIS_SCRIPT == 'usercp.php' || THIS_SCRIPT == 'alerts.php') {
         $templatelist .= ',myalerts_usercp_nav';
@@ -606,7 +616,7 @@ function myalerts_create_instances()
 $plugins->add_hook('global_intermediate', 'myalerts_global_intermediate');
 function myalerts_global_intermediate()
 {
-    global $templates, $mybb, $lang, $myalerts_headericon;
+    global $templates, $mybb, $lang, $myalerts_headericon, $myalerts_modal;
 
     if ($mybb->user['uid']) {
         if (!$lang->myalerts) {
@@ -643,6 +653,7 @@ function myalerts_global_intermediate()
         $myalerts_return_link = urlencode(myalerts_get_current_url());
 
         $myalerts_headericon = eval($templates->render('myalerts_headericon'));
+	    $myalerts_modal = eval($templates->render('myalerts_modal_content'));
     }
 }
 
