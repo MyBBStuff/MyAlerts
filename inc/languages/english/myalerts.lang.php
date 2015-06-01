@@ -11,11 +11,8 @@ $l['myalerts_settings_page_title'] = 'Alert Settings';
 $l['myalerts_online_location_listing'] = 'Viewing Alerts';
 
 $l['myalerts_unread_title'] = 'Unread Alerts';
-$l['myalerts_view_all'] = 'View All Alerts';
 
-$l['myalerts_loading'] = 'Loading...';
 $l['myalerts_no_alerts'] = 'No alerts to display';
-$l['myalerts_no_new_alerts'] = 'You have no new alerts.';
 $l['myalerts_rep'] = '{1} modified your reputation.';
 $l['myalerts_pm'] = '{1} sent you a new private message titled "{2}".';
 $l['myalerts_buddylist'] = '{1} added you to their buddy list.';
@@ -38,9 +35,6 @@ $l['myalerts_delete_error'] = 'Alert cannot be deleted at this time.';
 $l['myalerts_delete_read_confirm'] = 'Really delete all read alerts? This cannot be undone!';
 $l['myalerts_delete_all_confirm'] = 'Really delete all alerts? This cannot be undone!';
 $l['myalerts_delete_mass_deleted'] = 'Alerts Deleted';
-$l['myalerts_delete_mass_error'] = 'Error Deleting Alerts';
-$l['myalerts_delete_mass_error_more'] = 'Sorry, something went wrong while deleting your alerts. Please try again.';
-$l['myalerts_delete_all_read'] = 'All read alerts deleted successfully.';
 $l['myalerts_delete_all'] = 'All alerts deleted successfully.';
 
 $l['myalerts_usercp_nav'] = 'Alerts';
