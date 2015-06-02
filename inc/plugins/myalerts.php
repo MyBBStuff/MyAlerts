@@ -7,7 +7,7 @@
  * @package MyAlerts
  * @author  Euan T. <euan@euantor.com>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 2.0.1
+ * @version 2.0.2
  */
 
 if (!defined('IN_MYBB')) {
@@ -33,7 +33,7 @@ function myalerts_info()
         'website' => 'http://mybbstuff.com/myalerts',
         'author' => 'Euan T',
         'authorsite' => 'http://euantor.com',
-        'version' => '2.0.1',
+        'version' => '2.0.2',
         'compatibility' => '18*',
 	    'codename' => 'mybbstuff_myalerts',
     );
