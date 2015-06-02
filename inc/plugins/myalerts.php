@@ -317,7 +317,7 @@ function myalerts_upgrade_105_200()
 		$db->rename_column('alerts', 'tid', 'object_id', 'INT(10)');
 	}
 
-	if ($db->field_exists('from_id', 'users')) {
+	if ($db->field_exists('from_id', 'alerts')) {
 		$db->rename_column('alerts', 'from_id', 'from_user_id', 'INT(10)');
 	}
 
@@ -494,6 +494,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
         $outputAlert['avatar']['image'] = htmlspecialchars_uni($outputAlert['avatar']['image']);
 
         $outputAlert['id'] = $alertToParse->getId();
+	    $outputAlert['username'] = htmlspecialchars_uni($fromUser['username']);
         $outputAlert['from_user'] = format_name(
             htmlspecialchars_uni($fromUser['username']),
             $fromUser['usergroup'],
