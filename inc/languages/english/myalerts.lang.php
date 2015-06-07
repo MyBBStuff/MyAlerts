@@ -14,11 +14,11 @@ $l['myalerts_unread_title'] = 'Unread Alerts';
 
 $l['myalerts_no_alerts'] = 'No alerts to display';
 $l['myalerts_rep'] = '{1} modified your reputation.';
-$l['myalerts_pm'] = '{1} sent you a new private message titled "{2}".';
+$l['myalerts_pm'] = '{1} sent you a new private message titled <b>"{2}"</b>.';
 $l['myalerts_buddylist'] = '{1} added you to their buddy list.';
-$l['myalerts_quoted'] = '{1} quoted you in {2}.';
-$l['myalerts_post_threadauthor'] = '{1} replied to your thread "{2}". There may be more posts after this.';
-$l['myalerts_subscribed_thread'] = '{1} replied to your subscribed thread "{2}".';
+$l['myalerts_quoted'] = '{1} quoted you in <b>{2}</b>.';
+$l['myalerts_post_threadauthor'] = '{1} replied to your thread <b>"{2}"</b>. There may be more posts after this.';
+$l['myalerts_subscribed_thread'] = '{1} replied to your subscribed thread <b>"{2}"</b>.';
 
 $l['myalerts_setting_rep'] = 'Receive alert for reputation?';
 $l['myalerts_setting_pm'] = 'Receive alert for Private Message (PM)?';
