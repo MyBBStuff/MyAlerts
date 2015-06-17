@@ -535,13 +535,13 @@ function myalerts_user_delete()
 $plugins->add_hook('global_start', 'myalerts_global_start', -1);
 function myalerts_global_start()
 {
-    global $mybb, $templatelist, $templates, $myalerts_js;
+    global $mybb, $templatelist, $templates;
 
     if (isset($templatelist)) {
         $templatelist .= ',';
     }
 
-    $templatelist .= 'myalerts_headericon,myalerts_modal,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_js_popup';
+    $templatelist .= 'myalerts_headericon,myalerts_modal,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_js_popup';
 
     if (THIS_SCRIPT == 'usercp.php' || THIS_SCRIPT == 'alerts.php') {
         $templatelist .= ',myalerts_usercp_nav';
@@ -585,8 +585,6 @@ function myalerts_global_start()
                                                                                             ->getNumUnreadAlerts()
         );
     }
-
-    $myalerts_js = eval($templates->render('myalerts_js_popup'));
 }
 
 $plugins->add_hook('admin_tabs', 'myalerts_create_instances', -1);
@@ -617,45 +615,24 @@ function myalerts_create_instances()
 $plugins->add_hook('global_intermediate', 'myalerts_global_intermediate');
 function myalerts_global_intermediate()
 {
-    global $templates, $mybb, $lang, $myalerts_headericon, $myalerts_modal;
+    global $templates, $mybb, $lang, $myalerts_headericon, $myalerts_modal, $myalerts_js;
+
+    $myalerts_js = eval($templates->render('myalerts_js_popup'));
 
     if ($mybb->user['uid']) {
         if (!$lang->myalerts) {
             $lang->load('myalerts');
         }
 
-        $userAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()
-                                                     ->getAlerts(0, $mybb->settings['myalerts_dropdown_limit']);
-
-        $alerts = '';
-
         if ($mybb->user['unreadAlerts']) {
             $newAlertsIndicator = 'alerts--new';
         }
 
-        if (is_array($userAlerts) && !empty($userAlerts)) {
-            foreach ($userAlerts as $alertObject) {
-                $altbg = alt_trow();
-
-                $alert = parse_alert($alertObject);
-
-                if ($alert['message']) {
-                    $alerts .= eval($templates->render('myalerts_alert_row_popup'));
-                }
-
-                $readAlerts[] = $alert['id'];
-            }
-        } else {
-            $altbg = 'trow1';
-
-            $alerts = eval($templates->render('myalerts_alert_row_popup_no_alerts'));
-        }
-
-        $myalerts_return_link = urlencode(myalerts_get_current_url());
+		$myalerts_return_link = urlencode(myalerts_get_current_url());
 
         $myalerts_headericon = eval($templates->render('myalerts_headericon'));
-	    $myalerts_modal = eval($templates->render('myalerts_modal_content'));
     }
+
 }
 
 /**
@@ -667,7 +644,7 @@ function myalerts_get_current_url()
 {
     global $mybb;
 
-    $format = $mybb->settings['bburl'] . '/' . THIS_SCRIPT;
+    $format = $mybb->settings['bburl'] . '/' . basename($_SERVER['PHP_SELF']);
 
     if (!empty($_GET)) {
         $format .= '?';

@@ -6,6 +6,8 @@
 define('IN_MYBB', true);
 define('THIS_SCRIPT', 'alerts.php');
 
+$templatelist = 'myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_modal_content';
+
 require_once __DIR__ . '/global.php';
 
 $action = $mybb->get_input('action', MyBB::INPUT_STRING);
@@ -33,6 +35,9 @@ switch ($action) {
         break;
     case 'delete_all':
         myalerts_delete_all_alerts($mybb, $db, $lang);
+        break;
+    case 'modal':
+        myalerts_view_modal($mybb, $lang, $templates, $theme);
         break;
     default:
         myalerts_view_alerts($mybb, $lang, $templates, $theme);
@@ -204,6 +209,47 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
     } else {
         redirect('alerts.php?action=alerts', $lang->myalerts_delete_all, $lang->myalerts_delete_mass_deleted);
     }
+}
+
+/**
+ * View the modal.
+ *
+ * @param MyBB $mybb MyBB core object.
+ * @param MyLanguage $lang Language object.
+ * @param templates $templates Template manager.
+ * @param array $theme Details about the current theme.
+ */
+function myalerts_view_modal($mybb, $lang, $templates, $theme)
+{
+	$userAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()
+												 ->getAlerts(0, $mybb->settings['myalerts_dropdown_limit']);
+
+	$alerts = '';
+
+	if (is_array($userAlerts) && !empty($userAlerts)) {
+		foreach ($userAlerts as $alertObject) {
+			$altbg = alt_trow();
+
+			$alert = parse_alert($alertObject);
+
+			if ($alert['message']) {
+				$alerts .= eval($templates->render('myalerts_alert_row_popup'));
+			}
+
+			$readAlerts[] = $alert['id'];
+		}
+	} else {
+		$altbg = 'trow1';
+
+		$alerts = eval($templates->render('myalerts_alert_row_popup_no_alerts'));
+	}
+
+	$myalerts_return_link = $mybb->get_input('ret_link');
+
+	$myalerts_modal = eval($templates->render('myalerts_modal_content', 1, 0));
+
+	echo $myalerts_modal;
+	exit;
 }
 
 /**
