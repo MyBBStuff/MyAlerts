@@ -15,7 +15,7 @@
                 <a href="{$mybb->settings['bburl']}/alerts.php">{$lang->myalerts_usercp_nav_alerts}</a>
                 <span class="float_right">
                     <a href="{$mybb->settings['bburl']}/alerts.php?action=delete_all&amp;my_post_key={$mybb->post_code}&amp;ret_link={$myalerts_return_link}"
-                       onclick="return confirm('{$lang->myalerts_delete_all_confirm}')">{$lang->myalerts_usercp_nav_delete_all}</a>
+                       onclick="return confirm('{$lang->myalerts_delete_all_confirm}'); return false;">{$lang->myalerts_usercp_nav_delete_all}</a>
                 </span>
                 <br class="clear"/>
                 <!-- Clear alerts link goes here... -->

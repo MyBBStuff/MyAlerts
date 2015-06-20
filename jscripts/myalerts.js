@@ -4,8 +4,6 @@
 
     this.MybbStuff.MyAlerts = (function MyAlertsModule(window, $) {
         var module = function MyAlerts() {
-            $('a.open_modal').click(this.openModal).bind(this);
-
             $("body").on("click", "#getUnreadAlerts", this.getUnreadAlerts);
 
             $("body").on("click", ".deleteAlertButton", this.deleteAlert).bind(this);
@@ -23,20 +21,6 @@
             {
                 document.title = document.title + ' (' + unreadAlerts + ')';
             }
-        };
-
-        module.prototype.openModal = function openModal(event) {
-            event.preventDefault();
-
-            var originalTarget = $(event.currentTarget),
-                modalSelector = originalTarget.attr('data-selector');
-
-            $(modalSelector).modal({
-                fadeDuration: 250,
-                keepelement: true
-            });
-
-            return false;
         };
 
         module.prototype.getUnreadAlerts = function getUnreadAlerts(event) {
