@@ -3,7 +3,7 @@
     <title>{$lang->myalerts_page_title} - {$mybb->settings['bbname']}</title>
     <script type="text/javascript">
         <!--
-        var myalerts_autorefresh = {$mybb->settings['myalerts_autorefresh']};
+        var myalerts_autorefresh = {$mybb- > settings['myalerts_autorefresh']};
         // -->
     </script>
     {$headerinclude}
@@ -18,7 +18,8 @@
                 {$multipage}
             </div>
             <div class="clear"></div>
-            <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}"
+            <table border="0" cellspacing="{$theme['borderwidth']}"
+                   cellpadding="{$theme['tablespace']}"
                    class="tborder">
                 <thead>
                 <tr>
@@ -26,7 +27,8 @@
                         <strong>{$lang->myalerts_page_title}</strong>
 
                         <div class="float_right">
-                            <a id="getUnreadAlerts" href="{$mybb->settings['bburl']}/alerts.php">{$lang->myalerts_page_getnew}</a>
+                            <a id="getUnreadAlerts"
+                               href="{$mybb->settings['bburl']}/alerts.php">{$lang->myalerts_page_getnew}</a>
                         </div>
                     </th>
                 </tr>

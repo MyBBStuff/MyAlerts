@@ -1,4 +1,5 @@
 <li class="alerts {$newAlertsIndicator}">
-    <a href="{$mybb->settings['bburl']}/alerts.php" class="myalerts" onclick="MyBB.popupWindow('/alerts.php?action=modal&amp;ret_link={$myalerts_return_link}'); return false;">{$lang->myalerts_alerts}
+    <a href="{$mybb->settings['bburl']}/alerts.php" class="myalerts"
+       onclick="MyBB.popupWindow('/alerts.php?action=modal&amp;ret_link={$myalerts_return_link}'); return false;">{$lang->myalerts_alerts}
         ({$mybb->user['unreadAlerts']})</a>
 </li>

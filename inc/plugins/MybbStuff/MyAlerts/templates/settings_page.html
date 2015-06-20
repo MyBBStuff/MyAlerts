@@ -1,6 +1,7 @@
 <html>
 <head>
-    <title>{$lang->myalerts_settings_page_title} - {$mybb->settings['bbname']}</title>
+    <title>{$lang->myalerts_settings_page_title} -
+        {$mybb->settings['bbname']}</title>
     {$headerinclude}
 </head>
 <body>
@@ -10,8 +11,10 @@
         {$usercpnav}
         <td valign="top">
             <form action="alerts.php?action=settings" method="post">
-                <input type="hidden" name="my_post_key" value="{$mybb->post_code}"/>
-                <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}"
+                <input type="hidden" name="my_post_key"
+                       value="{$mybb->post_code}"/>
+                <table border="0" cellspacing="{$theme['borderwidth']}"
+                       cellpadding="{$theme['tablespace']}"
                        class="tborder">
                     <thead>
                     <tr>
@@ -24,9 +27,11 @@
                     {$alertSettings}
                     </tbody>
                 </table>
-                <br />
+                <br/>
+
                 <div style="text-align:center;">
-                    <input type="submit" value="{$lang->myalerts_settings_save}" class="button" />
+                    <input type="submit" value="{$lang->myalerts_settings_save}"
+                           class="button"/>
                 </div>
             </form>
         </td>
