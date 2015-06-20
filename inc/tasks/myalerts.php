@@ -15,9 +15,9 @@ if (!defined('IN_MYBB')) {
 
 function task_myalerts($task)
 {
-	global $mybb, $db, $lang;
+	global $db, $lang;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 

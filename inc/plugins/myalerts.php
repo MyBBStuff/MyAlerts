@@ -169,7 +169,7 @@ function myalerts_activate()
 {
 	global $db, $lang, $PL, $plugins, $cache;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -452,7 +452,7 @@ function myalerts_deactivate()
 {
 	global $PL, $db, $lang, $plugins;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -558,7 +558,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 {
 	global $mybb, $lang, $plugins;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -674,7 +674,7 @@ function myalerts_global_start()
 	if ($mybb->user['uid'] > 0) {
 		global $lang;
 
-		if (!$lang->myalerts) {
+		if (!isset($lang->myalerts)) {
 			$lang->load('myalerts');
 		}
 
@@ -707,7 +707,7 @@ function myalerts_create_instances()
 {
 	global $mybb, $db, $cache, $lang;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -740,7 +740,7 @@ function myalerts_global_intermediate()
 	$myalerts_js = eval($templates->render('myalerts_js_popup'));
 
 	if ($mybb->user['uid']) {
-		if (!$lang->myalerts) {
+		if (!isset($lang->myalerts)) {
 			$lang->load('myalerts');
 		}
 
@@ -802,7 +802,7 @@ function myalerts_online_location(&$plugin_array)
 {
 	global $lang;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -1157,7 +1157,7 @@ function myalerts_usercp_menu()
 {
 	global $mybb, $templates, $theme, $usercpmenu, $lang, $collapsed, $collapsedimg;
 
-	if (!$lang->myalerts) {
+	if (!($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -1175,7 +1175,7 @@ function myalerts_xmlhttp()
 {
 	global $mybb, $lang, $templates, $db;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -1398,7 +1398,7 @@ function myalerts_acp_config_menu(&$sub_menu)
 {
 	global $lang;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -1429,7 +1429,7 @@ function myalerts_acp_config_permissions(&$admin_permissions)
 {
 	global $lang;
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 

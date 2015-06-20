@@ -14,7 +14,7 @@ if (!defined('IN_MYBB')) {
 	die('Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.');
 }
 
-if (!$lang->myalerts) {
+if (!isset($lang->myalerts)) {
 	$lang->load('myalerts');
 }
 

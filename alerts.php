@@ -329,7 +329,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 {
 	$alerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0, 10);
 
-	if (!$lang->myalerts) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
