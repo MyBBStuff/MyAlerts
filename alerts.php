@@ -64,6 +64,13 @@ function myalerts_redirect_alert($mybb, $lang)
 
 	/** @var MybbStuff_MyAlerts_Entity_Alert $alert */
 	$alert = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlert($alertId);
+
+	if ($alert === null) {
+		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+		error($lang->myalerts_error_alert_not_found);
+		return;
+	}
+
 	/** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $alertTypeFormatter */
 	$alertTypeFormatter = MybbStuff_MyAlerts_AlertFormatterManager::getInstance(
 	)->getFormatterForAlertType($alert->getType()->getCode());
