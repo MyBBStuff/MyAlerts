@@ -17,3 +17,7 @@
 ul.panel_links a.myalerts {
     background-position: 0 -180px;
 }
+
+.alert-row__no-alerts td {
+    text-align: center;
+}
