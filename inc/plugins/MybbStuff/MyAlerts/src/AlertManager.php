@@ -17,70 +17,6 @@ class MybbStuff_MyAlerts_AlertManager
 	 *      committed to the database.
 	 */
 	private static $alertQueue;
-
-	/**
-	 * @return MybbStuff_MyAlerts_Entity_Alert[]
-	 */
-	public static function getAlertQueue()
-	{
-		return self::$alertQueue;
-	}
-
-	/**
-	 * @return MybbStuff_MyAlerts_Entity_AlertType[]
-	 */
-	public static function getAlertTypes()
-	{
-		return self::$alertTypes;
-	}
-
-	/**
-	 * @return MyBB
-	 */
-	public function getMybb()
-	{
-		return $this->mybb;
-	}
-
-	/**
-	 * @return DB_Base
-	 */
-	public function getDb()
-	{
-		return $this->db;
-	}
-
-	/**
-	 * @return datacache
-	 */
-	public function getCache()
-	{
-		return $this->cache;
-	}
-
-	/**
-	 * @return pluginSystem
-	 */
-	public function getPlugins()
-	{
-		return $this->plugins;
-	}
-
-	/**
-	 * @return MybbStuff_MyAlerts_AlertTypeManager
-	 */
-	public function getAlertTypeManager()
-	{
-		return $this->alertTypeManager;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getCurrentUserEnabledAlerts()
-	{
-		return $this->currentUserEnabledAlerts;
-	}
 	/** @var  MybbStuff_MyAlerts_Entity_AlertType[] A cache of the alert types currently available in the system. */
 	private static $alertTypes;
 	/** @var MybbStuff_MyAlerts_AlertManager */
@@ -119,7 +55,8 @@ class MybbStuff_MyAlerts_AlertManager
 	 *                                                              alerts and
 	 *                                                              alert
 	 *                                                              types.
-	 * @param pluginSystem                        $plugins MyBB plugin system.
+	 * @param pluginSystem                        $plugins          MyBB plugin
+	 *                                                              system.
 	 * @param MybbSTuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type
 	 *                                                              manager
 	 *                                                              instance.
@@ -168,6 +105,22 @@ class MybbStuff_MyAlerts_AlertManager
 		return $enabledAlertTypes;
 	}
 
+	/**
+	 * @return MybbStuff_MyAlerts_Entity_Alert[]
+	 */
+	public static function getAlertQueue()
+	{
+		return self::$alertQueue;
+	}
+
+	/**
+	 * @return MybbStuff_MyAlerts_Entity_AlertType[]
+	 */
+	public static function getAlertTypes()
+	{
+		return self::$alertTypes;
+	}
+
 	/** Create an instance of the alert manager.
 	 *
 	 * @param MyBB                                $mybb             MyBB core
@@ -177,7 +130,8 @@ class MybbStuff_MyAlerts_AlertManager
 	 *                                                              object.
 	 * @param datacache                           $cache            MyBB cache
 	 *                                                              object.
-	 * @param pluginSystem                        $plugins MyBB plugin system.
+	 * @param pluginSystem                        $plugins          MyBB plugin
+	 *                                                              system.
 	 * @param MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type
 	 *                                                              manager
 	 *                                                              instance.
@@ -192,7 +146,13 @@ class MybbStuff_MyAlerts_AlertManager
 		MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager
 	) {
 		if (static::$instance === null) {
-			static::$instance = new self($mybb, $db, $cache, $plugins, $alertTypeManager);
+			static::$instance = new self(
+				$mybb,
+				$db,
+				$cache,
+				$plugins,
+				$alertTypeManager
+			);
 		}
 
 		return static::$instance;
@@ -213,6 +173,54 @@ class MybbStuff_MyAlerts_AlertManager
 		}
 
 		return static::$instance;
+	}
+
+	/**
+	 * @return MyBB
+	 */
+	public function getMybb()
+	{
+		return $this->mybb;
+	}
+
+	/**
+	 * @return DB_Base
+	 */
+	public function getDb()
+	{
+		return $this->db;
+	}
+
+	/**
+	 * @return datacache
+	 */
+	public function getCache()
+	{
+		return $this->cache;
+	}
+
+	/**
+	 * @return pluginSystem
+	 */
+	public function getPlugins()
+	{
+		return $this->plugins;
+	}
+
+	/**
+	 * @return MybbStuff_MyAlerts_AlertTypeManager
+	 */
+	public function getAlertTypeManager()
+	{
+		return $this->alertTypeManager;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCurrentUserEnabledAlerts()
+	{
+		return $this->currentUserEnabledAlerts;
 	}
 
 	/**
@@ -269,17 +277,21 @@ class MybbStuff_MyAlerts_AlertManager
 				$extraDetails = $alert->getExtraDetails();
 				$tid = $extraDetails['tid'];
 
-				if (isset(static::$alertQueue['post_threadauthor_' . $alert->getUserId() . '_' . $tid])) {
+				if (isset(static::$alertQueue['post_threadauthor_' . $alert->getUserId(
+					) . '_' . $tid])) {
 					return $this;
 				}
 			}
 
 			$passToHook = array(
 				'alertManager' => &$this,
-				'alert' => &$alert,
+				'alert'        => &$alert,
 			);
 
-			$this->plugins->run_hooks('myalerts_alert_manager_add_alert', $passToHook);
+			$this->plugins->run_hooks(
+				'myalerts_alert_manager_add_alert',
+				$passToHook
+			);
 
 			// Basic duplicate checking by overwrite - only one alert for each alert type/object id combination
 			static::$alertQueue[$alert->getType()->getCode(
