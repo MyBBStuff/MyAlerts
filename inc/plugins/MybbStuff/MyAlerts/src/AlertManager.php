@@ -17,6 +17,70 @@ class MybbStuff_MyAlerts_AlertManager
 	 *      committed to the database.
 	 */
 	private static $alertQueue;
+
+	/**
+	 * @return MybbStuff_MyAlerts_Entity_Alert[]
+	 */
+	public static function getAlertQueue()
+	{
+		return self::$alertQueue;
+	}
+
+	/**
+	 * @return MybbStuff_MyAlerts_Entity_AlertType[]
+	 */
+	public static function getAlertTypes()
+	{
+		return self::$alertTypes;
+	}
+
+	/**
+	 * @return MyBB
+	 */
+	public function getMybb()
+	{
+		return $this->mybb;
+	}
+
+	/**
+	 * @return DB_Base
+	 */
+	public function getDb()
+	{
+		return $this->db;
+	}
+
+	/**
+	 * @return datacache
+	 */
+	public function getCache()
+	{
+		return $this->cache;
+	}
+
+	/**
+	 * @return pluginSystem
+	 */
+	public function getPlugins()
+	{
+		return $this->plugins;
+	}
+
+	/**
+	 * @return MybbStuff_MyAlerts_AlertTypeManager
+	 */
+	public function getAlertTypeManager()
+	{
+		return $this->alertTypeManager;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCurrentUserEnabledAlerts()
+	{
+		return $this->currentUserEnabledAlerts;
+	}
 	/** @var  MybbStuff_MyAlerts_Entity_AlertType[] A cache of the alert types currently available in the system. */
 	private static $alertTypes;
 	/** @var MybbStuff_MyAlerts_AlertManager */
@@ -27,6 +91,8 @@ class MybbStuff_MyAlerts_AlertManager
 	private $db;
 	/** @var datacache Cache instance used to manipulate alerts. */
 	private $cache;
+	/** @var pluginSystem $plugins MyBB plugin system. */
+	private $plugins;
 	/** @var MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager */
 	private $alertTypeManager;
 	/** @var array An array of the currently enabled alert types for the user. */
@@ -53,6 +119,7 @@ class MybbStuff_MyAlerts_AlertManager
 	 *                                                              alerts and
 	 *                                                              alert
 	 *                                                              types.
+	 * @param pluginSystem                        $plugins MyBB plugin system.
 	 * @param MybbSTuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type
 	 *                                                              manager
 	 *                                                              instance.
@@ -60,12 +127,14 @@ class MybbStuff_MyAlerts_AlertManager
 	private function __construct(
 		$mybb,
 		DB_Base $db,
-		$cache,
+		datacache $cache,
+		pluginSystem $plugins,
 		MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager
 	) {
 		$this->mybb = $mybb;
 		$this->db = $db;
 		$this->cache = $cache;
+		$this->plugins = $plugins;
 		$this->alertTypeManager = $alertTypeManager;
 
 		$this->currentUserEnabledAlerts = $this->filterEnabledAlerts(
@@ -108,6 +177,7 @@ class MybbStuff_MyAlerts_AlertManager
 	 *                                                              object.
 	 * @param datacache                           $cache            MyBB cache
 	 *                                                              object.
+	 * @param pluginSystem                        $plugins MyBB plugin system.
 	 * @param MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager Alert type
 	 *                                                              manager
 	 *                                                              instance.
@@ -118,10 +188,11 @@ class MybbStuff_MyAlerts_AlertManager
 		MyBB $mybb,
 		DB_Base $db,
 		datacache $cache,
+		pluginSystem $plugins,
 		MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager
 	) {
 		if (static::$instance === null) {
-			static::$instance = new self($mybb, $db, $cache, $alertTypeManager);
+			static::$instance = new self($mybb, $db, $cache, $plugins, $alertTypeManager);
 		}
 
 		return static::$instance;
@@ -177,7 +248,7 @@ class MybbStuff_MyAlerts_AlertManager
 	public function addAlert(MybbStuff_MyAlerts_Entity_Alert $alert)
 	{
 		$fromUser = $alert->getFromUser();
-		// TODO: Check for duplicates...
+
 		if (!isset($fromUser['uid'])) {
 			$alert->setFromUser($this->mybb->user);
 		}
@@ -192,6 +263,24 @@ class MybbStuff_MyAlerts_AlertManager
 			) && (!empty($usersWhoWantAlert) || !$alertType->getCanBeUserDisabled(
 				))
 		) {
+			if ($alertType->getCode() === 'quoted') {
+				// If there is already an alert queued to the user of the type
+				// 'post_threadauthor', don't add the alert.
+				$extraDetails = $alert->getExtraDetails();
+				$tid = $extraDetails['tid'];
+
+				if (isset(static::$alertQueue['post_threadauthor_' . $alert->getUserId() . '_' . $tid])) {
+					return $this;
+				}
+			}
+
+			$passToHook = array(
+				'alertManager' => &$this,
+				'alert' => &$alert,
+			);
+
+			$this->plugins->run_hooks('myalerts_alert_manager_add_alert', $passToHook);
+
 			// Basic duplicate checking by overwrite - only one alert for each alert type/object id combination
 			static::$alertQueue[$alert->getType()->getCode(
 			) . '_' . $alert->getUserId() . '_' . $alert->getObjectId(
@@ -382,7 +471,7 @@ SQL;
 	 *  Fetch all alerts for the currently logged in user
 	 *
 	 * @param int $start The start point (used for multipaging alerts)
-	 * @param int $limit The maximum number of alerts to retreive.
+	 * @param int $limit The maximum number of alerts to retrieve.
 	 *
 	 * @return array The alerts for the user.
 	 * @return boolean If the user has no new alerts.
