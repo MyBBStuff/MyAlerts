@@ -705,7 +705,7 @@ function myalerts_global_start()
 $plugins->add_hook('admin_tabs', 'myalerts_create_instances', -1);
 function myalerts_create_instances()
 {
-	global $mybb, $db, $cache, $lang;
+	global $mybb, $db, $cache, $lang, $plugins;
 
 	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
@@ -720,6 +720,7 @@ function myalerts_create_instances()
 		$mybb,
 		$db,
 		$cache,
+		$plugins,
 		$alertTypeManager
 	);
 
