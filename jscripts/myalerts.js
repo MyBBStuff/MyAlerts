@@ -4,9 +4,13 @@
 
     this.MybbStuff.MyAlerts = (function MyAlertsModule(window, $) {
         var module = function MyAlerts() {
-            $("body").on("click", "#getUnreadAlerts", this.getUnreadAlerts);
+            var unreadAlertsProxy = $.proxy(this.getUnreadAlerts(), this),
+                deleteAlertProxy = $.proxy(this.deleteAlert, this),
+                bodySelector = $("body");
 
-            $("body").on("click", ".deleteAlertButton", this.deleteAlert).bind(this);
+            bodySelector.on("click", "#getUnreadAlerts", unreadAlertsProxy);
+
+            bodySelector.on("click", ".deleteAlertButton", deleteAlertProxy);
 
             if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0) {
                 window.setInterval(function () {
