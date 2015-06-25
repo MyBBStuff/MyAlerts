@@ -334,6 +334,10 @@ function myalerts_view_modal($mybb, $lang, $templates, $theme)
  */
 function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 {
+	if (MybbStuff_MyAlerts_AlertManager::getInstance() === false) {
+		myalerts_create_instances();
+	}
+
 	$alerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0, 10);
 
 	if (!isset($lang->myalerts)) {

@@ -738,7 +738,7 @@ function myalerts_global_intermediate()
 {
 	global $templates, $mybb, $lang, $myalerts_headericon, $myalerts_modal, $myalerts_js;
 
-	$myalerts_js = eval($templates->render('myalerts_js_popup'));
+	$myalerts_js = '';
 
 	if ($mybb->user['uid']) {
 		if (!isset($lang->myalerts)) {
@@ -752,6 +752,8 @@ function myalerts_global_intermediate()
 		$myalerts_return_link = urlencode(myalerts_get_current_url());
 
 		$myalerts_headericon = eval($templates->render('myalerts_headericon'));
+
+		$myalerts_js = eval($templates->render('myalerts_js_popup'));
 	}
 
 }
