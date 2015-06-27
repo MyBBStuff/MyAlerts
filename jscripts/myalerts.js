@@ -4,7 +4,7 @@
 
     this.MybbStuff.MyAlerts = (function MyAlertsModule(window, $) {
         var module = function MyAlerts() {
-            var unreadAlertsProxy = $.proxy(this.getUnreadAlerts(), this),
+            var unreadAlertsProxy = $.proxy(this.getUnreadAlerts, this),
                 deleteAlertProxy = $.proxy(this.deleteAlert, this),
                 bodySelector = $("body");
 
