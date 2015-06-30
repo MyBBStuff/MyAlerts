@@ -16,7 +16,7 @@ $l['myalerts_no_alerts'] = 'No alerts to display';
 $l['myalerts_rep'] = '{1} modified your reputation.';
 $l['myalerts_pm'] = '{1} sent you a new private message titled <b>"{2}"</b>.';
 $l['myalerts_buddylist'] = '{1} added you to their buddy list.';
-$l['myalerts_quoted'] = '{1} quoted you in <b>{2}</b>.';
+$l['myalerts_quoted'] = '{1} quoted you in <b>"{2}"</b>.';
 $l['myalerts_post_threadauthor'] = '{1} replied to your thread <b>"{2}"</b>. There may be more posts after this.';
 $l['myalerts_subscribed_thread'] = '{1} replied to your subscribed thread <b>"{2}"</b>.';
 
