@@ -21,3 +21,11 @@ ul.panel_links a.myalerts {
 .alert-row__no-alerts td {
     text-align: center;
 }
+
+.alert--read.alert {
+    opacity: .5;
+}
+
+.alert.alert--read td.trow1 {
+    background-color: #FAEACC;
+}
