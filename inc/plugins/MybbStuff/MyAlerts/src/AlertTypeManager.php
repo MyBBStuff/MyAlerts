@@ -128,12 +128,16 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 */
 	public function add(MybbStuff_MyAlerts_Entity_AlertType $alertType)
 	{
-		$success = (bool) $this->db->insert_query(
-			'alert_types',
-			$alertType->toArray()
-		);
+        $success = true;
 
-		$this->getAlertTypes(true);
+        if (!isset($this->alertTypes[$alertType->getCode()])) {
+            $success = (bool) $this->db->insert_query(
+                'alert_types',
+                $alertType->toArray()
+            );
+
+            $this->getAlertTypes(true);
+        }
 
 		return $success;
 	}
@@ -150,17 +154,22 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	public function addTypes(array $alertTypes)
 	{
 		$toInsert = array();
+        $success = true;
 
 		foreach ($alertTypes as $alertType) {
 			if ($alertType instanceof MybbStuff_MyAlerts_Entity_AlertType) {
-				$toInsert[] = $alertType->toArray();
+                if (!isset($this->alertTypes[$alertType->getCode()])) {
+                    $toInsert[] = $alertType->toArray();
+                }
 			}
 		}
 
-		$success = (bool) $this->db->insert_query_multiple(
-			'alert_types',
-			$toInsert
-		);
+        if (!empty($toInsert)) {
+            $success = (bool) $this->db->insert_query_multiple(
+                'alert_types',
+                $toInsert
+            );
+        }
 
 		$this->getAlertTypes(true);
 
