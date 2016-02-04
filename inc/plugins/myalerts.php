@@ -770,13 +770,7 @@ function myalerts_get_current_url()
 	$format = $mybb->settings['bburl'] . '/' . basename($_SERVER['PHP_SELF']);
 
 	if (!empty($_GET)) {
-		$format .= '?';
-
-		foreach ($_GET as $key => $val) {
-			$key = urlencode($key);
-			$val = urlencode($val);
-			$format .= "{$key}={$val}&";
-		}
+		$format .= '?' . http_build_query($_GET);
 	}
 
 	$format = rtrim($format, '&');
