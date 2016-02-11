@@ -45,9 +45,6 @@
             }, function (data) {
                 if (data.success) {
                     deleteButton.parents('tr').get(0).remove();
-                    if (data.template) {
-                        $('#latestAlertsListing').html(data.template);
-                    }
                 }
                 else {
                     for (var i = 0; i < data.errors.length; ++i) {
