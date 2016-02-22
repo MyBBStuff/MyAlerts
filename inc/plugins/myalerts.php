@@ -229,8 +229,8 @@ function myalerts_activate()
 			'avatar_size'    => array(
 				'title'       => $lang->setting_myalerts_avatar_size,
 				'description' => $lang->setting_myalerts_avatar_size_desc,
-				'optionscode' => 'text',
 				'value'       => '64|64',
+				'optionscode' => 'text',
 			),
 		)
 	);
