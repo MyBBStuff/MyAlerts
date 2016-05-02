@@ -20,6 +20,8 @@ if ((int) $mybb->user['uid'] < 1) {
 	error_no_permission();
 }
 
+myalerts_create_instances();
+
 switch ($action) {
 	case 'view':
 		myalerts_redirect_alert($mybb, $lang);
@@ -62,8 +64,10 @@ function myalerts_redirect_alert($mybb, $lang)
 {
 	$alertId = $mybb->get_input('id', MyBB::INPUT_INT);
 
+    $alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+
 	/** @var MybbStuff_MyAlerts_Entity_Alert $alert */
-	$alert = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlert($alertId);
+	$alert = $alertManager->getAlert($alertId);
 
 	if ($alert === null) {
 		header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
@@ -94,7 +98,7 @@ function myalerts_redirect_alert($mybb, $lang)
  * Show a user their settings for MyAlerts.
  *
  * @param MyBB               $mybb      MyBB core object.
- * @param DB_MySQLi|DB_MySQL $db        Database object.
+ * @param DB_Base $db        Database object.
  * @param MyLanguage         $lang      Language object.
  * @param pluginSystem       $plugins   MyBB plugin system.
  * @param templates          $templates Template manager.
@@ -108,8 +112,9 @@ function myalerts_alert_settings(
 	$templates,
 	$theme
 ) {
-	$alertTypes = MybbStuff_MyAlerts_AlertTypeManager::getInstance()
-	                                                 ->getAlertTypes();
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
+	$alertTypes = $alertTypeManager->getAlertTypes();
 
 	if (strtolower(
 			$mybb->request_method
@@ -334,9 +339,7 @@ function myalerts_view_modal($mybb, $lang, $templates, $theme)
  */
 function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 {
-	if (MybbStuff_MyAlerts_AlertManager::getInstance() === false) {
-		myalerts_create_instances();
-	}
+    myalerts_create_instances();
 
 	$alerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0, 10);
 

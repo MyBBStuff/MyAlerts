@@ -32,7 +32,9 @@ switch ($mybb->get_input('action')) {
 
 function myalerts_acp_manage_alert_types()
 {
-	global $mybb, $lang, $page, $db, $cache;
+	global $mybb, $lang, $page;
+
+    myalerts_create_instances();
 
 	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 

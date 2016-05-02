@@ -551,7 +551,11 @@ function myalerts_is_activated()
  */
 function reload_mybbstuff_myalerts_alert_types()
 {
-	MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getAlertTypes(true);
+    myalerts_create_instances();
+
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
+	$alertTypeManager->getAlertTypes(true);
 }
 
 function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
@@ -561,6 +565,8 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
+
+    myalerts_create_instances();
 
 	/** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatter */
 	$formatter = MybbStuff_MyAlerts_AlertFormatterManager::getInstance()
@@ -711,20 +717,32 @@ function myalerts_create_instances()
 		$lang->load('myalerts');
 	}
 
-	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance(
-		$db,
-		$cache
-	);
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-	MybbStuff_MyAlerts_AlertManager::createInstance(
-		$mybb,
-		$db,
-		$cache,
-		$plugins,
-		$alertTypeManager
-	);
+    if (is_null($alertTypeManager) || $alertTypeManager === false) {
+        $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance(
+            $db,
+            $cache
+        );
+    }
 
-	MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
+    $alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+
+    if (is_null($alertManager) || $alertManager === false) {
+        $alertManager = MybbStuff_MyAlerts_AlertManager::createInstance(
+            $mybb,
+            $db,
+            $cache,
+            $plugins,
+            $alertTypeManager
+        );
+    }
+
+    $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+
+    if (is_null($formatterManager) || $formatterManager === false) {
+        $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
+    }
 
 	myalerts_register_core_formatters($mybb, $lang);
 
@@ -820,10 +838,12 @@ function myalerts_addAlert_rep()
 {
 	global $reputation;
 
+    myalerts_create_instances();
+
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
 	/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode(
-		'rep'
-	);
+	$alertType = $alertTypeManager->getByCode('rep');
 
 	if ($alertType != null && $alertType->getEnabled()) {
 		$alert = new MybbStuff_MyAlerts_Entity_Alert(
@@ -857,9 +877,12 @@ function myalerts_addAlert_pm()
 			$pmUsers
 		); // Reset array keys after removing entries
 
+        myalerts_create_instances();
+
+        $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
 		/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-		$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()
-		                                                ->getByCode('pm');
+		$alertType = $alertTypeManager->getByCode('pm');
 
 		if ($alertType != null && $alertType->getEnabled()) {
 			$userNames = array_map(array($db, 'escape_string'), $pmUsers);
@@ -925,11 +948,12 @@ function myalerts_alert_buddylist()
 		$addUsers = array_unique($addUsers);
 
 		if (count($addUsers) > 0) {
+            myalerts_create_instances();
+
+            $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
 			/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-			$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()
-			                                                ->getByCode(
-				                                                'buddylist'
-			                                                );
+			$alertType = $alertTypeManager->getByCode('buddylist');
 
 			if ($alertType != null && $alertType->getEnabled()) {
 				$userNames = array_map(array($db, 'escape_string'), $addUsers);
@@ -976,11 +1000,12 @@ function myalerts_alert_quoted()
 		$users = array_unique(array_values($matches['username']));
 
 		if (!empty($users)) {
+            myalerts_create_instances();
+
+            $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
 			/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-			$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()
-			                                                ->getByCode(
-				                                                'quoted'
-			                                                );
+			$alertType = $alertTypeManager->getByCode('quoted');
 
 			if ($alertType != null && $alertType->getEnabled()) {
 				$userNames = array_map('stripslashes', $users);
@@ -1039,11 +1064,18 @@ function myalerts_alert_post_threadauthor(&$post)
 	global $mybb, $db;
 
 	if (!$post->data['savedraft']) {
+        myalerts_create_instances();
+
+        $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
+        if (is_null($alertTypeManager) || $alertTypeManager === null) {
+            global $cache;
+
+            $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+        }
+
 		/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-		$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()
-		                                                ->getByCode(
-			                                                'post_threadauthor'
-		                                                );
+		$alertType = $alertTypeManager->getByCode('post_threadauthor');
 
 		if ($alertType != null && $alertType->getEnabled()) {
 			if ($post->post_insert_data['tid'] == 0) {
@@ -1105,9 +1137,11 @@ function myalertsrow_subscribed(&$dataHandler)
 {
 	global $db, $post;
 
-	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode(
-		'subscribed_thread'
-	);
+    myalerts_create_instances();
+
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
+	$alertType = $alertTypeManager->getByCode('subscribed_thread');
 
 	if ($alertType != null && $alertType->getEnabled()) {
 		$thread = get_thread($post['tid']);
