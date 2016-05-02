@@ -758,7 +758,7 @@ function myalerts_global_intermediate()
 
 	$myalerts_js = '';
 
-	if ($mybb->user['uid']) {
+	if (isset($mybb->user['uid']) && $mybb->user['uid'] > 0) {
 		if (!isset($lang->myalerts)) {
 			$lang->load('myalerts');
 		}
@@ -836,7 +836,11 @@ function myalerts_online_location(&$plugin_array)
 $plugins->add_hook('reputation_do_add_process', 'myalerts_addAlert_rep');
 function myalerts_addAlert_rep()
 {
-	global $reputation;
+	global $mybb, $reputation;
+
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
 
     myalerts_create_instances();
 
@@ -859,7 +863,11 @@ function myalerts_addAlert_rep()
 $plugins->add_hook('private_do_send_end', 'myalerts_addAlert_pm');
 function myalerts_addAlert_pm()
 {
-	global $pm, $pmhandler, $db;
+	global $mybb, $pm, $pmhandler, $db;
+
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
 
 	if ($pm['saveasdraft'] != 1) {
 		if (is_array($pm['bcc'])) {
@@ -939,6 +947,10 @@ function myalerts_alert_buddylist()
 {
 	global $mybb, $error_message, $db;
 
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
+
 	if ($mybb->get_input(
 			'manage'
 		) != 'ignored' && !isset($mybb->input['delete']) && empty($error_message)
@@ -986,7 +998,11 @@ function myalerts_alert_buddylist()
 $plugins->add_hook('newreply_do_newreply_end', 'myalerts_alert_quoted');
 function myalerts_alert_quoted()
 {
-	global $pid, $post, $db;
+	global $mybb, $pid, $post, $db;
+
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
 
 	$message = $post['message'];
 
@@ -1063,6 +1079,10 @@ function myalerts_alert_post_threadauthor(&$post)
 {
 	global $mybb, $db;
 
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
+
 	if (!$post->data['savedraft']) {
         myalerts_create_instances();
 
@@ -1135,7 +1155,11 @@ function myalerts_alert_post_threadauthor(&$post)
 $plugins->add_hook('datahandler_post_insert_post', 'myalertsrow_subscribed');
 function myalertsrow_subscribed(&$dataHandler)
 {
-	global $db, $post;
+	global $mybb, $db, $post;
+
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
 
     myalerts_create_instances();
 
@@ -1188,6 +1212,10 @@ function myalerts_usercp_menu()
 {
 	global $mybb, $templates, $theme, $usercpmenu, $lang, $collapsed, $collapsedimg;
 
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
+
 	if (!($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
@@ -1205,6 +1233,10 @@ $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp', -1);
 function myalerts_xmlhttp()
 {
 	global $mybb, $lang, $templates, $db;
+
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
 
 	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
