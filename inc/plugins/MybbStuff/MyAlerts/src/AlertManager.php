@@ -391,6 +391,9 @@ class MybbStuff_MyAlerts_AlertManager
 
 				$toCommit[] = $alertArray;
 			}
+			
+			// Empty the alert queue.
+			static::$alertQueue = array();
 
 			$success = (boolean) $this->db->insert_query_multiple(
 				'alerts',
