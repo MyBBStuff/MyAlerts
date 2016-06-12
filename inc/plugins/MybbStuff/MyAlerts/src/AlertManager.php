@@ -33,6 +33,10 @@ class MybbStuff_MyAlerts_AlertManager
 	private $alertTypeManager;
 	/** @var array An array of the currently enabled alert types for the user. */
 	private $currentUserEnabledAlerts = array();
+	/**
+	 * Whether the commit() function is registered.
+	 */
+	public static $isCommitRegistered = false;
 
 	/**
 	 * Initialise a new instance of the AlertManager.
