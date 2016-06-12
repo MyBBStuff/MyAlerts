@@ -746,9 +746,12 @@ function myalerts_create_instances()
 
 	myalerts_register_core_formatters($mybb, $lang);
 
-	register_shutdown_function(
-		array(MybbStuff_MyAlerts_AlertManager::getInstance(), 'commit')
-	);
+	if (!MybbStuff_MyAlerts_AlertManager::$isCommitRegistered) {
+		register_shutdown_function(
+			array(MybbStuff_MyAlerts_AlertManager::getInstance(), 'commit')
+		);
+		MybbStuff_MyAlerts_AlertManager::$isCommitRegistered = true;
+	}
 }
 
 $plugins->add_hook('global_intermediate', 'myalerts_global_intermediate');
