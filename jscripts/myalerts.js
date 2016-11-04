@@ -28,7 +28,7 @@
         module.prototype.getUnreadAlerts = function getUnreadAlerts(event) {
             event.preventDefault();
             $.get('xmlhttp.php?action=getNewAlerts', function (data) {
-                $('#latestAlertsListing').html(data.template);
+                $('#latestAlertsListing').prepend(data);
             });
         };
 
