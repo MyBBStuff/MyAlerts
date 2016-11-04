@@ -1,6 +1,4 @@
 <li class="alerts {$newAlertsIndicator}">
-    <a href="{$mybb->settings['bburl']}/alerts.php" class="myalerts"
-       onclick="MyBB.popupWindow('/alerts.php?action=modal&amp;ret_link={$myalerts_return_link}'); return false;">
-        {$lang->myalerts_alerts} ({$mybb->user['unreadAlerts']})
-    </a>
+    <a href="{$mybb->settings['bburl']}/alerts.php" class="myalerts" onclick="MyBB.popupWindow('/alerts.php?action=modal&amp;ret_link={$myalerts_return_link}', { fadeDuration: 250, zIndex: (typeof modal_zindex !== 'undefined' ? modal_zindex : 9999) }); return false;">{$lang->myalerts_alerts}
+        ({$mybb->user['unreadAlerts']})</a>
 </li>
