@@ -757,7 +757,7 @@ function myalerts_create_instances()
 $plugins->add_hook('global_intermediate', 'myalerts_global_intermediate');
 function myalerts_global_intermediate()
 {
-	global $templates, $mybb, $lang, $myalerts_headericon, $myalerts_modal, $myalerts_js, $theme;
+	global $templates, $mybb, $lang, $myalerts_return_link, $myalerts_headericon, $myalerts_modal, $myalerts_js, $theme;
 
 	$myalerts_js = '';
 
