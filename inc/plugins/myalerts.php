@@ -626,11 +626,9 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 
 		$outputAlert['alert_code'] = $alertToParse->getType()->getCode();
 
-		$outputAlert['received_at'] = htmlspecialchars_uni(
-			my_date(
-				$mybb->settings['dateformat'],
-				$alertToParse->getCreatedAt()->getTimestamp()
-			)
+		$outputAlert['received_at'] = my_date(
+			$mybb->settings['dateformat'],
+			$alertToParse->getCreatedAt()->getTimestamp()
 		);
 
 		$plugins->run_hooks('myalerts_alerts_output_end', $alert);
