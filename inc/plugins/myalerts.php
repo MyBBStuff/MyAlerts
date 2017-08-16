@@ -110,7 +110,8 @@ function myalerts_install()
 		'buddylist',
 		'quoted',
 		'post_threadauthor',
-		'subscribed_thread'
+		'subscribed_thread',
+		'rated_threadauthor'
 	);
 	$alertTypesToAdd = array();
 
@@ -1155,6 +1156,56 @@ function myalerts_alert_post_threadauthor(&$post)
 	}
 }
 
+$plugins->add_hook(
+	'ratethread_process',
+	'myalerts_alert_rated_threadauthor'
+);
+function myalerts_alert_rated_threadauthor()
+{
+	global $mybb, $db, $tid;
+
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+        return;
+    }
+
+    myalerts_create_instances();
+
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
+    if (is_null($alertTypeManager) || $alertTypeManager === null) {
+        global $cache;
+
+        $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+    }
+
+    $alertType = $alertTypeManager->getByCode('rated_threadauthor');
+
+    if ($alertType != null && $alertType->getEnabled()) {
+        $thread = get_thread($tid);
+
+        if ($thread['uid'] != $mybb->user['uid']) {
+            $forumPerms = forum_permissions($thread['fid'], $thread['uid']);
+
+            // Check forum permissions
+            if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
+                $alert = new MybbStuff_MyAlerts_Entity_Alert(
+                    $thread['uid'],
+                    $alertType,
+                    (int) $tid
+                );
+                $alert->setExtraDetails(
+                    array(
+                        'tid'       => $tid,
+                        't_subject' => $thread['subject'],
+                    )
+                );
+
+                MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+            }
+        }
+    }
+}
+
 $plugins->add_hook('datahandler_post_insert_post', 'myalertsrow_subscribed');
 function myalertsrow_subscribed(&$dataHandler)
 {
@@ -1455,6 +1506,13 @@ function myalerts_register_core_formatters($mybb, $lang)
 			$mybb,
 			$lang,
 			'subscribed_thread'
+		)
+	);
+	$formatterManager->registerFormatter(
+		new MybbStuff_MyAlerts_Formatter_ThreadAuthorRatedFormatter(
+			$mybb,
+			$lang,
+			'rated_threadauthor'
 		)
 	);
 }
