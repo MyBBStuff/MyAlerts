@@ -19,6 +19,7 @@ $l['myalerts_buddylist'] = '{1} added you to their buddy list.';
 $l['myalerts_quoted'] = '{1} quoted you in <b>"{2}"</b>.';
 $l['myalerts_post_threadauthor'] = '{1} replied to your thread <b>"{2}"</b>. There may be more posts after this.';
 $l['myalerts_subscribed_thread'] = '{1} replied to your subscribed thread <b>"{2}"</b>.';
+$l['myalerts_rated_threadauthor'] = '{1} rated your thread <b>"{2}"</b>.';
 
 $l['myalerts_setting_rep'] = 'Receive alert for reputation?';
 $l['myalerts_setting_pm'] = 'Receive alert for Private Message (PM)?';
@@ -26,6 +27,7 @@ $l['myalerts_setting_buddylist'] = 'Receive alert when added to buddylist?';
 $l['myalerts_setting_quoted'] = 'Receive alert when quoted in a post?';
 $l['myalerts_setting_post_threadauthor'] = 'Receive alert when somebody replies to your thread?';
 $l['myalerts_setting_subscribed_thread'] = 'Receive alert when somebody replies to one of your subscribed threads?';
+$l['myalerts_setting_rated_threadauthor'] = 'Receive alert when somebody rates your thread?';
 $l['myalerts_settings_save'] = 'Save Settings';
 $l['myalerts_settings_updated'] = 'Alert settings updated successfully. Redirecting back to settings page.';
 $l['myalerts_settings_updated_title'] = 'Alert Settings Updated.';
