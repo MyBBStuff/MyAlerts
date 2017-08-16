@@ -137,7 +137,7 @@ function myalerts_is_installed()
 
 function myalerts_uninstall()
 {
-	global $db, $lang, $PL, $plugins;
+	global $db, $lang, $cache, $PL, $plugins;
 
 	if (!file_exists(PLUGINLIBRARY)) {
 		flash_message($lang->myalerts_pluginlibrary_missing, 'error');
@@ -163,6 +163,8 @@ function myalerts_uninstall()
 	$PL->stylesheet_delete('alerts.css');
 
 	$db->delete_query('tasks', 'file = \'myalerts\'');
+
+    $cache->delete('mybbstuff_myalerts_alert_types');
 }
 
 function myalerts_activate()
