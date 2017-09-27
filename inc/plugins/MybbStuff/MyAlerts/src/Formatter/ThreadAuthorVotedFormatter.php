@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Alert formatter for private thread author rate alerts.
+ * Alert formatter for private thread author vote alerts.
  */
-class MybbStuff_MyAlerts_Formatter_ThreadAuthorRatedFormatter
+class MybbStuff_MyAlerts_Formatter_ThreadAuthorVotedFormatter
 	extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
 {
 	/**
@@ -27,7 +27,7 @@ class MybbStuff_MyAlerts_Formatter_ThreadAuthorRatedFormatter
 		$threadLink = $this->buildShowLink($alert);
 
 		return $this->lang->sprintf(
-			$this->lang->myalerts_rated_threadauthor,
+			$this->lang->myalerts_voted_threadauthor,
 			$outputAlert['from_user'],
 			htmlspecialchars_uni(
 				$this->parser->parse_badwords($alertContent['t_subject'])

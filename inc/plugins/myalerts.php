@@ -111,7 +111,8 @@ function myalerts_install()
 		'quoted',
 		'post_threadauthor',
 		'subscribed_thread',
-		'rated_threadauthor'
+		'rated_threadauthor',
+		'voted_threadauthor'
 	);
 	$alertTypesToAdd = array();
 
@@ -1092,7 +1093,7 @@ function myalerts_alert_post_threadauthor(&$post)
 
         $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-        if (is_null($alertTypeManager) || $alertTypeManager === null) {
+        if (is_null($alertTypeManager) || $alertTypeManager === false) {
             global $cache;
 
             $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
@@ -1172,7 +1173,7 @@ function myalerts_alert_rated_threadauthor()
 
     $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-    if (is_null($alertTypeManager) || $alertTypeManager === null) {
+    if (is_null($alertTypeManager) || $alertTypeManager === false) {
         global $cache;
 
         $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
@@ -1200,7 +1201,73 @@ function myalerts_alert_rated_threadauthor()
                     )
                 );
 
-                MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+                $alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+
+                if (is_null($alertManager) || $alertManager === false) {
+                    global $cache;
+
+                    $alertManager = MybbStuff_MyAlerts_AlertManager::createInstance($mybb, $db, $cache, $plugins, $alertTypeManager);
+                }
+
+                $alertManager->addAlert($alert);
+            }
+        }
+    }
+}
+
+$plugins->add_hook(
+	'polls_vote_end',
+	'myalerts_alert_voted_threadauthor'
+);
+function myalerts_alert_voted_threadauthor()
+{
+	global $mybb, $db, $cache, $plugins, $poll;
+
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || $poll['public'] == 0) {
+        return;
+    }
+
+    myalerts_create_instances();
+
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+
+    if (is_null($alertTypeManager) || $alertTypeManager === false) {
+        global $cache;
+
+        $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+    }
+
+    $alertType = $alertTypeManager->getByCode('voted_threadauthor');
+
+    if ($alertType != null && $alertType->getEnabled()) {
+        $thread = get_thread($poll['tid']);
+
+        if ($thread['uid'] != $mybb->user['uid']) {
+            $forumPerms = forum_permissions($thread['fid'], $thread['uid']);
+
+            // Check forum permissions
+            if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
+                $alert = new MybbStuff_MyAlerts_Entity_Alert(
+                    $thread['uid'],
+                    $alertType,
+                    (int) $tid
+                );
+                $alert->setExtraDetails(
+                    array(
+                        'tid'       => $poll['tid'],
+                        't_subject' => $thread['subject'],
+                    )
+                );
+
+                $alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+
+                if (is_null($alertManager) || $alertManager === false) {
+                    global $cache;
+
+                    $alertManager = MybbStuff_MyAlerts_AlertManager::createInstance($mybb, $db, $cache, $plugins, $alertTypeManager);
+                }
+
+                $alertManager->addAlert($alert);
             }
         }
     }
@@ -1513,6 +1580,13 @@ function myalerts_register_core_formatters($mybb, $lang)
 			$mybb,
 			$lang,
 			'rated_threadauthor'
+		)
+	);
+	$formatterManager->registerFormatter(
+		new MybbStuff_MyAlerts_Formatter_ThreadAuthorVotedFormatter(
+			$mybb,
+			$lang,
+			'voted_threadauthor'
 		)
 	);
 }
