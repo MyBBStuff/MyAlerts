@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Alert formatter for private thread author reply alerts.
+ * Alert formatter for private thread author rate alerts.
  */
 class MybbStuff_MyAlerts_Formatter_ThreadAuthorRatedFormatter
 	extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
