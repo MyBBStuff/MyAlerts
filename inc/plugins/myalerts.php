@@ -61,41 +61,77 @@ function myalerts_install()
 	$collation = $db->build_create_table_collation();
 
 	if (!$db->table_exists('alerts')) {
-		$db->write_query(
-			"CREATE TABLE " . TABLE_PREFIX . "alerts(
-                `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-                `uid` int(10) unsigned NOT NULL,
-                `unread` tinyint(4) NOT NULL DEFAULT '1',
-                `dateline` datetime NOT NULL,
-                `alert_type_id` int(10) unsigned NOT NULL,
-                `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-                `from_user_id` int(10) unsigned DEFAULT NULL,
-                `forced` int(1) NOT NULL DEFAULT '0',
-                `extra_details` text,
-                PRIMARY KEY (`id`),
-                KEY `uid_index` (`id`)
-            ) ENGINE=MyISAM{$collation};"
-		);
+        switch ($db->type) {
+            case 'pgsql':
+                $db->write_query(
+                    "CREATE TABLE " . TABLE_PREFIX . "alerts(
+                        id serial,
+                        uid int NOT NULL,
+                        unread smallint NOT NULL DEFAULT '1',
+                        dateline timestamp NOT NULL,
+                        alert_type_id int NOT NULL,
+                        object_id int NOT NULL DEFAULT '0',
+                        from_user_id int DEFAULT NULL,
+                        forced smallint NOT NULL DEFAULT '0',
+                        extra_details text,
+                        PRIMARY KEY (id)
+                    );"
+                );
+                $db->write_query("CREATE INDEX uid_index ON " . TABLE_PREFIX . "alerts (uid);");
+                break;
+            default:
+                $db->write_query(
+                    "CREATE TABLE " . TABLE_PREFIX . "alerts(
+                        `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                        `uid` int(10) unsigned NOT NULL,
+                        `unread` tinyint(4) NOT NULL DEFAULT '1',
+                        `dateline` datetime NOT NULL,
+                        `alert_type_id` int(10) unsigned NOT NULL,
+                        `object_id` int(10) unsigned NOT NULL DEFAULT '0',
+                        `from_user_id` int(10) unsigned DEFAULT NULL,
+                        `forced` int(1) NOT NULL DEFAULT '0',
+                        `extra_details` text,
+                        PRIMARY KEY (`id`),
+                        KEY `uid_index` (`uid`)
+                    ) ENGINE=MyISAM{$collation};"
+                );
+                break;
+        }
 	}
 
 	if (!$db->table_exists('alert_types')) {
-		$db->write_query(
-			"CREATE TABLE " . TABLE_PREFIX . "alert_types(
-                `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-                `code` varchar(100) NOT NULL DEFAULT '',
-                `enabled` tinyint(4) NOT NULL DEFAULT '1',
-                `can_be_user_disabled` tinyint(4) NOT NULL DEFAULT '1',
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `unique_code` (`code`)
-            ) ENGINE=MyISAM{$collation};"
-		);
+        switch ($db->type) {
+            case 'pgsql':
+                $db->write_query(
+                    "CREATE TABLE " . TABLE_PREFIX . "alert_types(
+                        id serial,
+                        code varchar(100) NOT NULL DEFAULT '' UNIQUE,
+                        enabled smallint NOT NULL DEFAULT '1',
+                        can_be_user_disabled smallint NOT NULL DEFAULT '1',
+                        PRIMARY KEY (id)
+                    );"
+                );
+                break;
+            default:
+                $db->write_query(
+                    "CREATE TABLE " . TABLE_PREFIX . "alert_types(
+                        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                        `code` varchar(100) NOT NULL DEFAULT '',
+                        `enabled` tinyint(4) NOT NULL DEFAULT '1',
+                        `can_be_user_disabled` tinyint(4) NOT NULL DEFAULT '1',
+                        PRIMARY KEY (`id`),
+                        UNIQUE KEY `unique_code` (`code`)
+                    ) ENGINE=MyISAM{$collation};"
+                );
+                break;
+        }
 	}
 
 	if (!$db->field_exists('myalerts_disabled_alert_types', 'users')) {
 		$db->add_column(
 			'users',
 			'myalerts_disabled_alert_types',
-			'TEXT NOT NULL'
+			'TEXT'
 		);
 	}
 
@@ -158,7 +194,9 @@ function myalerts_uninstall()
 		$db->drop_table('alert_types');
 	}
 
-	$db->drop_column('users', 'myalerts_disabled_alert_types');
+	if ($db->field_exists('myalerts_disabled_alert_types', 'users')) {
+		$db->drop_column('users', 'myalerts_disabled_alert_types');
+	}
 
 	$PL->settings_delete('myalerts', true);
 	$PL->templates_delete('myalerts');

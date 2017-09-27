@@ -159,7 +159,11 @@ class MybbStuff_MyAlerts_AlertTypeManager
 		foreach ($alertTypes as $alertType) {
 			if ($alertType instanceof MybbStuff_MyAlerts_Entity_AlertType) {
                 if (!isset($this->alertTypes[$alertType->getCode()])) {
-                    $toInsert[] = $alertType->toArray();
+                    $insertArray = $alertType->toArray();
+
+                    unset($insertArray['id']);
+
+                    $toInsert[] = $insertArray;
                 }
 			}
 		}
