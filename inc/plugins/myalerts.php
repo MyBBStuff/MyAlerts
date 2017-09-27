@@ -77,6 +77,7 @@ function myalerts_install()
                         PRIMARY KEY (id)
                     );"
                 );
+                $db->write_query("CREATE INDEX uid_index ON " . TABLE_PREFIX . "alerts (uid);");
                 break;
             default:
                 $db->write_query(
@@ -91,7 +92,7 @@ function myalerts_install()
                         `forced` int(1) NOT NULL DEFAULT '0',
                         `extra_details` text,
                         PRIMARY KEY (`id`),
-                        KEY `uid_index` (`id`)
+                        KEY `uid_index` (`uid`)
                     ) ENGINE=MyISAM{$collation};"
                 );
                 break;
