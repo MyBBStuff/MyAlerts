@@ -1093,7 +1093,7 @@ function myalerts_alert_post_threadauthor(&$post)
 
         $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-        if (is_null($alertTypeManager) || $alertTypeManager === null) {
+        if (is_null($alertTypeManager) || $alertTypeManager === false) {
             global $cache;
 
             $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
@@ -1173,7 +1173,7 @@ function myalerts_alert_rated_threadauthor()
 
     $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-    if (is_null($alertTypeManager) || $alertTypeManager === null) {
+    if (is_null($alertTypeManager) || $alertTypeManager === false) {
         global $cache;
 
         $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
@@ -1201,7 +1201,15 @@ function myalerts_alert_rated_threadauthor()
                     )
                 );
 
-                MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+                $alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+
+                if (is_null($alertManager) || $alertManager === false) {
+                    global $cache;
+
+                    $alertManager = MybbStuff_MyAlerts_AlertManager::createInstance($mybb, $db, $cache, $plugins, $alertTypeManager);
+                }
+
+                $alertManager->addAlert($alert);
             }
         }
     }
@@ -1213,9 +1221,9 @@ $plugins->add_hook(
 );
 function myalerts_alert_voted_threadauthor()
 {
-	global $mybb, $db, $poll;
+	global $mybb, $db, $cache, $plugins, $poll;
 
-    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || $poll['public'] == 0) {
         return;
     }
 
@@ -1223,7 +1231,7 @@ function myalerts_alert_voted_threadauthor()
 
     $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-    if (is_null($alertTypeManager) || $alertTypeManager === null) {
+    if (is_null($alertTypeManager) || $alertTypeManager === false) {
         global $cache;
 
         $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
@@ -1251,7 +1259,15 @@ function myalerts_alert_voted_threadauthor()
                     )
                 );
 
-                MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+                $alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+
+                if (is_null($alertManager) || $alertManager === false) {
+                    global $cache;
+
+                    $alertManager = MybbStuff_MyAlerts_AlertManager::createInstance($mybb, $db, $cache, $plugins, $alertTypeManager);
+                }
+
+                $alertManager->addAlert($alert);
             }
         }
     }
