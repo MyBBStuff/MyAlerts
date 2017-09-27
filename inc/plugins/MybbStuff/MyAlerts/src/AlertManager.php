@@ -512,13 +512,27 @@ SQL;
 
 			$this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
 			$prefix = TABLE_PREFIX;
-			$alertsQuery = <<<SQL
+
+			switch ($this->db->type) {
+				case 'pgsql':
+					$alertsQuery = <<<SQL
+SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
+LEFT JOIN {$prefix}users u ON (a.from_user_id = u.uid)
+INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
+WHERE a.uid = {$this->mybb->user['uid']}
+AND (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1 OR t.can_be_user_disabled = 0) AND t.enabled = 1 ORDER BY a.id DESC LIMIT {$limit} OFFSET {$start};
+SQL;
+					break;
+				default:
+					$alertsQuery = <<<SQL
 SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
 LEFT JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']}
 AND (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1 OR t.can_be_user_disabled = 0) AND t.enabled = 1 ORDER BY a.id DESC LIMIT {$start}, {$limit};
 SQL;
+					break;
+			}
 
 			$query = $this->db->write_query($alertsQuery);
 
