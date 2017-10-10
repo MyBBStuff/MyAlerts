@@ -711,6 +711,23 @@ SQL;
 				),
 				'id IN(' . $alerts . ') AND uid = ' . $this->mybb->user['uid']
 			);
+
+			if ($success) {
+				$affectedRows = $this->db->affected_rows();
+			} else {
+				$affectedRows = 0;
+			}
+
+			$passToHook = array(
+				'alertManager' => &$this,
+				'alertIds'     => $alerts,
+				'affectedRows' => $affectedRows,
+			);
+
+			$this->plugins->run_hooks(
+				'myalerts_alert_manager_mark_read',
+				$passToHook
+			);
 		}
 
 		return $success;
