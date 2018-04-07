@@ -238,12 +238,7 @@ function myalerts_delete_read_alerts($mybb, $db, $lang)
 
 	$db->delete_query('alerts', "uid = {$userId} AND unread = 0");
 
-	$retLink = $mybb->get_input('
-	
-	
-	
-	
-	', MyBB::INPUT_STRING);
+	$retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
 
 	if (!empty($retLink) && stripos($retLink, $mybb->settings['bburl']) === 0) {
 	    $retLink = htmlspecialchars_uni($retLink);
