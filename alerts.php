@@ -329,7 +329,15 @@ function myalerts_view_modal($mybb, $lang, $templates, $theme)
 		));
 	}
 
-	$myalerts_return_link = $mybb->get_input('ret_link');
+	$myalerts_return_link = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
+
+	if (!empty($myalerts_return_link)) {
+	    if (stripos($myalerts_return_link, $mybb->settings['bburl']) !== 0) {
+	        $myalerts_return_link = '';
+        } else {
+	        $myalerts_return_link = htmlspecialchars_uni($myalerts_return_link);
+        }
+    }
 
 	$myalerts_modal = eval($templates->render('myalerts_modal_content', 1, 0));
 
