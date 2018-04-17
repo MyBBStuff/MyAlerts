@@ -120,6 +120,8 @@ function myalerts_alert_settings(
 			$mybb->request_method
 		) == 'post'
 	) { // Saving alert type settings
+	    verify_post_check($mybb->get_input('my_post_key'));
+
 		$disabledAlerts = array();
 
 		foreach ($alertTypes as $alertCode => $alertType) {
