@@ -45,11 +45,12 @@ switch ($action) {
 	case 'delete_all':
 		myalerts_delete_all_alerts($mybb, $db, $lang);
 		break;
-	case 'modal':
-		myalerts_view_modal($mybb, $lang, $templates, $theme);
-		break;
 	default:
-		myalerts_view_alerts($mybb, $lang, $templates, $theme);
+	    if ($mybb->get_input('modal') == '1') {
+            myalerts_view_modal($mybb, $lang, $templates, $theme);
+        } else {
+            myalerts_view_alerts($mybb, $lang, $templates, $theme);
+        }
 		break;
 }
 
