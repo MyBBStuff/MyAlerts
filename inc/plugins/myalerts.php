@@ -1047,6 +1047,7 @@ function myalerts_alert_quoted()
         return;
     }
 
+	$author = (int) $mybb->user['uid'];
 	$message = $post['message'];
 
 	$pattern = "#\\[quote=(?:\"|'|&quot;|)(?<username>.*?)(?:\"|'|&quot;|)(?: pid=(?:\"|'|&quot;|)[\\d]*(?:\"|'|&quot;|))?(?:\"|'|&quot;|)(?: dateline=(?:\"|'|&quot;|)[\\d]*(?:\"|'|&quot;|))?(?:\"|'|&quot;|)\](?<message>.*?)\\[\\/quote\\]#si";
@@ -1078,7 +1079,7 @@ function myalerts_alert_quoted()
 				$query = $db->simple_select(
 					'users',
 					'uid, username',
-					"username IN({$userNames})"
+					"username IN({$userNames}) AND uid <> '{$author}'"
 				);
 
 				$alerts = array();
