@@ -810,7 +810,7 @@ function myalerts_global_intermediate()
 			$newAlertsIndicator = 'alerts--new';
 		}
 
-		$myalerts_return_link = htmlspecialchars_uni(myalerts_get_current_url());
+		$myalerts_return_link = htmlspecialchars_uni(urlencode(myalerts_get_current_url()));
 
 		$myalerts_headericon = eval($templates->render('myalerts_headericon'));
 
