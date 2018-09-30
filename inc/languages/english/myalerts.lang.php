@@ -14,13 +14,13 @@ $l['myalerts_unread_title'] = 'Unread Alerts';
 
 $l['myalerts_no_alerts'] = 'No alerts to display';
 $l['myalerts_rep'] = '{1} modified your reputation.';
-$l['myalerts_pm'] = '{1} sent you a new private message titled <b>"{2}"</b>.';
+$l['myalerts_pm'] = '{1} sent you a new private message titled <strong>"{2}"</strong>.';
 $l['myalerts_buddylist'] = '{1} added you to their buddy list.';
-$l['myalerts_quoted'] = '{1} quoted you in <b>"{2}"</b>.';
-$l['myalerts_post_threadauthor'] = '{1} replied to your thread <b>"{2}"</b>. There may be more posts after this.';
-$l['myalerts_subscribed_thread'] = '{1} replied to your subscribed thread <b>"{2}"</b>.';
-$l['myalerts_rated_threadauthor'] = '{1} rated your thread <b>"{2}"</b>.';
-$l['myalerts_voted_threadauthor'] = '{1} voted in your poll in <b>"{2}"</b>.';
+$l['myalerts_quoted'] = '{1} quoted you in <strong>"{2}"</strong>.';
+$l['myalerts_post_threadauthor'] = '{1} replied to your thread <strong>"{2}"</strong>. There may be more posts after this.';
+$l['myalerts_subscribed_thread'] = '{1} replied to your subscribed thread <strong>"{2}"</strong>.';
+$l['myalerts_rated_threadauthor'] = '{1} rated your thread <strong>"{2}"</strong>.';
+$l['myalerts_voted_threadauthor'] = '{1} voted in your poll in <strong>"{2}"</strong>.';
 
 $l['myalerts_setting_rep'] = 'Receive alert for reputation?';
 $l['myalerts_setting_pm'] = 'Receive alert for Private Message (PM)?';
