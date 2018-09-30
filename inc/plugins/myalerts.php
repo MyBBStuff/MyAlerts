@@ -1043,9 +1043,9 @@ function myalerts_alert_quoted()
 {
 	global $mybb, $pid, $post, $db;
 
-    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
-        return;
-    }
+	if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || $post['savedraft']) {
+		return;
+	}
 
 	$author = (int) $mybb->user['uid'];
 	$message = $post['message'];
