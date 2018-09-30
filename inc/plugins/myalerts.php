@@ -1086,7 +1086,7 @@ function myalerts_alert_quoted()
 				while ($uid = $db->fetch_array($query)) {
 					$forumPerms = forum_permissions($post['fid'], $uid['uid']);
 
-					if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
+					if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
 						$userList[] = (int) $uid['uid'];
 						$alert = new MybbStuff_MyAlerts_Entity_Alert(
 							(int) $uid['uid'],
@@ -1164,7 +1164,7 @@ function myalerts_alert_post_threadauthor(&$post)
 				$forumPerms = forum_permissions($thread['fid'], $thread['uid']);
 
 				// Check forum permissions
-				if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
+				if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
 					//check if alerted for this thread already
 					$query = $db->simple_select(
 						'alerts',
@@ -1227,7 +1227,7 @@ function myalerts_alert_rated_threadauthor()
             $forumPerms = forum_permissions($thread['fid'], $thread['uid']);
 
             // Check forum permissions
-            if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
+            if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
                 $alert = new MybbStuff_MyAlerts_Entity_Alert(
                     $thread['uid'],
                     $alertType,
@@ -1285,7 +1285,7 @@ function myalerts_alert_voted_threadauthor()
             $forumPerms = forum_permissions($thread['fid'], $thread['uid']);
 
             // Check forum permissions
-            if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
+            if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
                 $alert = new MybbStuff_MyAlerts_Entity_Alert(
                     $thread['uid'],
                     $alertType,
@@ -1346,7 +1346,7 @@ function myalertsrow_subscribed(&$dataHandler)
 		while ($poster = $db->fetch_array($query)) {
 			$forumPerms = forum_permissions($thread['fid'], $poster['uid']);
 
-			if ($forumPerms['canview'] != 0 || $forumPerms['canviewthreads'] != 0) {
+			if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
 				$alert = new MybbStuff_MyAlerts_Entity_Alert(
 					(int) $poster['uid'], $alertType, $thread['tid']
 				);
