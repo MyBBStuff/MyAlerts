@@ -903,86 +903,36 @@ function myalerts_addAlert_rep()
 	}
 }
 
-$plugins->add_hook('private_do_send_end', 'myalerts_addAlert_pm');
-function myalerts_addAlert_pm()
+$plugins->add_hook('datahandler_pm_insert_commit', 'myalerts_addAlert_pm');
+function myalerts_addAlert_pm($PMDataHandler)
 {
-	global $mybb, $pm, $pmhandler, $db;
-
-    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+    if ($PMDataHandler->pm_insert_data['fromid'] < 1) {
         return;
     }
 
-	if ($pm['saveasdraft'] != 1) {
-		if (is_array($pm['bcc'])) {
-			$toUsers = array_merge($pm['to'], $pm['bcc']);
-		} else {
-			$toUsers = $pm['to'];
-		}
+    myalerts_create_instances();
 
-		$pmUsers = array_map("trim", $toUsers);
-		$pmUsers = array_unique($pmUsers);
-		$pmUsers = array_filter(
-			$pmUsers
-		); // Remove blank entries that may be caused by merging arrays.
-		$pmUsers = array_values(
-			$pmUsers
-		); // Reset array keys after removing entries
+    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-        myalerts_create_instances();
+    /** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
+    $alertType = $alertTypeManager->getByCode('pm');
 
-        $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+    if ($alertType != null && $alertType->getEnabled()) {
+        $pmId = current(array_slice($PMDataHandler->pmid, -1));
 
-		/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-		$alertType = $alertTypeManager->getByCode('pm');
+        $alert = new MybbStuff_MyAlerts_Entity_Alert(
+            (int) $PMDataHandler->pm_insert_data['uid'],
+            $alertType,
+            $pmId
+        );
+        $alert->setExtraDetails(
+            array(
+                'pm_title' => $PMDataHandler->pm_insert_data['subject'],
+            )
+        );
 
-		if ($alertType != null && $alertType->getEnabled()) {
-			$userNames = array_map(array($db, 'escape_string'), $pmUsers);
-
-			$userNames = "'" . implode("','", $userNames) . "'";
-			$query = $db->simple_select(
-				'users',
-				'uid,username',
-				"username IN({$userNames})"
-			);
-
-			$pmId = 0;
-
-			$alerts = array();
-			while ($user = $db->fetch_array($query)) {
-				if (is_array($pmhandler->pmid)) {
-					$foundKey = array_search($user['username'], $pmUsers);
-
-					if ($foundKey !== false) {
-						if (isset($pmhandler->pmid[$foundKey])) {
-							$pmId = (int) $pmhandler->pmid[$foundKey];
-						} else {
-							$pmId = $pmhandler->pmid[0]; // Really broken, just use first ID in the array and hope for the best...
-						}
-					}
-				} else {
-					$pmId = (int) $pmhandler->pmid;
-				}
-
-				$alert = new MybbStuff_MyAlerts_Entity_Alert(
-					(int) $user['uid'],
-					$alertType,
-					$pmId
-				);
-				$alert->setExtraDetails(
-					array(
-						'pm_title' => $pm['subject'],
-					)
-				);
-				$alerts[] = $alert;
-			}
-
-			if (!empty($alerts)) {
-				MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts(
-					$alerts
-				);
-			}
-		}
-	}
+        MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+    }
 }
 
 $plugins->add_hook('usercp_do_editlists_end', 'myalerts_alert_buddylist');
