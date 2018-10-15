@@ -101,7 +101,7 @@ class MybbStuff_MyAlerts_AlertManager
 		$enabledAlertTypes = array();
 
 		foreach ($alertTypes as $alertType) {
-			if (!isset($userDisabledAlertIds[$alertType['id']]) || !$alertType['can_be_user_disabled']) {
+			if (!in_array($alertType['id'], $userDisabledAlertIds) || !$alertType['can_be_user_disabled']) {
 				$enabledAlertTypes[] = (int) $alertType['id'];
 			}
 		}
