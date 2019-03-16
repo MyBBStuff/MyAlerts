@@ -46,11 +46,11 @@ switch ($action) {
 		myalerts_delete_all_alerts($mybb, $db, $lang);
 		break;
 	default:
-	    if ($mybb->get_input('modal') == '1') {
-            myalerts_view_modal($mybb, $lang, $templates, $theme);
-        } else {
-            myalerts_view_alerts($mybb, $lang, $templates, $theme);
-        }
+		if ($mybb->get_input('modal') == '1') {
+			myalerts_view_modal($mybb, $lang, $templates, $theme);
+        	} else {
+            		myalerts_view_alerts($mybb, $lang, $templates, $theme);
+        	}
 		break;
 }
 
@@ -65,7 +65,7 @@ function myalerts_redirect_alert($mybb, $lang)
 {
 	$alertId = $mybb->get_input('id', MyBB::INPUT_INT);
 
-    $alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+	$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
 
 	/** @var MybbStuff_MyAlerts_Entity_Alert $alert */
 	$alert = $alertManager->getAlert($alertId);
@@ -113,7 +113,7 @@ function myalerts_alert_settings(
 	$templates,
 	$theme
 ) {
-    $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
 	$alertTypes = $alertTypeManager->getAlertTypes();
 
@@ -304,6 +304,8 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
  */
 function myalerts_view_modal($mybb, $lang, $templates, $theme)
 {
+	defined('NO_ONLINE') or define('NO_ONLINE', 1);
+
 	$userAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()
 	                                             ->getAlerts(
 		                                             0,
