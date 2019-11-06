@@ -826,17 +826,16 @@ function myalerts_global_intermediate()
  */
 function myalerts_get_current_url()
 {
-	global $mybb;
+    global $mybb;
 
-	$format = $mybb->settings['bburl'] . '/' . basename($_SERVER['PHP_SELF']);
+    $uri = explode('?', $_SERVER['REQUEST_URI']);
+    $link = $mybb->settings['homeurl'] . htmlspecialchars($uri[0], ENT_QUOTES);
 
-	if (!empty($_GET)) {
-		$format .= '?' . http_build_query($_GET);
-	}
+    if (!empty($_GET)) {
+        $link .= '?' . http_build_query($_GET);
+    }
 
-	$format = rtrim($format, '&');
-
-	return $format;
+    return $link;
 }
 
 $plugins->add_hook(
