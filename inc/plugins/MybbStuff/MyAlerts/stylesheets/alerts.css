@@ -29,3 +29,8 @@ ul.panel_links a.myalerts {
 .alert.alert--read td.trow1 {
     background-color: #F5F5F5;
 }
+
+.alerts--new a {
+	color: red !important;
+	font-weight: normal;
+}
