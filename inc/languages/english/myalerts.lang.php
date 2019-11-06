@@ -2,7 +2,16 @@
 $l['myalerts'] = 'MyAlerts';
 
 $l['myalerts_page_title'] = 'Recent Alerts';
+$l['myalerts_page_delete_read'] = 'Delete Old Alerts';
+$l['myalerts_page_delete_all'] = 'Delete All Alerts';
 $l['myalerts_page_getnew'] = 'Check for new alerts';
+
+$l['myalerts_modal_title'] = 'Recent Alerts';
+$l['myalerts_modal_display_alerts'] = 'View Alerts';
+$l['myalerts_modal_delete_read'] = 'Delete Old Alerts';
+$l['myalerts_modal_delete_all'] = 'Delete All Alerts';
+$l['myalerts_modal_delete_read_confirm'] = 'Really delete all read alerts? This cannot be undone!';
+$l['myalerts_modal_delete_all_confirm'] = 'Really delete all alerts? This cannot be undone!';
 
 $l['myalerts_alerts'] = 'Alerts';
 
