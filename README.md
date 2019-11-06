@@ -38,4 +38,4 @@ FAQs:
 ----------------------------------------------
 +  How to change text color of "Alerts" link in a header template if there is a new alert?
 
-Go to your ACP -> Themes -> Your theme -> alerts.css -> find `.alerts--new` class and change the color to whatever you want, you can also customize it.
+Go to your ACP -> Templates & Styles -> Themes -> Your theme -> alerts.css -> find `.alerts--new` class and change the color to whatever you want, you can also customize it.
