@@ -40,6 +40,7 @@ $l['myalerts_delete_read_confirm'] = 'Really delete all read alerts? This cannot
 $l['myalerts_delete_all_confirm'] = 'Really delete all alerts? This cannot be undone!';
 $l['myalerts_delete_mass_deleted'] = 'Alerts Deleted';
 $l['myalerts_delete_all'] = 'All alerts deleted successfully.';
+$l['myalerts_delete_read'] = 'Delete Old Alerts';
 
 $l['myalerts_usercp_nav'] = 'Alerts';
 $l['myalerts_usercp_nav_alerts'] = 'View Alerts';
