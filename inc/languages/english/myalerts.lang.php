@@ -2,6 +2,8 @@
 $l['myalerts'] = 'MyAlerts';
 
 $l['myalerts_page_title'] = 'Recent Alerts';
+$l['myalerts_page_delete_read'] = 'Delete Old Alerts';
+$l['myalerts_page_delete_all'] = 'Delete All Alerts';
 $l['myalerts_page_getnew'] = 'Check for new alerts';
 
 $l['myalerts_alerts'] = 'Alerts';
@@ -46,9 +48,6 @@ $l['myalerts_usercp_nav_alerts'] = 'View Alerts';
 $l['myalerts_usercp_nav_settings'] = 'Alert Settings';
 $l['myalerts_usercp_nav_delete_read'] = 'Delete Old Alerts';
 $l['myalerts_usercp_nav_delete_all'] = 'Delete All Alerts';
-
-$l['myalerts_usercp_delete_read'] = 'Delete Old Alerts';
-$l['myalerts_usercp_delete_all'] = 'Delete All Alerts';
 
 $l['myalerts_error_alert_not_found'] = 'Alert not found.';
 
