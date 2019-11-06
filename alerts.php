@@ -8,8 +8,6 @@ define('THIS_SCRIPT', 'alerts.php');
 
 $templatelist = 'myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_modal_content';
 
-define('THIS_SCRIPT', 'alerts.php');
-
 if ($_GET['action'] == 'modal') {
 	defined('NO_ONLINE') or define('NO_ONLINE', 1);
 }
