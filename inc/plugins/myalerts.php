@@ -7,7 +7,7 @@
  * @package MyAlerts
  * @author  Euan T. <euan@euantor.com>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 2.0.3
+ * @version 2.0.4
  */
 
 if (!defined('IN_MYBB')) {
@@ -1507,6 +1507,35 @@ function myalerts_xmlhttp()
 				$toReturn = array(
 					'success'  => true,
 					'template' => $alertsListing,
+				);
+			}
+		} else {
+			$toReturn = array(
+				'errors' => array($lang->myalerts_error_alert_not_found),
+			);
+		}
+
+		echo json_encode($toReturn);
+	}
+
+		if ($mybb->get_input('action') == 'myalerts_mark_read') {
+		header('Content-Type: application/json');
+
+		$id = $mybb->get_input('id', MyBB::INPUT_INT);
+		$userId = (int) $mybb->user['uid'];
+
+		$toReturn = array();
+
+		if ($id > 0) {
+			if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
+				$toReturn = array(
+					'errors' => array($lang->invalid_post_code),
+				);
+			} else {
+				MybbStuff_MyAlerts_AlertManager::getInstance()->markRead([$id]);
+
+				$toReturn = array(
+					'success'  => true
 				);
 			}
 		} else {
