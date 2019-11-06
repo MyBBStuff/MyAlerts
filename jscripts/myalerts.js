@@ -6,11 +6,13 @@
         var module = function MyAlerts() {
             var unreadAlertsProxy = $.proxy(this.getUnreadAlerts, this),
                 deleteAlertProxy = $.proxy(this.deleteAlert, this),
+                markReadAlertProxy = $.proxy(this.markReadAlert, this),
                 bodySelector = $("body");
 
             bodySelector.on("click", "#getUnreadAlerts", unreadAlertsProxy);
 
             bodySelector.on("click", ".deleteAlertButton", deleteAlertProxy);
+            bodySelector.on("click", ".markReadAlertButton", markReadAlertProxy);
 
             if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0) {
                 window.setInterval(function () {
@@ -57,6 +59,31 @@
             return false;
         };
 
+        module.prototype.markReadAlert = function markReadAlert(event) {
+            event.preventDefault();
+
+            var button = $(event.currentTarget),
+                alertId = button.attr("id").substring(15);
+
+            $.getJSON('xmlhttp.php?action=myalerts_mark_read', {
+                accessMethod: 'js',
+                id: alertId,
+                my_post_key: my_post_key
+            }, function (data) {
+                if (data.success) {
+                    $(button.parents('tr').get(0)).removeClass('alert--unread').addClass('alert--read');
+                }
+                else {
+                    for (var i = 0; i < data.errors.length; ++i) {
+                        console.log(data.errors[i]);
+                    }
+                    alert(data.errors[0]);
+                }
+            });
+
+            return false;
+        };
+
         return module;
     })(window, jQuery);
 
@@ -64,6 +91,3 @@
         var myalerts = new MybbStuff.MyAlerts();
     });
 })(jQuery, window, document, my_post_key);
-
-
-
