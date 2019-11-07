@@ -7,7 +7,6 @@
  * @package MyAlerts
  * @author  Euan T. <euan@euantor.com>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 2.0.4
  */
 
 if (!defined('IN_MYBB')) {
