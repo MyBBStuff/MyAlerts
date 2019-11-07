@@ -5,7 +5,6 @@
  *    A simple notification/alert system for MyBB
  *
  * @author  Euan T. <euan@euantor.com>
- * @version 1.0.0
  * @package MyAlerts
  */
 
@@ -21,7 +20,7 @@ function task_myalerts($task)
 		$lang->load('myalerts');
 	}
 
-	if ($db->delete_query('alerts', 'unread = 0')) {
+	if ($db->delete_query('alerts', 'unread = 0 AND dateline <= DATESUB(NOW(), INTERVAL 120 DAY)')) {
 		add_task_log($task, $lang->myalerts_task_cleanup_ran);
 	} else {
 		add_task_log($task, $lang->myalerts_task_cleanup_error);
