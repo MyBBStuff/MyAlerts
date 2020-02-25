@@ -8,8 +8,6 @@ define('THIS_SCRIPT', 'alerts.php');
 
 $templatelist = 'myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_modal_content';
 
-defined('NO_ONLINE') or define('NO_ONLINE', 1);
-
 require_once __DIR__ . '/global.php';
 
 $action = $mybb->get_input('action', MyBB::INPUT_STRING);
