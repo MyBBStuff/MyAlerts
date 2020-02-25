@@ -863,15 +863,13 @@ function myalerts_online_location(&$plugin_array)
 		$lang->load('myalerts');
 	}
 
-	$inUserCpAlerts = $plugin_array['user_activity']['activity'] == 'usercp' AND my_strpos(
-		$plugin_array['user_activity']['location'],
-		'alerts'
-	);
+	if ($plugin_array['user_activity']['activity'] == 'unknown') {
+		$location = $plugin_array['user_activity']['location'];
+		$inAlertsPage = my_strpos($location, "alerts.php");
 
-	$inAlertsPage = $plugin_array['user_activity']['activity'] == 'alerts';
-
-	if ($inUserCpAlerts || $inAlertsPage) {
-		$plugin_array['location_name'] = $lang->myalerts_online_location_listing;
+		if ($inAlertsPage) {
+			$plugin_array['location_name'] = $lang->myalerts_online_location_listing;
+		}
 	}
 }
 
