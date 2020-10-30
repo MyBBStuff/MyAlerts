@@ -1266,7 +1266,7 @@ function myalertsrow_subscribed(&$dataHandler)
 {
 	global $mybb, $db, $post;
 
-    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || $post['savedraft']) {
         return;
     }
 
