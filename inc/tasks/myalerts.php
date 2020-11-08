@@ -24,8 +24,7 @@ function task_myalerts($task)
 		$lang->load('myalerts');
 	}
 
-	if ($db->delete_query('alerts', '(dateline<='.(TIME_NOW-$unread_time).' AND unread = 0) OR (dateline<='.(TIME_NOW-$read_time).' AND unread = 1)') {
-
+	if ($db->delete_query('alerts', '(dateline<='.(TIME_NOW-$unread_time).' AND unread = 1) OR (dateline<='.(TIME_NOW-$read_time).' AND unread = 0)')) {
 		add_task_log($task, $lang->myalerts_task_cleanup_ran);
 	} else {
 		add_task_log($task, $lang->myalerts_task_cleanup_error);
