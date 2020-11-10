@@ -1517,7 +1517,7 @@ function myalerts_xmlhttp()
 		echo json_encode($toReturn);
 	}
 
-		if ($mybb->get_input('action') == 'myalerts_mark_read') {
+	if ($mybb->get_input('action') == 'myalerts_mark_read') {
 		header('Content-Type: application/json');
 
 		$id = $mybb->get_input('id', MyBB::INPUT_INT);
