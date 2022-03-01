@@ -1016,7 +1016,12 @@ function myalerts_alert_quoted()
 			$alertType = $alertTypeManager->getByCode('quoted');
 
 			if ($alertType != null && $alertType->getEnabled()) {
-				$userNames = array_map('stripslashes', $users);
+				$userNames = [];
+				// Convert any multibyte non-breaking space characters to ordinary spaces.
+				foreach ($users as $user) {
+					$userNames[] = str_replace("\xc2\xa0", ' ', $user);
+				}
+				$userNames = array_map('stripslashes', $userNames);
 				$userNames = array_map(array($db, 'escape_string'), $userNames);
 
 				$userNames = "'" . implode(
