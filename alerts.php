@@ -156,7 +156,7 @@ function myalerts_alert_settings(
 		);
 	} else { // Displaying alert type settings form
 
-		$content = '';
+		$content = $alertSettings = '';
 
 		global $headerinclude, $header, $footer, $usercpnav;
 
@@ -378,7 +378,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 	usercp_menu();
 
 	$numAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getNumAlerts();
-	$page = (int) $mybb->input['page'];
+	$page = $mybb->get_input('page', MyBB::INPUT_INT);
 	$pages = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
 
 	if ($page > $pages OR $page <= 0) {
@@ -403,6 +403,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 	);
 
 	$readAlerts = array();
+	$alertsListing = '';
 
 	if (is_array($alertsList) && !empty($alertsList)) {
 		foreach ($alertsList as $alertObject) {

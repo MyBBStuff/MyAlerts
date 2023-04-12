@@ -51,6 +51,9 @@ function myalerts_install()
 
 	$plugin_info = myalerts_info();
 	$euantor_plugins = $cache->read('euantor_plugins');
+	if (empty($euantor_plugins)) {
+		$euantor_plugins = array();
+	}
 	$euantor_plugins['myalerts'] = array(
 		'title'   => 'MyAlerts',
 		'version' => $plugin_info['version'],
@@ -698,20 +701,22 @@ function myalerts_global_start()
 
 	$templatelist .= 'myalerts_headericon,myalerts_modal,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_js_popup';
 
-	if (THIS_SCRIPT == 'usercp.php' || THIS_SCRIPT == 'alerts.php') {
-		$templatelist .= ',myalerts_usercp_nav';
-	}
+	if (defined('THIS_SCRIPT')) {
+		if (THIS_SCRIPT == 'usercp.php' || THIS_SCRIPT == 'alerts.php') {
+			$templatelist .= ',myalerts_usercp_nav';
+		}
 
-	if (THIS_SCRIPT == 'alerts.php') { // Hack to load User CP menu items in alerts.php without querying for templates
-		$templatelist .= ',usercp_nav_messenger,usercp_nav_messenger_tracking,usercp_nav_messenger_compose,usercp_nav_messenger_folder,usercp_nav_changename,usercp_nav_editsignature,usercp_nav_profile,usercp_nav_attachments,usercp_nav_misc,usercp_nav';
-	}
+		if (THIS_SCRIPT == 'alerts.php') { // Hack to load User CP menu items in alerts.php without querying for templates
+			$templatelist .= ',usercp_nav_messenger,usercp_nav_messenger_tracking,usercp_nav_messenger_compose,usercp_nav_messenger_folder,usercp_nav_changename,usercp_nav_editsignature,usercp_nav_profile,usercp_nav_attachments,usercp_nav_misc,usercp_nav';
+		}
 
-	if (THIS_SCRIPT == 'alerts.php') {
-		$templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
-	}
+		if (THIS_SCRIPT == 'alerts.php') {
+			$templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
+		}
 
-	if (THIS_SCRIPT == 'alerts.php' && $mybb->input['action'] == 'settings') {
-		$templatelist .= ',myalerts_setting_row,myalerts_settings_page';
+		if (THIS_SCRIPT == 'alerts.php' && !empty($mybb->input['action']) && $mybb->input['action'] == 'settings') {
+			$templatelist .= ',myalerts_setting_row,myalerts_settings_page';
+		}
 	}
 
 	$mybb->user['unreadAlerts'] = 0;
@@ -723,9 +728,12 @@ function myalerts_global_start()
 			$lang->load('myalerts');
 		}
 
-		$mybb->user['myalerts_disabled_alert_types'] = json_decode(
-			$mybb->user['myalerts_disabled_alert_types']
-		);
+		if (!empty($mybb->user['myalerts_disabled_alert_types']))
+		{
+			$mybb->user['myalerts_disabled_alert_types'] = json_decode(
+				$mybb->user['myalerts_disabled_alert_types']
+			);
+		}
 		if (!empty($mybb->user['myalerts_disabled_alert_types']) && is_array(
 				$mybb->user['myalerts_disabled_alert_types']
 			)
@@ -805,6 +813,7 @@ function myalerts_global_intermediate()
 			$lang->load('myalerts');
 		}
 
+		$newAlertsIndicator = '';
 		if ($mybb->user['unreadAlerts']) {
 			$newAlertsIndicator = 'alerts--new';
 		}
@@ -1331,6 +1340,13 @@ function myalerts_usercp_menu()
 
 	if (!($lang->myalerts)) {
 		$lang->load('myalerts');
+	}
+
+	if (!isset($collapsedimg['usercpalerts'])) {
+		$collapsedimg['usercpalerts'] = '';
+	}
+	if (!isset($collapsed['usercpalerts_e'])) {
+		$collapsed['usercpalerts_e'] = '';
 	}
 
 	if ($mybb->user['unreadAlerts'] > 0) {
