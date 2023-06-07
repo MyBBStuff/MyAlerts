@@ -860,25 +860,35 @@ function myalerts_datahandler_user_insert(&$dataHandler)
 }
 
 $plugins->add_hook(
+	'fetch_wol_activity_end',
+	'myalerts_online_activity'
+);
+function myalerts_online_activity($user_activity)
+{
+	if ($user_activity['activity'] == 'unknown') {
+		$split_loc = explode('.php', $user_activity['location']);
+		$filename = my_substr($split_loc[0], -my_strpos(strrev($split_loc[0]), '/'));
+		if ($filename == 'alerts') {
+			$user_activity['activity'] = $filename;
+		}
+	}
+
+	return $user_activity;
+}
+
+$plugins->add_hook(
 	'build_friendly_wol_location_end',
 	'myalerts_online_location'
 );
 function myalerts_online_location(&$plugin_array)
 {
-	global $lang;
+	if ($plugin_array['user_activity']['activity'] == 'alerts') {
+		global $lang;
 
-	if (!isset($lang->myalerts)) {
-		$lang->load('myalerts');
-	}
+		if (!isset($lang->myalerts)) {
+			$lang->load('myalerts');
+		}
 
-	$inUserCpAlerts = $plugin_array['user_activity']['activity'] == 'usercp' AND my_strpos(
-		$plugin_array['user_activity']['location'],
-		'alerts'
-	);
-
-	$inAlertsPage = $plugin_array['user_activity']['activity'] == 'alerts';
-
-	if ($inUserCpAlerts || $inAlertsPage) {
 		$plugin_array['location_name'] = $lang->myalerts_online_location_listing;
 	}
 }
