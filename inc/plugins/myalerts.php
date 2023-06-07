@@ -1416,9 +1416,9 @@ function myalerts_xmlhttp()
 				$toMarkRead[] = $alertObject->getId();
 			}
 
-			MybbStuff_MyAlerts_AlertManager::getInstance()->markRead(
-				$toMarkRead
-			);
+// 			MybbStuff_MyAlerts_AlertManager::getInstance()->markRead(
+// 				$toMarkRead
+// 			);
 		} else {
 			$from = $mybb->get_input('from', MyBB::INPUT_STRING);
 

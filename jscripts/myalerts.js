@@ -9,17 +9,17 @@
                 markReadAlertProxy = $.proxy(this.markReadAlert, this),
                 bodySelector = $("body");
 
-            bodySelector.on("click", "#getUnreadAlerts", unreadAlertsProxy);
+//             bodySelector.on("click", "#getUnreadAlerts", unreadAlertsProxy);
 
             bodySelector.on("click", ".deleteAlertButton", deleteAlertProxy);
             bodySelector.on("click", ".markReadAlertButton", markReadAlertProxy);
 
             if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0) {
-                window.setInterval(function () {
-                    $.get('xmlhttp.php?action=getNewAlerts', function (data) {
-                        $('#latestAlertsListing').prepend(data);
-                    });
-                }, myalerts_autorefresh * 1000);
+//                 window.setInterval(function () {
+//                     $.get('xmlhttp.php?action=getNewAlerts', function (data) {
+//                         $('#latestAlertsListing').prepend(data);
+//                     });
+//                 }, myalerts_autorefresh * 1000);
             }
 
             if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0) {
