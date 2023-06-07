@@ -1361,7 +1361,7 @@ function myalerts_usercp_menu()
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp', -1);
 function myalerts_xmlhttp()
 {
-	global $mybb, $lang, $templates, $db, $plugins;
+	global $mybb, $lang, $templates, $db;
 
     if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
         return;
