@@ -4,6 +4,7 @@ $l['myalerts'] = 'MyAlerts';
 $l['myalerts_page_title'] = 'Recent Alerts';
 $l['myalerts_page_delete_read'] = 'Delete Old Alerts';
 $l['myalerts_page_delete_all'] = 'Delete All Alerts';
+$l['myalerts_page_mark_all_read'] = 'Mark All Read';
 $l['myalerts_page_getnew'] = 'Check for New Alerts';
 $l['myalerts_page_row_read'] = '&#10003;';
 $l['myalerts_page_row_delete'] = 'X';
