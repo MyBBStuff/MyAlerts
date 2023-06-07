@@ -1361,7 +1361,7 @@ function myalerts_usercp_menu()
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp', -1);
 function myalerts_xmlhttp()
 {
-	global $mybb, $lang, $templates, $db;
+	global $mybb, $lang, $templates, $db, $plugins;
 
     if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
         return;
@@ -1370,6 +1370,13 @@ function myalerts_xmlhttp()
 	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
+
+	// Make sure that plugins which hook in to `global_start` to register a formatter
+	// via MybbStuff_MyAlerts_AlertFormatterManager::registerFormatter()
+	// get to register that formatter, otherwise, some of any of the alerts that we
+	// return via this function might not be formatted correctly. One plugin in
+	// particular to which this applies is DVZ Mentions.
+	$plugins->run_hooks('global_start');
 
 	myalerts_create_instances();
 
