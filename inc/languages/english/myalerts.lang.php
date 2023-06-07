@@ -18,8 +18,12 @@ $l['myalerts_modal_delete_read_confirm'] = 'Really delete all read alerts? This 
 $l['myalerts_modal_delete_all_confirm'] = 'Really delete all alerts? This cannot be undone!';
 $l['myalerts_modal_row_read'] = '&#10003;';
 $l['myalerts_modal_row_delete'] = 'X';
+$l['myalerts_modal_mark_all_read'] = 'Mark All Read';
 $l['myalerts_modal_row_read_title'] = 'Mark as Read';
 $l['myalerts_modal_row_delete_title'] = 'Delete Alert';
+
+$l['myalerts_marked_all_read_title'] = 'Marked All Read';
+$l['myalerts_marked_all_read_desc'] = 'All alerts were successfully marked as read.';
 
 $l['myalerts_alerts'] = 'Alerts';
 

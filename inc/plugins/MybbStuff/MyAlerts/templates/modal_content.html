@@ -14,6 +14,7 @@
             <td class="tfoot smalltext" colspan="3">
                 <a href="{$mybb->settings['bburl']}/alerts.php">{$lang->myalerts_modal_display_alerts}</a>
                 <span class="float_right">
+                    <a href="{$mybb->settings['bburl']}/xmlhttp.php?action=markAllRead&amp;my_post_key={$mybb->post_code}&amp;ret_link={$myalerts_return_link}">{$lang->myalerts_modal_mark_all_read}</a> | 
                     <a href="{$mybb->settings['bburl']}/alerts.php?action=delete_read&amp;my_post_key={$mybb->post_code}&amp;ret_link={$myalerts_return_link}"
                        onclick="return confirm('{$lang->myalerts_modal_delete_read_confirm}'); return false;">{$lang->myalerts_modal_delete_read}</a> | 
                     <a href="{$mybb->settings['bburl']}/alerts.php?action=delete_all&amp;my_post_key={$mybb->post_code}&amp;ret_link={$myalerts_return_link}"

@@ -1361,7 +1361,7 @@ function myalerts_usercp_menu()
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp', -1);
 function myalerts_xmlhttp()
 {
-	global $mybb, $lang, $templates, $db;
+	global $mybb, $lang, $templates, $db, $plugins;
 
     if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
         return;
@@ -1373,7 +1373,30 @@ function myalerts_xmlhttp()
 
 	myalerts_create_instances();
 
-	if ($mybb->get_input('action') == 'getNewAlerts') {
+	if ($mybb->get_input('action') == 'markAllRead') {
+		if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
+			header('Content-Type: application/json');
+			echo json_encode(array('error' => $lang->invalid_post_code));
+			exit;
+		}
+
+		$alertsList = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0);
+
+		$alertIds = array();
+
+		if (!empty($alertsList) && is_array($alertsList)) {
+			foreach ($alertsList as $alertObject) {
+				$alert = parse_alert($alertObject);
+				$alertIds[] = $alert['id'];
+			}
+		}
+
+		MybbStuff_MyAlerts_AlertManager::getInstance()->markRead($alertIds);
+
+		$mybb->input['from'] = 'header';
+	}
+
+	if (in_array($mybb->get_input('action'), array('getNewAlerts', 'markAllRead'))) {
 		header('Content-Type: application/json');
 
 		$newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
