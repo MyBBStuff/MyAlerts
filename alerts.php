@@ -8,10 +8,6 @@ define('THIS_SCRIPT', 'alerts.php');
 
 $templatelist = 'myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_modal_content';
 
-if (isset($_GET['action']) && $_GET['action'] == 'modal') {
-	defined('NO_ONLINE') or define('NO_ONLINE', 1);
-}
-
 require_once __DIR__ . '/global.php';
 
 $action = $mybb->get_input('action', MyBB::INPUT_STRING);
@@ -308,8 +304,6 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
  */
 function myalerts_view_modal($mybb, $lang, $templates, $theme)
 {
-	defined('NO_ONLINE') or define('NO_ONLINE', 1);
-
 	$userAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()
 	                                             ->getAlerts(
 		                                             0,
