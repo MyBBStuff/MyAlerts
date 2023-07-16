@@ -249,18 +249,14 @@ function myalerts_mark_all_alerts_read($mybb, $lang)
 
 	if (!empty($retLink) && stripos($retLink, $mybb->settings['bburl']) === 0) {
 		$retLink = htmlspecialchars_uni($retLink);
-		redirect(
-			$retLink,
-			$lang->myalerts_marked_all_read_desc,
-			$lang->myalerts_marked_all_read_title
-		);
 	} else {
-		redirect(
-			'alerts.php?action=alerts',
-			$lang->myalerts_marked_all_read_desc,
-			$lang->myalerts_marked_all_read_title
-		);
+		$retLink = 'alerts.php?action=alerts';
 	}
+	redirect(
+		$retLink,
+		$lang->myalerts_marked_all_read_desc,
+		$lang->myalerts_marked_all_read_title
+	);
 }
 
 /**
