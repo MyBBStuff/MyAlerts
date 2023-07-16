@@ -243,18 +243,7 @@ function myalerts_mark_all_alerts_read($mybb, $lang)
 {
 	verify_post_check($mybb->get_input('my_post_key'));
 
-	$alertsList = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0);
-
-	$alertIds = array();
-
-	if (!empty($alertsList) && is_array($alertsList)) {
-		foreach ($alertsList as $alertObject) {
-			$alert = parse_alert($alertObject);
-			$alertIds[] = $alert['id'];
-		}
-	}
-
-	MybbStuff_MyAlerts_AlertManager::getInstance()->markRead($alertIds);
+	MybbStuff_MyAlerts_AlertManager::getInstance()->markAllRead();
 
 	$retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
 

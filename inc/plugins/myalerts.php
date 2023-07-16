@@ -1380,18 +1380,7 @@ function myalerts_xmlhttp()
 			exit;
 		}
 
-		$alertsList = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(0);
-
-		$alertIds = array();
-
-		if (!empty($alertsList) && is_array($alertsList)) {
-			foreach ($alertsList as $alertObject) {
-				$alert = parse_alert($alertObject);
-				$alertIds[] = $alert['id'];
-			}
-		}
-
-		MybbStuff_MyAlerts_AlertManager::getInstance()->markRead($alertIds);
+		MybbStuff_MyAlerts_AlertManager::getInstance()->markAllRead();
 
 		$mybb->input['from'] = 'header';
 	}
