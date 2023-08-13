@@ -1381,13 +1381,6 @@ function myalerts_xmlhttp()
 		$lang->load('myalerts');
 	}
 
-	// Make sure that plugins which hook in to `global_start` to register a formatter
-	// via MybbStuff_MyAlerts_AlertFormatterManager::registerFormatter()
-	// get to register that formatter, otherwise, some of any of the alerts that we
-	// return via this function might not be formatted correctly. One plugin in
-	// particular to which this applies is DVZ Mentions.
-	$plugins->run_hooks('global_start');
-
 	myalerts_create_instances();
 
 	if ($mybb->get_input('action') == 'markAllRead') {

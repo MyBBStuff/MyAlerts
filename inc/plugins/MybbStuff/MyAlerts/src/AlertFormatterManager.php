@@ -26,6 +26,10 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 	 * @var array
 	 */
 	private $alertFormatters;
+	/**
+	 * @var boolean
+	 */
+	private $registrationHookHasRun;
 
 	/**
 	 * Create a new formatter manager.
@@ -38,6 +42,7 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 		$this->mybb = $mybb;
 		$this->lang = $lang;
 		$this->alertFormatters = array();
+		$this->registrationHookHasRun = false;
 	}
 
 	/**
@@ -131,6 +136,13 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 	 */
 	public function getFormatterForAlertType($alertTypeName = '')
 	{
+		if (!$this->registrationHookHasRun) {
+			global $plugins;
+
+			$plugins->run_hooks('myalerts_register_client_alert_formatters', $this);
+			$this->registrationHookHasRun = true;
+		}
+
 		$alertTypeName = (string) $alertTypeName;
 		$formatter = null;
 
