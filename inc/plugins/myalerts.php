@@ -1390,7 +1390,19 @@ function myalerts_xmlhttp()
 
 	myalerts_create_instances();
 
-	if ($mybb->get_input('action') == 'getNewAlerts') {
+	if ($mybb->get_input('action') == 'markAllRead') {
+		if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
+			header('Content-Type: application/json');
+			echo json_encode(array('error' => $lang->invalid_post_code));
+			exit;
+		}
+
+		MybbStuff_MyAlerts_AlertManager::getInstance()->markAllRead();
+
+		$mybb->input['from'] = 'header';
+	}
+
+	if (in_array($mybb->get_input('action'), array('getNewAlerts', 'markAllRead'))) {
 		header('Content-Type: application/json');
 
 		$newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(

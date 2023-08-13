@@ -45,6 +45,9 @@ switch ($action) {
 	case 'delete_all':
 		myalerts_delete_all_alerts($mybb, $db, $lang);
 		break;
+	case 'mark_all_read':
+		myalerts_mark_all_alerts_read($mybb, $lang);
+		break;
 	default:
 		if ($mybb->get_input('modal') == '1') {
 			myalerts_view_modal($mybb, $lang, $templates, $theme);
@@ -224,6 +227,32 @@ function myalerts_delete_alert($mybb, $db, $lang)
 			$lang->myalerts_delete_error
 		);
 	}
+}
+
+/**
+ * Mark all alerts as read.
+ *
+ * @param MyBB       $mybb MyBB core object.
+ * @param MyLanguage $lang MyBB language system.
+ */
+function myalerts_mark_all_alerts_read($mybb, $lang)
+{
+	verify_post_check($mybb->get_input('my_post_key'));
+
+	MybbStuff_MyAlerts_AlertManager::getInstance()->markAllRead();
+
+	$retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
+
+	if (!empty($retLink) && stripos($retLink, $mybb->settings['bburl']) === 0) {
+		$retLink = htmlspecialchars_uni($retLink);
+	} else {
+		$retLink = 'alerts.php?action=alerts';
+	}
+	redirect(
+		$retLink,
+		$lang->myalerts_marked_all_read_desc,
+		$lang->myalerts_marked_all_read_title
+	);
 }
 
 /**

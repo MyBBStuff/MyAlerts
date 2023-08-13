@@ -688,6 +688,39 @@ SQL;
 	}
 
 	/**
+	 * Mark all alerts for the currently logged in user as read.
+	 *
+	 * @return bool Whether all alerts were marked read successfully.
+	 */
+	public function markAllRead() {
+		$success = (bool) $this->db->update_query(
+			'alerts',
+			array(
+				'unread' => '0'
+			),
+			'uid = ' . $this->mybb->user['uid']
+		);
+
+		if ($success) {
+			$affectedRows = $this->db->affected_rows();
+		} else {
+			$affectedRows = 0;
+		}
+
+		$passToHook = array(
+			'alertManager' => &$this,
+			'affectedRows' => $affectedRows,
+		);
+
+		$this->plugins->run_hooks(
+			'myalerts_alert_manager_mark_all_read',
+			$passToHook
+		);
+
+		return $success;
+	}
+
+	/**
 	 *  Mark alerts as read.
 	 *
 	 * @param array $alerts An array of alert IDs to be marked read.
