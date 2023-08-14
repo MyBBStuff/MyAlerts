@@ -22,7 +22,7 @@ ul.panel_links a.myalerts {
     text-align: center;
 }
 
-.alert--read.alert, tr.alert--read {
+.alert--read.alert {
     opacity: .5;
 }
 
