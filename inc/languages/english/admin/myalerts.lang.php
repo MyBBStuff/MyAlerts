@@ -12,6 +12,8 @@ $l['setting_myalerts_autorefresh'] = "MyAlerts page AJAX autorefresh";
 $l['setting_myalerts_autorefresh_desc'] = "How often (in seconds) do you wish the MyAlerts page in User control panel to refresh the alerts listing via AJAX? (0 for no autorefresh)";
 $l['setting_myalerts_avatar_size'] = "Avatar Dimensions";
 $l['setting_myalerts_avatar_size_desc'] = "The dimensions to use when displaying avatars in alert listings. (In the form width|height. Example: 64|64.)";
+$l['setting_myalerts_bc_mode'] = "Backwards compatibility mode";
+$l['setting_myalerts_bc_mode_desc'] = "To support client plugins which do not yet register their alerts formatters via this plugin's `myalerts_register_client_alert_formatters` hook. Turning this mode on will resolve the problem of empty alerts rows in the modal dialogue for some client alert types after clicking, for example, 'Mark All Read'.";
 
 $l['myalerts_task_cleanup_ran'] = 'Read alerts over a week old were deleted successfully!';
 $l['myalerts_task_cleanup_error'] = 'Something went wrong while cleaning up the alerts...';

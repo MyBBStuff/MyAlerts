@@ -46,7 +46,14 @@ switch ($action) {
 		myalerts_delete_all_alerts($mybb, $db, $lang);
 		break;
 	case 'mark_all_read':
-		myalerts_mark_all_alerts_read($mybb, $lang);
+		// Will test true when backwards compatibility mode is on.
+		if ($mybb->get_input('ajax') == '1') {
+			$mybb->input['action'] = 'markAllRead';
+			myalerts_xmlhttp();
+			exit;
+		} else {
+			myalerts_mark_all_alerts_read($mybb, $lang);
+		}
 		break;
 	default:
 		if ($mybb->get_input('modal') == '1') {
