@@ -276,6 +276,12 @@ function myalerts_activate()
 				'value'       => '64|64',
 				'optionscode' => 'text',
 			),
+			'bc_mode'        => array(
+				'title'       => $lang->setting_myalerts_bc_mode,
+				'description' => $lang->setting_myalerts_bc_mode_desc,
+				'value'       => '0',
+				'optionscode' => 'onoff',
+			),
 		)
 	);
 

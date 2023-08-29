@@ -31,7 +31,10 @@
 
         module.prototype.markAllRead = function markAllRead(event) {
             event.preventDefault();
-            $.get('xmlhttp.php?action=markAllRead&my_post_key='+my_post_key, function (data) {
+            let url = (typeof myAlertsBcMode !== 'undefined' && myAlertsBcMode == '1')
+              ? 'alerts.php?action=mark_all_read&ajax=1'
+              : 'xmlhttp.php?action=markAllRead';
+            $.get(url+'&my_post_key='+my_post_key, function (data) {
                 if (data.error) {
                     $.jGrowl(data.error, {theme:'jgrowl_error'});
                 } else {
