@@ -1490,71 +1490,8 @@ function myalerts_xmlhttp()
 				);
 			} else {
 				$db->delete_query('alerts', "id = {$id} AND uid = {$userId}");
-
-				$newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()
-				                                            ->getUnreadAlerts();
-
-				$alertsListing = '';
-
-				$alertsToReturn = array();
-
-				if (is_array($newAlerts) && !empty($newAlerts)) {
-					$toMarkRead = array();
-
-					foreach ($newAlerts as $alertObject) {
-						$altbg = alt_trow();
-
-						$alert = parse_alert($alertObject);
-
-						$alertsToReturn[] = $alert;
-
-						if (isset($mybb->input['from']) && $mybb->input['from'] == 'header') {
-							if ($alert['message']) {
-								$alertsListing .= eval($templates->render(
-									'myalerts_alert_row_popup',
-									true,
-									false
-								));
-							}
-						} else {
-							if ($alert['message']) {
-								$alertsListing .= eval($templates->render(
-									'myalerts_alert_row',
-									true,
-									false
-								));
-							}
-						}
-
-						$toMarkRead[] = $alertObject->getId();
-					}
-
-					MybbStuff_MyAlerts_AlertManager::getInstance()->markRead(
-						$toMarkRead
-					);
-				} else {
-					$from = $mybb->get_input('from', MyBB::INPUT_STRING);
-
-					$altbg = alt_trow();
-
-					if (!empty($from) && $from == 'header') {
-						$alertsListing = eval($templates->render(
-							'myalerts_alert_row_popup_no_alerts',
-							true,
-							false
-						));
-					} else {
-						$alertsListing = eval($templates->render(
-							'myalerts_alert_row_no_alerts',
-							true,
-							false
-						));
-					}
-				}
-
 				$toReturn = array(
 					'success'  => true,
-					'template' => $alertsListing,
 				);
 			}
 		} else {
