@@ -1401,22 +1401,22 @@ function myalerts_xmlhttp()
 		$mybb->input['from'] = 'header';
 	}
 
-	if (in_array($mybb->get_input('action'), array('getNewAlerts', 'markAllRead'))) {
+	if (in_array($mybb->get_input('action'), array('getLatestAlerts', 'markAllRead'))) {
 		header('Content-Type: application/json');
 
-		$newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
+		$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
 			0,
-			$mybb->settings['myalerts_dropdown_limit']
+			$mybb->settings['myalerts_perpage']
 		);
 
 		$alertsListing = '';
 
 		$alertsToReturn = array();
 
-		if (is_array($newAlerts) && !empty($newAlerts)) {
+		if (is_array($latestAlerts) && !empty($latestAlerts)) {
 			$toMarkRead = array();
 
-			foreach ($newAlerts as $alertObject) {
+			foreach ($latestAlerts as $alertObject) {
 				$altbg = alt_trow();
 
 				$alert = parse_alert($alertObject);

@@ -4,22 +4,32 @@
 
     this.MybbStuff.MyAlerts = (function MyAlertsModule(window, $) {
         var module = function MyAlerts() {
-            var unreadAlertsProxy = $.proxy(this.getUnreadAlerts, this),
+            var latestAlertsProxy = $.proxy(this.getLatestAlerts, this),
                 deleteAlertProxy = $.proxy(this.deleteAlert, this),
                 markAllReadProxy = $.proxy(this.markAllRead, this),
                 markReadAlertProxy = $.proxy(this.markReadAlert, this),
                 bodySelector = $("body");
 
-            bodySelector.on("click", "#getUnreadAlerts", unreadAlertsProxy);
+            var urlGetLatest = (typeof myAlertsBcMode !== 'undefined' && myAlertsBcMode == '1')
+              ? 'alerts.php?action=get_latest_alerts&ajax=1'
+              : 'xmlhttp.php?action=getLatestAlerts';
+            this.urlGetLatest = urlGetLatest;
 
+            bodySelector.on("click", "#getLatestAlerts", latestAlertsProxy);
             bodySelector.on("click", ".deleteAlertButton", deleteAlertProxy);
             bodySelector.on("click", ".markAllReadButton", markAllReadProxy);
             bodySelector.on("click", ".markReadAlertButton", markReadAlertProxy);
 
-            if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0) {
+            if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0
+                &&
+                // Only autorefresh if we're on the first page of alerts, otherwise
+                // we could interrupt and confuse users who are paging through their
+                // alerts.
+                typeof page !== 'undefined' && page == 1
+               ) {
                 window.setInterval(function () {
-                    $.get('xmlhttp.php?action=getNewAlerts', function (data) {
-                        $('#latestAlertsListing').prepend(data);
+                    $.get(urlGetLatest, function (data) {
+                        $('#latestAlertsListing').html(data.template);
                     });
                 }, myalerts_autorefresh * 1000);
             }
@@ -53,10 +63,10 @@
             });
         }
 
-        module.prototype.getUnreadAlerts = function getUnreadAlerts(event) {
+        module.prototype.getLatestAlerts = function getLatestAlerts(event) {
             event.preventDefault();
-            $.get('xmlhttp.php?action=getNewAlerts', function (data) {
-                $('#latestAlertsListing').prepend(data);
+            $.get(this.urlGetLatest, function (data) {
+                $('#latestAlertsListing').html(data.template);
             });
         };
 
