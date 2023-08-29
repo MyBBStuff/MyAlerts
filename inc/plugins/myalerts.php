@@ -1348,7 +1348,7 @@ function myalertsrow_subscribed(&$dataHandler)
 $plugins->add_hook('usercp_menu', 'myalerts_usercp_menu', 20);
 function myalerts_usercp_menu()
 {
-	global $mybb, $templates, $theme, $usercpmenu, $lang, $collapsed, $collapsedimg;
+	global $mybb, $templates, $theme, $usercpmenu, $lang, $collapse, $collapsed, $collapsedimg;
 
     if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
         return;
@@ -1364,6 +1364,7 @@ function myalerts_usercp_menu()
 	if (!isset($collapsed['usercpalerts_e'])) {
 		$collapsed['usercpalerts_e'] = '';
 	}
+	$expaltext = (in_array('usercpalerts', $collapse)) ? $lang->expcol_expand : $lang->expcol_collapse;
 
 	if ($mybb->user['unreadAlerts'] > 0) {
 		$lang->myalerts_usercp_nav_alerts = '<strong>' . $lang->myalerts_usercp_nav_alerts . ' (' . my_number_format(
