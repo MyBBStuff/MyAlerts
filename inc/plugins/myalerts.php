@@ -1404,9 +1404,14 @@ function myalerts_xmlhttp()
 	if (in_array($mybb->get_input('action'), array('getLatestAlerts', 'markAllRead'))) {
 		header('Content-Type: application/json');
 
+		// We only get latest alerts from the full page alerts.php; in all other scenarios,
+		// we only reach this code from the modal (in the full page alerts.php, we reload the
+		// full page when marking all read, so that's not a counter-example).
+		$in_modal = ($mybb->get_input('action') != 'getLatestAlerts');
+		$perpage = $mybb->settings[$in_modal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
 		$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
 			0,
-			$mybb->settings['myalerts_perpage']
+			$perpage
 		);
 
 		$alertsListing = '';
