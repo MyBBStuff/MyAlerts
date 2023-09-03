@@ -13,6 +13,9 @@
             var urlGetLatest = (typeof myAlertsBcMode !== 'undefined' && myAlertsBcMode == '1')
               ? 'alerts.php?action=get_latest_alerts&ajax=1'
               : 'xmlhttp.php?action=getLatestAlerts';
+            if (typeof pages !== 'undefined') {
+                urlGetLatest += '&pages='+pages;
+            }
             this.urlGetLatest = urlGetLatest;
 
             bodySelector.on("click", "#getLatestAlerts", latestAlertsProxy);

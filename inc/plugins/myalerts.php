@@ -1409,9 +1409,14 @@ function myalerts_xmlhttp()
 		// full page when marking all read, so that's not a counter-example).
 		$in_modal = ($mybb->get_input('action') != 'getLatestAlerts');
 		$perpage = $mybb->settings[$in_modal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
+		$had_one_page_only = ($mybb->get_input('pages', MyBB::INPUT_INT) == 1);
+		$num_to_get = $perpage;
+		if ($had_one_page_only) {
+			$num_to_get++;
+		}
 		$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
 			0,
-			$perpage
+			$num_to_get
 		);
 
 		$alertsListing = '';
@@ -1419,6 +1424,11 @@ function myalerts_xmlhttp()
 		$alertsToReturn = array();
 
 		if (is_array($latestAlerts) && !empty($latestAlerts)) {
+			$more = (count($latestAlerts) > $perpage);
+			if ($more) {
+				array_pop($latestAlerts);
+			}
+
 			$toMarkRead = array();
 
 			foreach ($latestAlerts as $alertObject) {
@@ -1447,6 +1457,17 @@ function myalerts_xmlhttp()
 				}
 
 				$toMarkRead[] = $alertObject->getId();
+			}
+
+			if ($more && $had_one_page_only) {
+				// This simple clickable message saves us from having to generate
+				// and return pagination items and update the page with them via
+				// Javascript
+				$alertsListing .= eval($templates->render(
+					'myalerts_alert_row_more',
+					true,
+					false
+				));
 			}
 
 			MybbStuff_MyAlerts_AlertManager::getInstance()->markRead(

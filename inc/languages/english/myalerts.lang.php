@@ -10,6 +10,7 @@ $l['myalerts_page_row_read'] = '&#10003;';
 $l['myalerts_page_row_delete'] = 'X';
 $l['myalerts_page_row_read_title'] = 'Mark as Read';
 $l['myalerts_page_row_delete_title'] = 'Delete Alert';
+$l['myalerts_page_more'] = 'Alerts overflow onto the next page. Click here to go there with visible pagination.';
 
 $l['myalerts_modal_title'] = 'Recent Alerts';
 $l['myalerts_modal_display_alerts'] = 'View Alerts';
