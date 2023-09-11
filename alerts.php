@@ -463,8 +463,6 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 			) . "\";");
 	}
 
-	MybbStuff_MyAlerts_AlertManager::getInstance()->markRead($readAlerts);
-
 	global $headerinclude, $header, $footer, $usercpnav;
 
 	$content = '';
