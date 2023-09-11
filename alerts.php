@@ -55,6 +55,13 @@ switch ($action) {
 			myalerts_mark_all_alerts_read($mybb, $lang);
 		}
 		break;
+	case 'get_latest_alerts':
+		// Will test true when backwards compatibility mode is on.
+		if ($mybb->get_input('ajax') == '1') {
+			$mybb->input['action'] = 'getLatestAlerts';
+			myalerts_xmlhttp();
+			exit;
+		}
 	default:
 		if ($mybb->get_input('modal') == '1') {
 			myalerts_view_modal($mybb, $lang, $templates, $theme);
