@@ -1430,8 +1430,6 @@ function myalerts_xmlhttp()
 				array_pop($latestAlerts);
 			}
 
-			$toMarkRead = array();
-
 			foreach ($latestAlerts as $alertObject) {
 				$altbg = alt_trow();
 
@@ -1456,8 +1454,6 @@ function myalerts_xmlhttp()
 						));
 					}
 				}
-
-				$toMarkRead[] = $alertObject->getId();
 			}
 
 			if ($more && $had_one_page_only) {
@@ -1470,10 +1466,6 @@ function myalerts_xmlhttp()
 					false
 				));
 			}
-
-			MybbStuff_MyAlerts_AlertManager::getInstance()->markRead(
-				$toMarkRead
-			);
 		} else {
 			$from = $mybb->get_input('from', MyBB::INPUT_STRING);
 
