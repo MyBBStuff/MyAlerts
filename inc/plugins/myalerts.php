@@ -669,7 +669,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 		$outputAlert['alert_code'] = $alertToParse->getType()->getCode();
 
 		$outputAlert['received_at'] = my_date(
-			$mybb->settings['dateformat'],
+			'relative',
 			$alertToParse->getCreatedAt()->getTimestamp()
 		);
 
