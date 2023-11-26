@@ -1555,6 +1555,40 @@ function myalerts_xmlhttp()
 		echo MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts(
 		);
 	}
+
+	if ($mybb->get_input('action') == 'myalerts_mark_unread') {
+		header('Content-Type: application/json');
+
+		$id = $mybb->get_input('id', MyBB::INPUT_INT);
+		$userId = (int) $mybb->user['uid'];
+
+		$toReturn = array();
+
+		if ($id > 0) {
+			if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
+				$toReturn = array(
+					'errors' => array($lang->invalid_post_code),
+				);
+			} else {
+				MybbStuff_MyAlerts_AlertManager::getInstance()->markUnread([$id]);
+
+				$toReturn = array(
+					'success'  => true
+				);
+			}
+		} else {
+			$toReturn = array(
+				'errors' => array($lang->myalerts_error_alert_not_found),
+			);
+		}
+
+		echo json_encode($toReturn);
+	}
+
+	if ($mybb->input['action'] == 'getNumUnreadAlerts') {
+		echo MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts(
+		);
+	}
 }
 
 function myalerts_register_core_formatters($mybb, $lang)
