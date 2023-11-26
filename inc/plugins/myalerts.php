@@ -264,6 +264,12 @@ function myalerts_activate()
 				'value'       => '5',
 				'optionscode' => 'text',
 			),
+			'headericon_visibility'    => array(
+				'title'       => $lang->setting_myalerts_headericon,
+				'description' => $lang->setting_myalerts_headericon_desc,
+				'value'       => '0',
+				'optionscode' => 'onoff',
+			),
 			'autorefresh'    => array(
 				'title'       => $lang->setting_myalerts_autorefresh,
 				'description' => $lang->setting_myalerts_autorefresh_desc,
@@ -822,11 +828,18 @@ function myalerts_global_intermediate()
 		$newAlertsIndicator = '';
 		if ($mybb->user['unreadAlerts']) {
 			$newAlertsIndicator = 'alerts--new';
+			if ($mybb->settings[$prefix.'headericon'] == "1")
+			{
+				$myalerts_headericon = eval($templates->render('myalerts_headericon'));
+			}
 		}
 
 		$myalerts_return_link = htmlspecialchars_uni(urlencode(myalerts_get_current_url()));
-
-		$myalerts_headericon = eval($templates->render('myalerts_headericon'));
+		
+		if ($mybb->settings[$prefix.'headericon'] == "0")
+		{
+			$myalerts_headericon = eval($templates->render('myalerts_headericon'));
+		}
 
 		$myalerts_js = eval($templates->render('myalerts_js_popup'));
 	}
