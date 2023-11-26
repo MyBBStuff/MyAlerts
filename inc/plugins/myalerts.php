@@ -828,7 +828,7 @@ function myalerts_global_intermediate()
 		$newAlertsIndicator = '';
 		if ($mybb->user['unreadAlerts']) {
 			$newAlertsIndicator = 'alerts--new';
-			if ($mybb->settings[$prefix.'headericon'] == "1")
+			if ($mybb->settings[$prefix.'headericon_visibility'] == "1")
 			{
 				$myalerts_headericon = eval($templates->render('myalerts_headericon'));
 			}
@@ -836,7 +836,7 @@ function myalerts_global_intermediate()
 
 		$myalerts_return_link = htmlspecialchars_uni(urlencode(myalerts_get_current_url()));
 		
-		if ($mybb->settings[$prefix.'headericon'] == "0")
+		if ($mybb->settings[$prefix.'headericon_visibility'] == "0")
 		{
 			$myalerts_headericon = eval($templates->render('myalerts_headericon'));
 		}
