@@ -767,6 +767,53 @@ SQL;
 	}
 
 	/**
+	 *  Mark alerts as unread.
+	 *
+	 * @param array $alerts An array of alert IDs to be marked as unread by a user.
+	 *
+	 * @return bool Whether the alerts were marked unread successfully.
+	 */
+	public function markUnread(array $alerts = array())
+	{
+		$alerts = (array) $alerts;
+
+		$success = true;
+
+		if (is_array($alerts) && !empty($alerts)) {
+			$alerts = array_map('intval', $alerts);
+			$alerts = "'" . implode("','", $alerts) . "'";
+
+			$success = (bool) $this->db->update_query(
+				'alerts',
+				array(
+					'unread' => '1'
+				),
+				'id IN(' . $alerts . ') AND uid = ' . $this->mybb->user['uid']
+			);
+
+			if ($success) {
+				$affectedRows = $this->db->affected_rows();
+			} else {
+				$affectedRows = 0;
+			}
+
+			$passToHook = array(
+				'alertManager' => &$this,
+				'alertIds'     => $alerts,
+				'affectedRows' => $affectedRows,
+			);
+
+			$this->plugins->run_hooks(
+				'myalerts_alert_manager_mark_unread',
+				$passToHook
+			);
+		}
+
+		return $success;
+	}
+
+
+	/**
 	 *  Delete alerts.
 	 *
 	 * @param array $alerts An array of alert IDs to be deleted.
