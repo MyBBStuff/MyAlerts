@@ -8,12 +8,6 @@ define('THIS_SCRIPT', 'alerts.php');
 
 $templatelist = 'myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,myalerts_modal_content';
 
-define('THIS_SCRIPT', 'alerts.php');
-
-if ($_GET['action'] == 'modal') {
-	defined('NO_ONLINE') or define('NO_ONLINE', 1);
-}
-
 require_once __DIR__ . '/global.php';
 
 $action = $mybb->get_input('action', MyBB::INPUT_STRING);
@@ -51,6 +45,23 @@ switch ($action) {
 	case 'delete_all':
 		myalerts_delete_all_alerts($mybb, $db, $lang);
 		break;
+	case 'mark_all_read':
+		// Will test true when backwards compatibility mode is on.
+		if ($mybb->get_input('ajax') == '1') {
+			$mybb->input['action'] = 'markAllRead';
+			myalerts_xmlhttp();
+			exit;
+		} else {
+			myalerts_mark_all_alerts_read($mybb, $lang);
+		}
+		break;
+	case 'get_latest_alerts':
+		// Will test true when backwards compatibility mode is on.
+		if ($mybb->get_input('ajax') == '1') {
+			$mybb->input['action'] = 'getLatestAlerts';
+			myalerts_xmlhttp();
+			exit;
+		}
 	default:
 		if ($mybb->get_input('modal') == '1') {
 			myalerts_view_modal($mybb, $lang, $templates, $theme);
@@ -158,7 +169,7 @@ function myalerts_alert_settings(
 		);
 	} else { // Displaying alert type settings form
 
-		$content = '';
+		$content = $alertSettings = '';
 
 		global $headerinclude, $header, $footer, $usercpnav;
 
@@ -230,6 +241,32 @@ function myalerts_delete_alert($mybb, $db, $lang)
 			$lang->myalerts_delete_error
 		);
 	}
+}
+
+/**
+ * Mark all alerts as read.
+ *
+ * @param MyBB       $mybb MyBB core object.
+ * @param MyLanguage $lang MyBB language system.
+ */
+function myalerts_mark_all_alerts_read($mybb, $lang)
+{
+	verify_post_check($mybb->get_input('my_post_key'));
+
+	MybbStuff_MyAlerts_AlertManager::getInstance()->markAllRead();
+
+	$retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
+
+	if (!empty($retLink) && stripos($retLink, $mybb->settings['bburl']) === 0) {
+		$retLink = htmlspecialchars_uni($retLink);
+	} else {
+		$retLink = 'alerts.php?action=alerts';
+	}
+	redirect(
+		$retLink,
+		$lang->myalerts_marked_all_read_desc,
+		$lang->myalerts_marked_all_read_title
+	);
 }
 
 /**
@@ -310,8 +347,6 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
  */
 function myalerts_view_modal($mybb, $lang, $templates, $theme)
 {
-	defined('NO_ONLINE') or define('NO_ONLINE', 1);
-
 	$userAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()
 	                                             ->getAlerts(
 		                                             0,
@@ -380,7 +415,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 	usercp_menu();
 
 	$numAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getNumAlerts();
-	$page = (int) $mybb->input['page'];
+	$page = $mybb->get_input('page', MyBB::INPUT_INT);
 	$pages = ceil($numAlerts / $mybb->settings['myalerts_perpage']);
 
 	if ($page > $pages OR $page <= 0) {
@@ -405,6 +440,7 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 	);
 
 	$readAlerts = array();
+	$alertsListing = '';
 
 	if (is_array($alertsList) && !empty($alertsList)) {
 		foreach ($alertsList as $alertObject) {
@@ -426,8 +462,6 @@ function myalerts_view_alerts($mybb, $lang, $templates, $theme)
 				'myalerts_alert_row_no_alerts'
 			) . "\";");
 	}
-
-	MybbStuff_MyAlerts_AlertManager::getInstance()->markRead($readAlerts);
 
 	global $headerinclude, $header, $footer, $usercpnav;
 

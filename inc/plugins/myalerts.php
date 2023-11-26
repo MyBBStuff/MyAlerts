@@ -7,7 +7,6 @@
  * @package MyAlerts
  * @author  Euan T. <euan@euantor.com>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 2.0.3
  */
 
 if (!defined('IN_MYBB')) {
@@ -40,7 +39,7 @@ function myalerts_info()
 		'website'       => 'http://mybbstuff.com/myalerts',
 		'author'        => 'Euan T',
 		'authorsite'    => 'http://euantor.com',
-		'version'       => '2.0.4',
+		'version'       => '2.1.0-dev',
 		'compatibility' => '18*',
 		'codename'      => 'mybbstuff_myalerts',
 	);
@@ -52,6 +51,9 @@ function myalerts_install()
 
 	$plugin_info = myalerts_info();
 	$euantor_plugins = $cache->read('euantor_plugins');
+	if (empty($euantor_plugins)) {
+		$euantor_plugins = array();
+	}
 	$euantor_plugins['myalerts'] = array(
 		'title'   => 'MyAlerts',
 		'version' => $plugin_info['version'],
@@ -273,6 +275,12 @@ function myalerts_activate()
 				'description' => $lang->setting_myalerts_avatar_size_desc,
 				'value'       => '64|64',
 				'optionscode' => 'text',
+			),
+			'bc_mode'        => array(
+				'title'       => $lang->setting_myalerts_bc_mode,
+				'description' => $lang->setting_myalerts_bc_mode_desc,
+				'value'       => '0',
+				'optionscode' => 'onoff',
 			),
 		)
 	);
@@ -699,20 +707,22 @@ function myalerts_global_start()
 
 	$templatelist .= 'myalerts_headericon,myalerts_modal,myalerts_popup_row,myalerts_alert_row_no_alerts,myalerts_js_popup';
 
-	if (THIS_SCRIPT == 'usercp.php' || THIS_SCRIPT == 'alerts.php') {
-		$templatelist .= ',myalerts_usercp_nav';
-	}
+	if (defined('THIS_SCRIPT')) {
+		if (THIS_SCRIPT == 'usercp.php' || THIS_SCRIPT == 'alerts.php') {
+			$templatelist .= ',myalerts_usercp_nav';
+		}
 
-	if (THIS_SCRIPT == 'alerts.php') { // Hack to load User CP menu items in alerts.php without querying for templates
-		$templatelist .= ',usercp_nav_messenger,usercp_nav_messenger_tracking,usercp_nav_messenger_compose,usercp_nav_messenger_folder,usercp_nav_changename,usercp_nav_editsignature,usercp_nav_profile,usercp_nav_attachments,usercp_nav_misc,usercp_nav';
-	}
+		if (THIS_SCRIPT == 'alerts.php') { // Hack to load User CP menu items in alerts.php without querying for templates
+			$templatelist .= ',usercp_nav_messenger,usercp_nav_messenger_tracking,usercp_nav_messenger_compose,usercp_nav_messenger_folder,usercp_nav_changename,usercp_nav_editsignature,usercp_nav_profile,usercp_nav_attachments,usercp_nav_misc,usercp_nav';
+		}
 
-	if (THIS_SCRIPT == 'alerts.php') {
-		$templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
-	}
+		if (THIS_SCRIPT == 'alerts.php') {
+			$templatelist .= ',myalerts_page,myalerts_alert_row,multipage_page_current,multipage_page,multipage_nextpage,multipage';
+		}
 
-	if (THIS_SCRIPT == 'alerts.php' && $mybb->input['action'] == 'settings') {
-		$templatelist .= ',myalerts_setting_row,myalerts_settings_page';
+		if (THIS_SCRIPT == 'alerts.php' && !empty($mybb->input['action']) && $mybb->input['action'] == 'settings') {
+			$templatelist .= ',myalerts_setting_row,myalerts_settings_page';
+		}
 	}
 
 	$mybb->user['unreadAlerts'] = 0;
@@ -724,9 +734,12 @@ function myalerts_global_start()
 			$lang->load('myalerts');
 		}
 
-		$mybb->user['myalerts_disabled_alert_types'] = json_decode(
-			$mybb->user['myalerts_disabled_alert_types']
-		);
+		if (!empty($mybb->user['myalerts_disabled_alert_types']))
+		{
+			$mybb->user['myalerts_disabled_alert_types'] = json_decode(
+				$mybb->user['myalerts_disabled_alert_types']
+			);
+		}
 		if (!empty($mybb->user['myalerts_disabled_alert_types']) && is_array(
 				$mybb->user['myalerts_disabled_alert_types']
 			)
@@ -806,6 +819,7 @@ function myalerts_global_intermediate()
 			$lang->load('myalerts');
 		}
 
+		$newAlertsIndicator = '';
 		if ($mybb->user['unreadAlerts']) {
 			$newAlertsIndicator = 'alerts--new';
 		}
@@ -852,25 +866,35 @@ function myalerts_datahandler_user_insert(&$dataHandler)
 }
 
 $plugins->add_hook(
+	'fetch_wol_activity_end',
+	'myalerts_online_activity'
+);
+function myalerts_online_activity($user_activity)
+{
+	if ($user_activity['activity'] == 'unknown') {
+		$split_loc = explode('.php', $user_activity['location']);
+		$filename = my_substr($split_loc[0], -my_strpos(strrev($split_loc[0]), '/'));
+		if ($filename == 'alerts') {
+			$user_activity['activity'] = $filename;
+		}
+	}
+
+	return $user_activity;
+}
+
+$plugins->add_hook(
 	'build_friendly_wol_location_end',
 	'myalerts_online_location'
 );
 function myalerts_online_location(&$plugin_array)
 {
-	global $lang;
+	if ($plugin_array['user_activity']['activity'] == 'alerts') {
+		global $lang;
 
-	if (!isset($lang->myalerts)) {
-		$lang->load('myalerts');
-	}
+		if (!isset($lang->myalerts)) {
+			$lang->load('myalerts');
+		}
 
-	$inUserCpAlerts = $plugin_array['user_activity']['activity'] == 'usercp' AND my_strpos(
-		$plugin_array['user_activity']['location'],
-		'alerts'
-	);
-
-	$inAlertsPage = $plugin_array['user_activity']['activity'] == 'alerts';
-
-	if ($inUserCpAlerts || $inAlertsPage) {
 		$plugin_array['location_name'] = $lang->myalerts_online_location_listing;
 	}
 }
@@ -1017,7 +1041,12 @@ function myalerts_alert_quoted()
 			$alertType = $alertTypeManager->getByCode('quoted');
 
 			if ($alertType != null && $alertType->getEnabled()) {
-				$userNames = array_map('stripslashes', $users);
+				$userNames = [];
+				// Convert any multibyte non-breaking space characters to ordinary spaces.
+				foreach ($users as $user) {
+					$userNames[] = str_replace("\xc2\xa0", ' ', $user);
+				}
+				$userNames = array_map('stripslashes', $userNames);
 				$userNames = array_map(array($db, 'escape_string'), $userNames);
 
 				$userNames = "'" . implode(
@@ -1266,7 +1295,7 @@ function myalertsrow_subscribed(&$dataHandler)
 {
 	global $mybb, $db, $post;
 
-    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
+    if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || $post['savedraft']) {
         return;
     }
 
@@ -1319,7 +1348,7 @@ function myalertsrow_subscribed(&$dataHandler)
 $plugins->add_hook('usercp_menu', 'myalerts_usercp_menu', 20);
 function myalerts_usercp_menu()
 {
-	global $mybb, $templates, $theme, $usercpmenu, $lang, $collapsed, $collapsedimg;
+	global $mybb, $templates, $theme, $usercpmenu, $lang, $collapse, $collapsed, $collapsedimg;
 
     if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
         return;
@@ -1328,6 +1357,14 @@ function myalerts_usercp_menu()
 	if (!($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
+
+	if (!isset($collapsedimg['usercpalerts'])) {
+		$collapsedimg['usercpalerts'] = '';
+	}
+	if (!isset($collapsed['usercpalerts_e'])) {
+		$collapsed['usercpalerts_e'] = '';
+	}
+	$expaltext = (in_array('usercpalerts', $collapse)) ? $lang->expcol_expand : $lang->expcol_collapse;
 
 	if ($mybb->user['unreadAlerts'] > 0) {
 		$lang->myalerts_usercp_nav_alerts = '<strong>' . $lang->myalerts_usercp_nav_alerts . ' (' . my_number_format(
@@ -1341,7 +1378,7 @@ function myalerts_usercp_menu()
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp', -1);
 function myalerts_xmlhttp()
 {
-	global $mybb, $lang, $templates, $db;
+	global $mybb, $lang, $templates, $db, $plugins;
 
     if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
         return;
@@ -1353,22 +1390,47 @@ function myalerts_xmlhttp()
 
 	myalerts_create_instances();
 
-	if ($mybb->get_input('action') == 'getNewAlerts') {
+	if ($mybb->get_input('action') == 'markAllRead') {
+		if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
+			header('Content-Type: application/json');
+			echo json_encode(array('error' => $lang->invalid_post_code));
+			exit;
+		}
+
+		MybbStuff_MyAlerts_AlertManager::getInstance()->markAllRead();
+
+		$mybb->input['from'] = 'header';
+	}
+
+	if (in_array($mybb->get_input('action'), array('getLatestAlerts', 'markAllRead'))) {
 		header('Content-Type: application/json');
 
-		$newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
+		// We only get latest alerts from the full page alerts.php; in all other scenarios,
+		// we only reach this code from the modal (in the full page alerts.php, we reload the
+		// full page when marking all read, so that's not a counter-example).
+		$in_modal = ($mybb->get_input('action') != 'getLatestAlerts');
+		$perpage = $mybb->settings[$in_modal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
+		$had_one_page_only = ($mybb->get_input('pages', MyBB::INPUT_INT) == 1);
+		$num_to_get = $perpage;
+		if ($had_one_page_only) {
+			$num_to_get++;
+		}
+		$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
 			0,
-			$mybb->settings['myalerts_dropdown_limit']
+			$num_to_get
 		);
 
 		$alertsListing = '';
 
 		$alertsToReturn = array();
 
-		if (is_array($newAlerts) && !empty($newAlerts)) {
-			$toMarkRead = array();
+		if (is_array($latestAlerts) && !empty($latestAlerts)) {
+			$more = (count($latestAlerts) > $perpage);
+			if ($more) {
+				array_pop($latestAlerts);
+			}
 
-			foreach ($newAlerts as $alertObject) {
+			foreach ($latestAlerts as $alertObject) {
 				$altbg = alt_trow();
 
 				$alert = parse_alert($alertObject);
@@ -1392,13 +1454,18 @@ function myalerts_xmlhttp()
 						));
 					}
 				}
-
-				$toMarkRead[] = $alertObject->getId();
 			}
 
-			MybbStuff_MyAlerts_AlertManager::getInstance()->markRead(
-				$toMarkRead
-			);
+			if ($more && $had_one_page_only) {
+				// This simple clickable message saves us from having to generate
+				// and return pagination items and update the page with them via
+				// Javascript
+				$alertsListing .= eval($templates->render(
+					'myalerts_alert_row_more',
+					true,
+					false
+				));
+			}
 		} else {
 			$from = $mybb->get_input('from', MyBB::INPUT_STRING);
 
@@ -1442,71 +1509,37 @@ function myalerts_xmlhttp()
 				);
 			} else {
 				$db->delete_query('alerts', "id = {$id} AND uid = {$userId}");
-
-				$newAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()
-				                                            ->getUnreadAlerts();
-
-				$alertsListing = '';
-
-				$alertsToReturn = array();
-
-				if (is_array($newAlerts) && !empty($newAlerts)) {
-					$toMarkRead = array();
-
-					foreach ($newAlerts as $alertObject) {
-						$altbg = alt_trow();
-
-						$alert = parse_alert($alertObject);
-
-						$alertsToReturn[] = $alert;
-
-						if (isset($mybb->input['from']) && $mybb->input['from'] == 'header') {
-							if ($alert['message']) {
-								$alertsListing .= eval($templates->render(
-									'myalerts_alert_row_popup',
-									true,
-									false
-								));
-							}
-						} else {
-							if ($alert['message']) {
-								$alertsListing .= eval($templates->render(
-									'myalerts_alert_row',
-									true,
-									false
-								));
-							}
-						}
-
-						$toMarkRead[] = $alertObject->getId();
-					}
-
-					MybbStuff_MyAlerts_AlertManager::getInstance()->markRead(
-						$toMarkRead
-					);
-				} else {
-					$from = $mybb->get_input('from', MyBB::INPUT_STRING);
-
-					$altbg = alt_trow();
-
-					if (!empty($from) && $from == 'header') {
-						$alertsListing = eval($templates->render(
-							'myalerts_alert_row_popup_no_alerts',
-							true,
-							false
-						));
-					} else {
-						$alertsListing = eval($templates->render(
-							'myalerts_alert_row_no_alerts',
-							true,
-							false
-						));
-					}
-				}
-
 				$toReturn = array(
 					'success'  => true,
-					'template' => $alertsListing,
+				);
+			}
+		} else {
+			$toReturn = array(
+				'errors' => array($lang->myalerts_error_alert_not_found),
+			);
+		}
+
+		echo json_encode($toReturn);
+	}
+
+	if ($mybb->get_input('action') == 'myalerts_mark_read') {
+		header('Content-Type: application/json');
+
+		$id = $mybb->get_input('id', MyBB::INPUT_INT);
+		$userId = (int) $mybb->user['uid'];
+
+		$toReturn = array();
+
+		if ($id > 0) {
+			if (!verify_post_check($mybb->get_input('my_post_key'), true)) {
+				$toReturn = array(
+					'errors' => array($lang->invalid_post_code),
+				);
+			} else {
+				MybbStuff_MyAlerts_AlertManager::getInstance()->markRead([$id]);
+
+				$toReturn = array(
+					'success'  => true
 				);
 			}
 		} else {

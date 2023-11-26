@@ -39,3 +39,51 @@ FAQs:
 +  How to change text color of "Alerts" link in a header template if there is a new alert?
 
 Go to your ACP -> Templates & Styles -> Themes -> Your theme -> alerts.css -> find `.alerts--new` class and change the color to whatever you want, you can also customize it.
+
+A note to developers of client plugins:
+---------------------------------------
+Versions of MyAlerts above 2.0.4 introduce a new hook, `myalerts_register_client_alert_formatters`, which MyAlerts uses to register client plugin alert formatters on demand. Client plugin developers are encouraged to switch to this hook but retain backwards compatibility with older versions of MyAlerts by adhering to the following template code in (or included from) their main plugin file, which incorporates conservative safety-checking and redundancy:
+
+```php
+// Backwards-compatible alert formatter registration hook-ins.
+$plugins->add_hook('global_start'                             , 'yourcoolplugin_register_myalerts_formatter_back_compat');
+$plugins->add_hook('xmlhttp'                                  , 'yourcoolplugin_register_myalerts_formatter_back_compat', -2/* Prioritised one higher (more negative) than the MyAlerts hook into xmlhttp */);
+
+// Current and forward-compatible alert formatter registration hook-in.
+$plugins->add_hook('myalerts_register_client_alert_formatters', 'yourcoolplugin_register_myalerts_formatter');
+
+// Backwards-compatible alert formatter registration.
+function yourcoolplugin_register_myalerts_formatter_back_compat()
+{
+	if (function_exists('myalerts_info')) {
+		$myalerts_info = myalerts_info();
+		if (version_compare($myalerts_info['version'], '2.0.4') <= 0) {
+			yourcoolplugin_register_myalerts_formatter();
+		}
+	}
+}
+
+// Alert formatter registration.
+function yourcoolplugin_register_myalerts_formatter()
+{
+	global $mybb, $lang;
+
+	if (class_exists('MybbStuff_MyAlerts_Formatter_AbstractFormatter') &&
+	    class_exists('MybbStuff_MyAlerts_AlertFormatterManager') &&
+	    !class_exists('YourCoolPluginAlertFormatter')
+	) {
+		class YourCoolPluginAlertFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
+		{
+			/* Define your formatter class here */
+		}
+
+		$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+		if (!$formatterManager) {
+		        $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
+		}
+		if ($formatterManager) {
+			$formatterManager->registerFormatter(new YourCoolPluginAlertFormatter($mybb, $lang, 'yourcoolalertcode'));
+		}
+	}
+}
+```

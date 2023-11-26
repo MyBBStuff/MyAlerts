@@ -2,16 +2,30 @@
 $l['myalerts'] = 'MyAlerts';
 
 $l['myalerts_page_title'] = 'Recent Alerts';
-$l['myalerts_page_delete_read'] = 'Delete Old Alerts';
+$l['myalerts_page_delete_read'] = 'Delete Read Alerts';
 $l['myalerts_page_delete_all'] = 'Delete All Alerts';
-$l['myalerts_page_getnew'] = 'Check for new alerts';
+$l['myalerts_page_mark_all_read'] = 'Mark All Read';
+$l['myalerts_page_getnew'] = 'Check for New Alerts';
+$l['myalerts_page_row_read'] = '&#10003;';
+$l['myalerts_page_row_delete'] = 'X';
+$l['myalerts_page_row_read_title'] = 'Mark as Read';
+$l['myalerts_page_row_delete_title'] = 'Delete Alert';
+$l['myalerts_page_more'] = 'Alerts overflow onto the next page. Click here to go there with visible pagination.';
 
 $l['myalerts_modal_title'] = 'Recent Alerts';
 $l['myalerts_modal_display_alerts'] = 'View Alerts';
-$l['myalerts_modal_delete_read'] = 'Delete Old Alerts';
+$l['myalerts_modal_delete_read'] = 'Delete Read Alerts';
 $l['myalerts_modal_delete_all'] = 'Delete All Alerts';
 $l['myalerts_modal_delete_read_confirm'] = 'Really delete all read alerts? This cannot be undone!';
 $l['myalerts_modal_delete_all_confirm'] = 'Really delete all alerts? This cannot be undone!';
+$l['myalerts_modal_row_read'] = '&#10003;';
+$l['myalerts_modal_row_delete'] = 'X';
+$l['myalerts_modal_mark_all_read'] = 'Mark All Read';
+$l['myalerts_modal_row_read_title'] = 'Mark as Read';
+$l['myalerts_modal_row_delete_title'] = 'Delete Alert';
+
+$l['myalerts_marked_all_read_title'] = 'Marked All Read';
+$l['myalerts_marked_all_read_desc'] = 'All alerts were successfully marked as read.';
 
 $l['myalerts_alerts'] = 'Alerts';
 
@@ -53,7 +67,7 @@ $l['myalerts_delete_all'] = 'All alerts deleted successfully.';
 $l['myalerts_usercp_nav'] = 'Alerts';
 $l['myalerts_usercp_nav_alerts'] = 'View Alerts';
 $l['myalerts_usercp_nav_settings'] = 'Alert Settings';
-$l['myalerts_usercp_nav_delete_read'] = 'Delete Old Alerts';
+$l['myalerts_usercp_nav_delete_read'] = 'Delete Read Alerts';
 $l['myalerts_usercp_nav_delete_all'] = 'Delete All Alerts';
 
 $l['myalerts_error_alert_not_found'] = 'Alert not found.';

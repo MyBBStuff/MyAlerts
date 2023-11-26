@@ -1,24 +1,21 @@
-<tr class="alert-row alert--{$alert['alert_code']} {$alert['alert_status']}"
+<tr class="alert {$alert['alert_status']} alert--{$alert['alert_code']}"
     id="alert_row_{$alert['id']}">
-    <td class="{$altbg}" width="50" align="center">
+    <td class="{$altbg} alert__avatar" width="50" align="center">
         <a class="avatar" href="{$alert['from_user_raw_profilelink']}"><img
                 src="{$alert['avatar']['image']}"
                 alt="{$alert['username']}'s avatar"
                 title="{$alert['username']}"
                 {$alert['avatar']['width_height']}/></a>
     </td>
-    <td class="{$altbg}">
+    <td class="{$altbg} alert__content">
         <a href="{$mybb->settings['bburl']}/alerts.php?action=view&amp;id={$alert['id']}">
             {$alert['message']}
         </a>
-        <br/>
-		<span class="smalltext float_right">
-			<a href="{$mybb->settings['bburl']}/alerts.php?action=delete&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}"
-               class="deleteAlertButton" id="delete_alert_{$alert['id']}">{$lang->myalerts_delete}</a>
-		</span>
         <br class="clear"/>
     </td>
-    <td class="{$altbg}" align="center">
-        <span class="smalltext">{$alert['received_at']}</span>
+    <td class="{$altbg} alert__time" align="center">
+      <span class="smalltext">{$alert['received_at']}</span><hr>
+      <a href="{$mybb->settings['bburl']}/alerts.php?action=markread&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}" class="markReadAlertButton" id="markread_alert_{$alert['id']}" title="{$lang->myalerts_page_row_read_title}">{$lang->myalerts_page_row_read}</a> | 
+      <a href="{$mybb->settings['bburl']}/alerts.php?action=delete&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}" class="deleteAlertButton" id="delete_alert_{$alert['id']}" title="{$lang->myalerts_page_row_delete_title}">{$lang->myalerts_page_row_delete}</a>
     </td>
 </tr>
