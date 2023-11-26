@@ -7,8 +7,10 @@ $l['myalerts_page_delete_all'] = 'Delete All Alerts';
 $l['myalerts_page_mark_all_read'] = 'Mark All Read';
 $l['myalerts_page_getnew'] = 'Check for New Alerts';
 $l['myalerts_page_row_read'] = '&#10003;';
-$l['myalerts_page_row_delete'] = 'X';
+$l['myalerts_page_row_unread'] = '&#11093;';
+$l['myalerts_page_row_delete'] = '&#10005;';
 $l['myalerts_page_row_read_title'] = 'Mark as Read';
+$l['myalerts_page_row_unread_title'] = 'Mark as Unread';
 $l['myalerts_page_row_delete_title'] = 'Delete Alert';
 $l['myalerts_page_more'] = 'Alerts overflow onto the next page. Click here to go there with visible pagination.';
 
@@ -19,9 +21,11 @@ $l['myalerts_modal_delete_all'] = 'Delete All Alerts';
 $l['myalerts_modal_delete_read_confirm'] = 'Really delete all read alerts? This cannot be undone!';
 $l['myalerts_modal_delete_all_confirm'] = 'Really delete all alerts? This cannot be undone!';
 $l['myalerts_modal_row_read'] = '&#10003;';
-$l['myalerts_modal_row_delete'] = 'X';
+$l['myalerts_modal_row_unread'] = '&#11093;';
+$l['myalerts_modal_row_delete'] = '&#10005;';
 $l['myalerts_modal_mark_all_read'] = 'Mark All Read';
 $l['myalerts_modal_row_read_title'] = 'Mark as Read';
+$l['myalerts_modal_row_unread_title'] = 'Mark as Unread';
 $l['myalerts_modal_row_delete_title'] = 'Delete Alert';
 
 $l['myalerts_marked_all_read_title'] = 'Marked All Read';
