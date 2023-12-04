@@ -23,7 +23,7 @@
             bodySelector.on("click", ".deleteAlertButton", deleteAlertProxy);
             bodySelector.on("click", ".markAllReadButton", markAllReadProxy);
             bodySelector.on("click", ".markReadAlertButton", markReadAlertProxy);
-            bodySelector.on("click", ".markUnreadAlertButton", markReadAlertProxy);
+            bodySelector.on("click", ".markUnreadAlertButton", markUnreadAlertProxy);
 
             if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0
                 &&
