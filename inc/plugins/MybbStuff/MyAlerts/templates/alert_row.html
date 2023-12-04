@@ -14,7 +14,7 @@
         <br class="clear"/>
     </td>
     <td class="{$altbg} alert__time" align="center">
-      <span class="smalltext">{$alert['received_at']}</span><hr>
+      {$alert['received_at']}<hr>
       <a href="{$mybb->settings['bburl']}/alerts.php?action=markread&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}" class="markReadAlertButton" id="markread_alert_{$alert['id']}" title="{$lang->myalerts_page_row_read_title}">{$lang->myalerts_page_row_read}</a> | 
       <a href="{$mybb->settings['bburl']}/alerts.php?action=delete&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}" class="deleteAlertButton" id="delete_alert_{$alert['id']}" title="{$lang->myalerts_page_row_delete_title}">{$lang->myalerts_page_row_delete}</a>
     </td>
