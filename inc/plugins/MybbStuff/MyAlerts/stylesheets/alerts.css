@@ -32,5 +32,5 @@ ul.panel_links a.myalerts {
 
 .alerts--new a {
 	color: red !important;
-	font-weight: normal;
+	font-weight: bold;
 }
