@@ -129,7 +129,7 @@
             event.preventDefault();
 
             var button = $(event.currentTarget),
-                alertId = button.attr("id").substring(15);
+                alertId = button.attr("id").substring(17);
 
             $.getJSON('xmlhttp.php?action=myalerts_mark_unread', {
                 accessMethod: 'js',
