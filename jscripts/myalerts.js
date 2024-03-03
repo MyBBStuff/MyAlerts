@@ -73,6 +73,46 @@
             });
         };
 
+        module.prototype.stripParenAppendix = function stripParenAppendix(str) {
+            if (str[str.length - 1] == ')') {
+                let openParenPos = str.lastIndexOf(' (');
+                if (openParenPos >= 0) {
+                    str = str.substring(0, openParenPos);
+                }
+            }
+
+            return str;
+        }
+
+        module.prototype.updateVisibleCounts = function updateVisibleCounts(unread_count_fmt, unread_count) {
+                // Update the header
+                $('.alerts a').html(MybbStuff.MyAlerts.prototype.stripParenAppendix($('.alerts a').html()) + ' (' + unread_count_fmt + ')');
+                if (unread_count == 0) {
+                    $('.alerts').removeClass('alerts--new');
+                } else if (!$('.alerts').hasClass('alerts--new')) {
+                    $('.alerts').addClass('alerts--new');
+                }
+
+                // Update the browser window's title
+                let title_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(window.document.title);
+                if (unread_count > 0) {
+                    window.document.title = title_bare + ' (' + unread_count_fmt + ')';
+                } else {
+                    window.document.title = title_bare;
+                }
+
+                // Update the UCP sidebar item "View Alerts"
+                let sb_text = $('.usercp_nav_myalerts strong').html();
+                if (sb_text) {
+                    sb_text_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(sb_text);
+                    if (unread_count > 0) {
+                        $('.usercp_nav_myalerts').html('<strong>' + sb_text_bare + ' (' + unread_count_fmt + ')</strong>');
+                    } else {
+                        $('.usercp_nav_myalerts').html(sb_text_bare);
+                    }
+                }
+        }
+
         module.prototype.deleteAlert = function deleteAlert(event) {
             event.preventDefault();
 
@@ -86,6 +126,7 @@
             }, function (data) {
                 if (data.success) {
                     deleteButton.parents('tr').get(0).remove();
+                    MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count)
                 }
                 else {
                     for (var i = 0; i < data.errors.length; ++i) {
@@ -111,6 +152,7 @@
             }, function (data) {
                 if (data.success) {
                     $(button.parents('tr').get(0)).removeClass('alert--unread').addClass('alert--read');
+                    MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count)
                 }
                 else {
                     for (var i = 0; i < data.errors.length; ++i) {

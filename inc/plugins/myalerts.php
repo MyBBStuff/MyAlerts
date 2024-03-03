@@ -1509,8 +1509,11 @@ function myalerts_xmlhttp()
 				);
 			} else {
 				$db->delete_query('alerts', "id = {$id} AND uid = {$userId}");
+				$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
 				$toReturn = array(
 					'success'  => true,
+					'unread_count' => $unread_count,
+					'unread_count_fmt' => my_number_format($unread_count)
 				);
 			}
 		} else {
@@ -1537,9 +1540,12 @@ function myalerts_xmlhttp()
 				);
 			} else {
 				MybbStuff_MyAlerts_AlertManager::getInstance()->markRead([$id]);
+				$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
 
 				$toReturn = array(
-					'success'  => true
+					'success'  => true,
+					'unread_count' => $unread_count,
+					'unread_count_fmt' => my_number_format($unread_count)
 				);
 			}
 		} else {
