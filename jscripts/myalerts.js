@@ -147,9 +147,10 @@
             event.preventDefault();
 
             var button = $(event.currentTarget),
-                offset = markRead ? 15 : 17;
+                offset = markRead ? 15 : 17,
+                inPopup = button.attr("id").substring(0, 6) == 'popup_';
 
-            if (button.attr("id").substring(0, 6) == 'popup_') {
+            if (inPopup) {
                 offset += 6;
             }
 
@@ -180,7 +181,7 @@
                     // then make sure we hide the newly-read alert.
                     let cbxOnlyUnread = document.getElementById('unreadOnlyCheckbox');
                     if (cbxOnlyUnread && cbxOnlyUnread.checked && markRead) {
-                        $.get(self.urlGetLatest, function (data) {
+                        $.get(self.urlGetLatest+'&modal=1', function (data) {
                             $('#myalerts_alerts_modal tbody:first').html(data['template']);
                         });
                     }
@@ -206,7 +207,7 @@
 
         module.prototype.setUnreadOnly = function setUnreadOnly(event) {
             Cookie.set('myalerts_unread_only', event.currentTarget.checked ? '1' : '0');
-            $.get(this.urlGetLatest, function (data) {
+            $.get(this.urlGetLatest+'&modal=1', function (data) {
                 $('#myalerts_alerts_modal tbody:first').html(data['template']);
             });
         }

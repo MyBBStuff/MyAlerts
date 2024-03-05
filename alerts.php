@@ -49,6 +49,7 @@ switch ($action) {
 		// Will test true when backwards compatibility mode is on.
 		if ($mybb->get_input('ajax') == '1') {
 			$mybb->input['action'] = 'markAllRead';
+			$mybb->input['modal'] = '1';
 			myalerts_xmlhttp();
 			exit;
 		} else {

@@ -1405,11 +1405,8 @@ function myalerts_xmlhttp()
 	if (in_array($mybb->get_input('action'), array('getLatestAlerts', 'markAllRead'))) {
 		header('Content-Type: application/json');
 
-		// We only get latest alerts from the full page alerts.php; in all other scenarios,
-		// we only reach this code from the modal (in the full page alerts.php, we reload the
-		// full page when marking all read, so that's not a counter-example).
-		$in_modal = ($mybb->get_input('action') != 'getLatestAlerts');
-		$perpage = $mybb->settings[$in_modal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
+		$inModal = ($mybb->get_input('modal') == '1');
+		$perpage = $mybb->settings[$inModal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
 		$had_one_page_only = ($mybb->get_input('pages', MyBB::INPUT_INT) == 1);
 		$num_to_get = $perpage;
 		if ($had_one_page_only) {
@@ -1419,7 +1416,7 @@ function myalerts_xmlhttp()
 		$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
 			0,
 			$num_to_get,
-			$unreadOnly
+			$inModal && $unreadOnly
 		);
 
 		$alertsListing = '';
@@ -1447,7 +1444,7 @@ function myalerts_xmlhttp()
 					$markUnreadHiddenClass = '';
 				}
 
-				if (isset($mybb->input['from']) && $mybb->input['from'] == 'header') {
+				if ($inModal) {
 					if ($alert['message']) {
 						$alertsListing .= eval($templates->render(
 							'myalerts_alert_row_popup',
@@ -1466,7 +1463,7 @@ function myalerts_xmlhttp()
 				}
 			}
 
-			if ($more && $had_one_page_only) {
+			if (!$inModal && $more && $had_one_page_only) {
 				// This simple clickable message saves us from having to generate
 				// and return pagination items and update the page with them via
 				// Javascript
@@ -1481,7 +1478,7 @@ function myalerts_xmlhttp()
 
 			$altbg = alt_trow();
 
-			if (!empty($from) && $from == 'header') {
+			if ($inModal) {
 				$alertsListing = eval($templates->render(
 					'myalerts_alert_row_popup_no_alerts',
 					true,
