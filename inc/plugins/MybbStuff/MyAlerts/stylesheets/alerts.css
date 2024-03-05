@@ -34,3 +34,11 @@ ul.panel_links a.myalerts {
 	color: red !important;
 	font-weight: bold;
 }
+
+#myalerts_alerts_modal {
+	width: 450px;
+}
+
+#myalerts_modal_right_btns {
+	margin-top: 4px;
+}

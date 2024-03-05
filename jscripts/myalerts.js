@@ -8,6 +8,8 @@
                 deleteAlertProxy = $.proxy(this.deleteAlert, this),
                 markAllReadProxy = $.proxy(this.markAllRead, this),
                 markReadAlertProxy = $.proxy(this.markReadAlert, this),
+                markUnreadAlertProxy = $.proxy(this.markUnreadAlert, this),
+                setUnreadOnlyProxy = $.proxy(this.setUnreadOnly, this),
                 bodySelector = $("body");
 
             var urlGetLatest = (typeof myAlertsBcMode !== 'undefined' && myAlertsBcMode == '1')
@@ -22,6 +24,8 @@
             bodySelector.on("click", ".deleteAlertButton", deleteAlertProxy);
             bodySelector.on("click", ".markAllReadButton", markAllReadProxy);
             bodySelector.on("click", ".markReadAlertButton", markReadAlertProxy);
+            bodySelector.on("click", ".markUnreadAlertButton", markUnreadAlertProxy);
+            bodySelector.on("click", "#unreadOnlyCheckbox", setUnreadOnlyProxy);
 
             if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0
                 &&
@@ -139,20 +143,47 @@
             return false;
         };
 
-        module.prototype.markReadAlert = function markReadAlert(event) {
+        module.prototype.markReadOrUnreadAlert = function markReadOrUnreadAlert(event, self, markRead) {
             event.preventDefault();
 
             var button = $(event.currentTarget),
-                alertId = button.attr("id").substring(15);
+                offset = markRead ? 15 : 17;
 
-            $.getJSON('xmlhttp.php?action=myalerts_mark_read', {
+            if (button.attr("id").substring(0, 6) == 'popup_') {
+                offset += 6;
+            }
+
+            var alertId = button.attr("id").substring(offset);
+
+            $.getJSON('xmlhttp.php?action='+(markRead ? 'myalerts_mark_read' : 'myalerts_mark_unread'), {
                 accessMethod: 'js',
                 id: alertId,
                 my_post_key: my_post_key
             }, function (data) {
                 if (data.success) {
-                    $(button.parents('tr').get(0)).removeClass('alert--unread').addClass('alert--read');
+                    if (markRead) {
+                        remClass = 'alert--unread';
+                        addClass = 'alert--read';
+                    } else {
+                        remClass = 'alert--read';
+                        addClass = 'alert--unread';
+                    }
+                    $($('#markread_alert_'      +alertId).parents('tr').get(0)).removeClass(remClass).addClass(addClass);
+                    $($('#popup_markread_alert_'+alertId).parents('tr').get(0)).removeClass(remClass).addClass(addClass);
+                    $('#markread_alert_'  +alertId).toggleClass('hidden');
+                    $('#markunread_alert_'+alertId).toggleClass('hidden');
+                    $('#popup_markread_alert_'  +alertId).toggleClass('hidden');
+                    $('#popup_markunread_alert_'+alertId).toggleClass('hidden');
                     MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count)
+
+                    // If we're marking an alert read and showing only unread in the modal,
+                    // then make sure we hide the newly-read alert.
+                    let cbxOnlyUnread = document.getElementById('unreadOnlyCheckbox');
+                    if (cbxOnlyUnread && cbxOnlyUnread.checked && markRead) {
+                        $.get(self.urlGetLatest, function (data) {
+                            $('#myalerts_alerts_modal tbody:first').html(data['template']);
+                        });
+                    }
                 }
                 else {
                     for (var i = 0; i < data.errors.length; ++i) {
@@ -164,6 +195,21 @@
 
             return false;
         };
+
+        module.prototype.markReadAlert = function markReadAlert(event) {
+            MybbStuff.MyAlerts.prototype.markReadOrUnreadAlert(event, this, true);
+        }
+
+        module.prototype.markUnreadAlert = function markUnreadAlert(event) {
+            MybbStuff.MyAlerts.prototype.markReadOrUnreadAlert(event, this, false);
+        }
+
+        module.prototype.setUnreadOnly = function setUnreadOnly(event) {
+            Cookie.set('myalerts_unread_only', event.currentTarget.checked ? '1' : '0');
+            $.get(this.urlGetLatest, function (data) {
+                $('#myalerts_alerts_modal tbody:first').html(data['template']);
+            });
+        }
 
         return module;
     })(window, jQuery);
