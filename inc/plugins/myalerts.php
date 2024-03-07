@@ -958,6 +958,32 @@ function myalerts_addAlert_pm($PMDataHandler)
     }
 }
 
+$plugins->add_hook('private_delete_end', 'myalerts_delete_pm_alert');
+function myalerts_delete_pm_alert()
+{
+	global $mybb, $db;
+
+	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
+	if ($alertType) {
+		$typeid = $alertType->getId();
+		$pmid = $mybb->get_input('pmid', MyBB::INPUT_INT);
+		$db->delete_query('alerts', "object_id='{$pmid}' AND alert_type_id='{$typeid}'");
+	}
+}
+
+$plugins->add_hook('private_read_end', 'myalerts_mark_pm_alert_read');
+function myalerts_mark_pm_alert_read()
+{
+	global $mybb, $db;
+
+	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
+	if ($alertType) {
+		$typeid = $alertType->getId();
+		$pmid = $mybb->get_input('pmid', MyBB::INPUT_INT);
+		$db->update_query('alerts', ['unread' => 0], "object_id='{$pmid}' AND alert_type_id='{$typeid}'");
+	}
+}
+
 $plugins->add_hook('usercp_do_editlists_end', 'myalerts_alert_buddylist');
 function myalerts_alert_buddylist()
 {
