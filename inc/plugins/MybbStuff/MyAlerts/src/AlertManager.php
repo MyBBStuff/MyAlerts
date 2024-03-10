@@ -455,11 +455,11 @@ SQL;
 	 *
 	 * @return int The number of unread alerts
 	 */
-	public function getNumUnreadAlerts()
+	public function getNumUnreadAlerts($force_recount = false)
 	{
 		static $numUnreadAlerts;
 
-		if (!is_int($numUnreadAlerts)) {
+		if (!is_int($numUnreadAlerts) || $force_recount) {
 			$numAlerts = 0;
 
 			if (!empty($this->currentUserEnabledAlerts)) {

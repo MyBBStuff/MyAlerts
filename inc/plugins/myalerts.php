@@ -1345,6 +1345,104 @@ function myalertsrow_subscribed(&$dataHandler)
 }
 
 
+$plugins->add_hook('showthread_linear'  , 'myalerts_auto_mark_read_for_thread');
+$plugins->add_hook('showthread_threaded', 'myalerts_auto_mark_read_for_thread');
+function myalerts_auto_mark_read_for_thread()
+{
+	global $db, $mybb, $tid, $pids;
+
+	if ($mybb->user['uid']) {
+		$alertTypeManager   = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+		$t_quoted_id        = $alertTypeManager->getByCode('quoted'           )->getId();
+		$t_post_ta_id       = $alertTypeManager->getByCode('post_threadauthor')->getId();
+		$t_subscribed_t_id  = $alertTypeManager->getByCode('subscribed_thread')->getId();
+
+		$alert_ids_to_mark_read = [];
+
+		$query = $db->query("
+SELECT id, alert_type_id, object_id, extra_details
+FROM   {$db->table_prefix}alerts
+WHERE  alert_type_id in ($t_quoted_id, $t_post_ta_id, $t_subscribed_t_id)
+       AND
+       uid = {$mybb->user['uid']}
+       AND
+       object_id = {$tid}
+       AND
+       unread = 1
+");
+		while ($alert = $db->fetch_array($query)) {
+			if ($alert['alert_type_id'] == $t_quoted_id) {
+				$extra = json_decode($alert['extra_details'], true);
+
+				// If it is set (meaning we're in linear mode), then convert
+				// the $pids string "pid IN ('1', '2', ...)" into an array of pids.
+				$pids_a = empty($pids)
+				  ? []
+				  : array_map(
+					function($el) {
+						return substr($el, 1, -1);
+					},
+					explode(',', substr($pids, 7, -1))
+				    );
+
+				// Auto-mark as read the unread alerts of type 'quoted' for the viewing member
+				// for the viewed thread *if* the post ID of the quoting post matches that of
+				// the viewed post (in threaded mode) OR the post ID of the quoting post occurs
+				// in the global $pids list (in linear mode).
+				if ($mybb->get_input('mode') == 'threaded' && $mybb->input['pid'] == $extra['pid']
+				    ||
+				    $mybb->get_input('mode') != 'threaded' && in_array($extra['pid'], $pids_a)
+				) {
+					$alert_ids_to_mark_read[] = $alert['id'];
+				}
+			} else {
+				// Auto-mark as read the unread alerts of type 'post_threadauthor' and
+				// 'subscribed_thread' for the viewing member for the viewed thread.
+				//
+				// We would really like to only mark these alerts as read if the member is viewing
+				// unread *posts*, but (1) that's tricky to determine, especially because (2) core code
+				// marks a thread as read regardless of whether any unread posts in it are actually
+				// being viewed, and regardless of whether, if new posts *are* actually being viewed,
+				// more exist beyond the currently-viewed page. We reluctantly, then, auto-mark the
+				// alert as read on the sole condition that *some* page of its alerted thread is being
+				// viewed.
+				$alert_ids_to_mark_read[] = $alert['id'];
+			}
+		}
+
+		if ($alert_ids_to_mark_read) {
+			$db->update_query('alerts', ['unread' => 0], 'id IN ('.implode(',', $alert_ids_to_mark_read).')');
+
+			// Regenerate the header and headerinclude templates, because the number of unread alerts
+			// has changed.
+			//
+			// We might cause PHP 8 to generate warnings here due to global variables relied upon
+			// by template insertions by other plugins being undeclared here (and those plugin-generated
+			// parts of the header might thus be mangled). That is the unfortunate price we pay for MyBB
+			// rendering the header template near the start of processing without providing a reliable,
+			// canonical means of updating it later.
+			global $templates, $lang, $theme, $header, $headerinclude, $menu_portal, $menu_search, $menu_memberlist, $menu_calendar, $quicksearch, $welcomeblock, $pm_notice, $remote_avatar_notice, $bannedwarning, $bbclosedwarning, $modnotice, $pending_joinrequests, $awaitingusers, $usercplink, $modcplink, $admincplink, $buddylink, $searchlink, $pmslink, $myalerts_js, $myalerts_headericon, $myalerts_return_link, $charset, $stylesheets, $jsTemplates;
+
+			$mybb->user['unreadAlerts'] = my_number_format(
+				(int) MybbStuff_MyAlerts_AlertManager::getInstance()
+								->getNumUnreadAlerts(true)
+			);
+			$newAlertsIndicator = '';
+			if ($mybb->user['unreadAlerts']) {
+				$newAlertsIndicator = 'alerts--new';
+			}
+			$myalerts_return_link = htmlspecialchars_uni(urlencode(myalerts_get_current_url()));
+			$myalerts_headericon = eval($templates->render('myalerts_headericon'));
+			$welcomeblock = eval($templates->render('header_welcomeblock_member'));
+			$header = eval($templates->render('header'));
+
+			$myalerts_js = eval($templates->render('myalerts_js_popup'));
+			$headerinclude = eval($templates->render('headerinclude'));
+		}
+	}
+}
+
+
 $plugins->add_hook('usercp_menu', 'myalerts_usercp_menu', 20);
 function myalerts_usercp_menu()
 {
