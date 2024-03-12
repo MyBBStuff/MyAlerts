@@ -27,6 +27,7 @@ $l['myalerts_can_manage_alert_types'] = 'Can manage alert types?';
 $l['myalerts_alert_type_code'] = 'Code';
 $l['myalerts_alert_type_enabled'] = 'Enabled?';
 $l['myalerts_alert_type_can_be_user_disabled'] = 'Can be disabled by users?';
+$l['myalerts_alert_type_default_user_enabled'] = 'Enabled by default for users?';
 $l['myalerts_no_alert_types'] = 'No alert types found!';
 $l['myalerts_update_alert_types'] = 'Update Alert Types';
 $l['myalerts_alert_types_updated'] = 'Alert types updated!';

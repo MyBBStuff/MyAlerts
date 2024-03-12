@@ -110,6 +110,7 @@ function myalerts_install()
                         code varchar(100) NOT NULL DEFAULT '' UNIQUE,
                         enabled smallint NOT NULL DEFAULT '1',
                         can_be_user_disabled smallint NOT NULL DEFAULT '1',
+                        default_user_enabled smallint NOT NULL DEFAULT '1',
                         PRIMARY KEY (id)
                     );"
                 );
@@ -121,6 +122,7 @@ function myalerts_install()
                         `code` varchar(100) NOT NULL DEFAULT '',
                         `enabled` tinyint(4) NOT NULL DEFAULT '1',
                         `can_be_user_disabled` tinyint(4) NOT NULL DEFAULT '1',
+                        `default_user_enabled` tinyint(4) NOT NULL DEFAULT '1',
                         PRIMARY KEY (`id`),
                         UNIQUE KEY `unique_code` (`code`)
                     ) ENGINE=MyISAM{$collation};"
@@ -159,6 +161,7 @@ function myalerts_install()
 		$alertType->setCode($type);
 		$alertType->setEnabled(true);
 		$alertType->setCanBeUserDisabled(true);
+		$alertType->setDefaultUserEnabled(true);
 
 		$alertTypesToAdd[] = $alertType;
 	}
@@ -240,6 +243,27 @@ function myalerts_activate()
 			myalerts_upgrade_105_200();
 		}
 	}
+
+	// The `default_user_enabled` column was added in version 2.1.0
+	if (!$db->field_exists('default_user_enabled', 'alert_types')) {
+		switch ($db->type) {
+		case 'pgsql':
+			$db->add_column(
+				'alert_types',
+				'default_user_enabled',
+				"smallint NOT NULL DEFAULT '1'",
+			);
+			break;
+		default:
+			$db->add_column(
+				'alert_types',
+				'default_user_enabled',
+				"tinyint(4) NOT NULL DEFAULT '1'",
+			);
+			break;
+		}
+	}
+	reload_mybbstuff_myalerts_alert_types();
 
 	$euantorPlugins['myalerts'] = array(
 		'title'   => 'MyAlerts',
@@ -858,10 +882,24 @@ $plugins->add_hook(
 );
 function myalerts_datahandler_user_insert(&$dataHandler)
 {
-	global $db;
+	global $db, $cache;
 
+	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	if (is_null($alertTypeManager) || $alertTypeManager === false) {
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance(
+			$db,
+			$cache
+		);
+	}
+	$alertTypes = $alertTypeManager->getAlertTypes();
+	$disabledTypes = [];
+	foreach ($alertTypes as $alertType) {
+		if (empty($alertType['default_user_enabled'])) {
+			$disabledTypes[] = $alertType['id'];
+		}
+	}
 	$dataHandler->user_insert_data['myalerts_disabled_alert_types'] = $db->escape_string(
-		json_encode(array())
+		json_encode($disabledTypes)
 	);
 }
 
