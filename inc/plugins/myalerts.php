@@ -1345,6 +1345,75 @@ function myalertsrow_subscribed(&$dataHandler)
 }
 
 
+$plugins->add_hook('class_moderation_delete_thread', 'myalerts_on_delete_thread');
+function myalerts_on_delete_thread($tid)
+{
+	global $db;
+
+	$type_ids = [];
+	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	$alertTypeScrThr = $alertTypeManager->getByCode('subscribed_thread');
+	if ($alertTypeScrThr) {
+		$type_ids[] = $alertTypeScrThr->getId();
+	}
+	$alertTypePostThrAuth = $alertTypeManager->getByCode('post_threadauthor');
+	if ($alertTypePostThrAuth) {
+		$type_ids[] = $alertTypePostThrAuth->getId();
+	}
+	$alertTypeRateAuth = $alertTypeManager->getByCode('rated_threadauthor');
+	if ($alertTypeRateAuth) {
+		$type_ids[] = $alertTypeRateAuth->getId();
+	}
+	$alertTypeVoted = $alertTypeManager->getByCode('voted_threadauthor');
+	if ($alertTypeVoted) {
+		$type_ids[] = $alertTypeVoted->getId();
+	}
+	$alertTypeQuoted = $alertTypeManager->getByCode('quoted');
+	if ($alertTypeQuoted) {
+		$type_ids[] = $alertTypeQuoted->getId();
+	}
+	if ($type_ids) {
+		$type_ids = implode(',', $type_ids);
+		$db->delete_query('alerts', "alert_type_id in ({$type_ids}) AND object_id = {$tid}");
+	}
+}
+
+
+$plugins->add_hook('class_moderation_delete_post_start', 'myalerts_save_tid');
+function myalerts_save_tid($pid)
+{
+	global $db, $myalerts_saved_tid;
+
+	$query = $db->simple_select('posts', 'tid', "pid={$pid}");
+	$myalerts_saved_tid = $db->fetch_field($query, 'tid');
+	$db->free_result($query);
+}
+
+
+$plugins->add_hook('class_moderation_delete_post', 'myalerts_on_delete_post');
+function myalerts_on_delete_post($pid)
+{
+	global $db, $myalerts_saved_tid;
+
+	$alertTypeQuoted = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('quoted');
+	if ($alertTypeQuoted) {
+		$type_id = $alertTypeQuoted->getId();
+		$ids_for_del = [];
+		$query = $db->simple_select('alerts', 'id, extra_details', "alert_type_id = {$type_id} AND object_id = {$myalerts_saved_tid}");
+		while ($alert = $db->fetch_array($query)) {
+			$extra_details = json_decode($alert['extra_details'], true);
+			if ($extra_details['pid'] == $pid) {
+				$ids_for_del[] = $alert['id'];
+			}
+		}
+		if ($ids_for_del) {
+			$ids_for_del = implode(',', $ids_for_del);
+			$db->delete_query('alerts', "id in ({$ids_for_del})");
+		}
+	}
+}
+
+
 $plugins->add_hook('usercp_menu', 'myalerts_usercp_menu', 20);
 function myalerts_usercp_menu()
 {
