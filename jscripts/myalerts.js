@@ -103,6 +103,9 @@
 
                 // Update the UCP sidebar item "View Alerts"
                 let sb_text = $('.usercp_nav_myalerts strong').html();
+                if (!sb_text) {
+                    sb_text = $('.usercp_nav_myalerts').html();
+                }
                 if (sb_text) {
                     sb_text_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(sb_text);
                     if (unread_count > 0) {
