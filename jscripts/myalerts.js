@@ -65,16 +65,7 @@
                     $.jGrowl(data.error, {theme:'jgrowl_error'});
                 } else {
                     $('#myalerts_alerts_modal tbody:first').html(data['template']);
-                    var msg = $('.alerts a').html();
-                    var appendix = ' (' + unreadAlerts + ')';
-                    if (msg.length >= appendix.length && msg.substring(msg.length - appendix.length) == appendix) {
-                        msg = msg.substring(0, msg.length - appendix.length);
-                        $('.alerts a').html(msg + ' (0)');
-                    }
-                    if (window.document.title.length >= appendix.length && window.document.title.substring(window.document.title.length - appendix.length) == appendix) {
-                        window.document.title = window.document.title.substring(0, window.document.title.length - appendix.length);
-                    }
-                    $('.alerts').removeClass('alerts--new');
+                    MybbStuff.MyAlerts.prototype.updateVisibleCounts(0, 0);
                 }
             });
         }
@@ -117,6 +108,9 @@
 
                 // Update the UCP sidebar item "View Alerts"
                 let sb_text = $('.usercp_nav_myalerts strong').html();
+                if (!sb_text) {
+                    sb_text = $('.usercp_nav_myalerts').html();
+                }
                 if (sb_text) {
                     sb_text_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(sb_text);
                     if (unread_count > 0) {
