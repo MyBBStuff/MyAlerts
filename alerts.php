@@ -291,14 +291,14 @@ function myalerts_delete_read_alerts($mybb, $db, $lang)
 
         redirect(
             $retLink,
-            $lang->myalerts_delete_all,
-            $lang->myalerts_delete_mass_deleted
+            $lang->myalerts_delete_read,
+            $lang->myalerts_delete_read_deleted
         );
     } else {
         redirect(
             'alerts.php?action=alerts',
-            $lang->myalerts_delete_all,
-            $lang->myalerts_delete_mass_deleted
+            $lang->myalerts_delete_read,
+            $lang->myalerts_delete_read_deleted
         );
     }
 }
