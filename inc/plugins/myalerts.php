@@ -270,6 +270,12 @@ function myalerts_activate()
 				'value'       => '0',
 				'optionscode' => 'text',
 			),
+			'autorefresh_header_interval' => array(
+				'title'       => $lang->setting_myalerts_autorefresh_header_interval,
+				'description' => $lang->setting_myalerts_autorefresh_header_interval_desc,
+				'value'       => '0',
+				'optionscode' => 'text',
+			),
 			'avatar_size'    => array(
 				'title'       => $lang->setting_myalerts_avatar_size,
 				'description' => $lang->setting_myalerts_avatar_size_desc,
@@ -1486,10 +1492,14 @@ function myalerts_xmlhttp()
 			}
 		}
 
+		$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+
 		echo json_encode(
 			array(
 				'alerts'   => $alertsToReturn,
 				'template' => $alertsListing,
+				'unread_count' => $unread_count,
+				'unread_count_fmt' => my_number_format($unread_count)
 			)
 		);
 	}
@@ -1519,6 +1529,27 @@ function myalerts_xmlhttp()
 		} else {
 			$toReturn = array(
 				'errors' => array($lang->myalerts_error_alert_not_found),
+			);
+		}
+
+		echo json_encode($toReturn);
+	}
+
+	if ($mybb->get_input('action') == 'get_num_unread_alerts') {
+		header('Content-Type: application/json');
+
+		$userId = (int) $mybb->user['uid'];
+
+		if ($userId > 0) {
+			$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+			$toReturn = array(
+				'unread_count' => $unread_count,
+				'unread_count_fmt' => my_number_format($unread_count)
+			);
+		} else {
+			$toReturn = array(
+				'unread_count' => 0,
+				'unread_count_fmt' => my_number_format(0)
 			);
 		}
 

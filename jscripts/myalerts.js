@@ -23,6 +23,8 @@
             bodySelector.on("click", ".markAllReadButton", markAllReadProxy);
             bodySelector.on("click", ".markReadAlertButton", markReadAlertProxy);
 
+            var refreshHeader = (typeof myAlertsAutoRefreshHdrInt !== 'undefined' && myAlertsAutoRefreshHdrInt > 0);
+
             if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0
                 &&
                 // Only autorefresh if we're on the first page of alerts, otherwise
@@ -30,11 +32,22 @@
                 // alerts.
                 typeof page !== 'undefined' && page == 1
                ) {
+                refreshHeader = false; // Don't hit the server twice unnecessarily - we update the header here anyway,
+                                       // albeit at a potentially different frequency.
                 window.setInterval(function () {
                     $.get(urlGetLatest, function (data) {
                         $('#latestAlertsListing').html(data.template);
+                        MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
                     });
                 }, myalerts_autorefresh * 1000);
+            }
+
+            if (refreshHeader) {
+                window.setInterval(function () {
+                    $.get('xmlhttp.php?action=get_num_unread_alerts', function (data) {
+                        MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
+                    })
+                }, myAlertsAutoRefreshHdrInt * 1000);
             }
 
             if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0) {
@@ -61,6 +74,7 @@
             event.preventDefault();
             $.get(this.urlGetLatest, function (data) {
                 $('#latestAlertsListing').html(data.template);
+                MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
             });
         };
 
