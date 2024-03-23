@@ -15,6 +15,8 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	private $enabled = true;
 	/** @var bool Whether this alert type can be disabled by users. */
 	private $canBeUserDisabled = true;
+	/** @var bool Whether this alert type is enabled for users by default. */
+	private $defaultUserEnabled = true;
 
 	/**
 	 * Unserialize an alert type from an array created using toArray().
@@ -31,6 +33,7 @@ class MybbStuff_MyAlerts_Entity_AlertType
 				'code'                 => '',
 				'enabled'              => false,
 				'can_be_user_disabled' => false,
+				'default_user_enabled' => false,
 			),
 			$serialized
 		);
@@ -40,6 +43,7 @@ class MybbStuff_MyAlerts_Entity_AlertType
 		$alertType->setId($serialized['id']);
 		$alertType->setCode($serialized['code']);
 		$alertType->setCanBeUserDisabled($serialized['can_be_user_disabled']);
+		$alertType->setDefaultUserEnabled($serialized['default_user_enabled']);
 
 		return $alertType;
 	}
@@ -56,6 +60,7 @@ class MybbStuff_MyAlerts_Entity_AlertType
 			'code'                 => $this->getCode(),
 			'enabled'              => (int) $this->getEnabled(),
 			'can_be_user_disabled' => (int) $this->getCanBeUserDisabled(),
+			'default_user_enabled' => (int) $this->getDefaultUserEnabled(),
 		);
 	}
 
@@ -128,6 +133,14 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	}
 
 	/**
+	 * @return boolean Whether this alert type is enabled for users by default.
+	 */
+	public function getDefaultUserEnabled()
+	{
+		return $this->defaultUserEnabled;
+	}
+
+	/**
 	 * @param boolean $canBeUserDisabled Whether this alert type can be
 	 *                                   disabled by users.
 	 *
@@ -136,6 +149,19 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	public function setCanBeUserDisabled($canBeUserDisabled = true)
 	{
 		$this->canBeUserDisabled = (bool) $canBeUserDisabled;
+
+		return $this;
+	}
+
+	/**
+	 * @param boolean $defaultUserEnabled Whether this alert type is
+	 *                                   enabled for users by default.
+	 *
+	 * @return $this
+	 */
+	public function setDefaultUserEnabled($defaultUserEnabled = true)
+	{
+		$this->defaultUserEnabled = (bool) $defaultUserEnabled;
 
 		return $this;
 	}

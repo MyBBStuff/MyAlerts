@@ -75,6 +75,9 @@ class MybbStuff_MyAlerts_AlertTypeManager
             $alertType->setCanBeUserDisabled(
                 (int) $row['can_be_user_disabled'] == 1
             );
+            $alertType->setDefaultUserEnabled(
+                (int) $row['default_user_enabled'] == 1
+            );
 
             $alertTypes[$row['code']] = $alertType->toArray();
         }
@@ -199,8 +202,8 @@ class MybbStuff_MyAlerts_AlertTypeManager
 
             $updateArray = array(
                 'enabled'              => (int) $alertType->getEnabled(),
-                'can_be_user_disabled' => (int) $alertType->getCanBeUserDisabled(
-                ),
+                'can_be_user_disabled' => (int) $alertType->getCanBeUserDisabled(),
+                'default_user_enabled' => (int) $alertType->getDefaultUserEnabled(),
             );
 
             $id = (int) $alertType->getId();
