@@ -22,6 +22,14 @@ defined(
 	'PLUGINLIBRARY'
 ) or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
 
+if (!is_readable(PLUGINLIBRARY)) {
+	die('The MyAlerts plugin is aborting execution because it could not read the required PluginLibrary file at "'.PLUGINLIBRARY.'". Please install PluginLibrary from <a href="https://community.mybb.com/mods.php?action=view&pid=573">here</a> before continuing.');
+}
+
+if (!is_readable(MYBBSTUFF_CORE_PATH . 'ClassLoader.php')) {
+	die('The MyAlerts plugin is aborting execution because it could not read the required MyBBStuff Plugins.Core ClassLoader file at "'.MYBBSTUFF_CORE_PATH.'ClassLoader.php". Please install that file from <a href="https://raw.githubusercontent.com/MyBBStuff/Plugins.Core/master/ClassLoader.php">here</a> before continuing.');
+}
+
 require_once MYBBSTUFF_CORE_PATH . 'ClassLoader.php';
 
 $classLoader = new MybbStuff_Core_ClassLoader();
