@@ -74,6 +74,8 @@ $l['myalerts_usercp_nav_alerts'] = 'View Alerts';
 $l['myalerts_usercp_nav_settings'] = 'Alert Settings';
 $l['myalerts_usercp_nav_delete_read'] = 'Delete Read Alerts';
 $l['myalerts_usercp_nav_delete_all'] = 'Delete All Alerts';
+$l['myalerts_delete_read_deleted'] = 'Read Alerts Deleted';
+$l['myalerts_delete_read'] = 'Read alerts deleted successfully.';
 
 $l['myalerts_error_alert_not_found'] = 'Alert not found.';
 

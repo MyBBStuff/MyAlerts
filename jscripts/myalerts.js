@@ -27,6 +27,8 @@
             bodySelector.on("click", ".markUnreadAlertButton", markUnreadAlertProxy);
             bodySelector.on("click", "#unreadOnlyCheckbox", setUnreadOnlyProxy);
 
+            var refreshHeader = (typeof myAlertsAutoRefreshHdrInt !== 'undefined' && myAlertsAutoRefreshHdrInt > 0);
+
             if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0
                 &&
                 // Only autorefresh if we're on the first page of alerts, otherwise
@@ -34,11 +36,22 @@
                 // alerts.
                 typeof page !== 'undefined' && page == 1
                ) {
+                refreshHeader = false; // Don't hit the server twice unnecessarily - we update the header here anyway,
+                                       // albeit at a potentially different frequency.
                 window.setInterval(function () {
                     $.get(urlGetLatest, function (data) {
                         $('#latestAlertsListing').html(data.template);
+                        MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
                     });
                 }, myalerts_autorefresh * 1000);
+            }
+
+            if (refreshHeader) {
+                window.setInterval(function () {
+                    $.get('xmlhttp.php?action=get_num_unread_alerts', function (data) {
+                        MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
+                    })
+                }, myAlertsAutoRefreshHdrInt * 1000);
             }
 
             if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0) {
@@ -56,16 +69,7 @@
                     $.jGrowl(data.error, {theme:'jgrowl_error'});
                 } else {
                     $('#myalerts_alerts_modal tbody:first').html(data['template']);
-                    var msg = $('.alerts a').html();
-                    var appendix = ' (' + unreadAlerts + ')';
-                    if (msg.length >= appendix.length && msg.substring(msg.length - appendix.length) == appendix) {
-                        msg = msg.substring(0, msg.length - appendix.length);
-                        $('.alerts a').html(msg + ' (0)');
-                    }
-                    if (window.document.title.length >= appendix.length && window.document.title.substring(window.document.title.length - appendix.length) == appendix) {
-                        window.document.title = window.document.title.substring(0, window.document.title.length - appendix.length);
-                    }
-                    $('.alerts').removeClass('alerts--new');
+                    MybbStuff.MyAlerts.prototype.updateVisibleCounts(0, 0);
                 }
             });
         }
@@ -74,6 +78,7 @@
             event.preventDefault();
             $.get(this.urlGetLatest, function (data) {
                 $('#latestAlertsListing').html(data.template);
+                MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
             });
         };
 
@@ -107,6 +112,9 @@
 
                 // Update the UCP sidebar item "View Alerts"
                 let sb_text = $('.usercp_nav_myalerts strong').html();
+                if (!sb_text) {
+                    sb_text = $('.usercp_nav_myalerts').html();
+                }
                 if (sb_text) {
                     sb_text_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(sb_text);
                     if (unread_count > 0) {
