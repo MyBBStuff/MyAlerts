@@ -22,6 +22,14 @@ defined(
 	'PLUGINLIBRARY'
 ) or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
 
+if (!is_readable(PLUGINLIBRARY)) {
+	die('The MyAlerts plugin is aborting execution because it could not read the required PluginLibrary file at "'.PLUGINLIBRARY.'". Please install PluginLibrary from <a href="https://community.mybb.com/mods.php?action=view&pid=573">here</a> before continuing.');
+}
+
+if (!is_readable(MYBBSTUFF_CORE_PATH . 'ClassLoader.php')) {
+	die('The MyAlerts plugin is aborting execution because it could not read the required MyBBStuff Plugins.Core ClassLoader file at "'.MYBBSTUFF_CORE_PATH.'ClassLoader.php". Please install that file from <a href="https://raw.githubusercontent.com/MyBBStuff/Plugins.Core/master/ClassLoader.php">here</a> before continuing.');
+}
+
 require_once MYBBSTUFF_CORE_PATH . 'ClassLoader.php';
 
 $classLoader = new MybbStuff_Core_ClassLoader();
@@ -110,6 +118,7 @@ function myalerts_install()
                         code varchar(100) NOT NULL DEFAULT '' UNIQUE,
                         enabled smallint NOT NULL DEFAULT '1',
                         can_be_user_disabled smallint NOT NULL DEFAULT '1',
+                        default_user_enabled smallint NOT NULL DEFAULT '1',
                         PRIMARY KEY (id)
                     );"
                 );
@@ -121,6 +130,7 @@ function myalerts_install()
                         `code` varchar(100) NOT NULL DEFAULT '',
                         `enabled` tinyint(4) NOT NULL DEFAULT '1',
                         `can_be_user_disabled` tinyint(4) NOT NULL DEFAULT '1',
+                        `default_user_enabled` tinyint(4) NOT NULL DEFAULT '1',
                         PRIMARY KEY (`id`),
                         UNIQUE KEY `unique_code` (`code`)
                     ) ENGINE=MyISAM{$collation};"
@@ -159,6 +169,7 @@ function myalerts_install()
 		$alertType->setCode($type);
 		$alertType->setEnabled(true);
 		$alertType->setCanBeUserDisabled(true);
+		$alertType->setDefaultUserEnabled(true);
 
 		$alertTypesToAdd[] = $alertType;
 	}
@@ -241,6 +252,27 @@ function myalerts_activate()
 		}
 	}
 
+	// The `default_user_enabled` column was added in version 2.1.0
+	if (!$db->field_exists('default_user_enabled', 'alert_types')) {
+		switch ($db->type) {
+		case 'pgsql':
+			$db->add_column(
+				'alert_types',
+				'default_user_enabled',
+				"smallint NOT NULL DEFAULT '1'",
+			);
+			break;
+		default:
+			$db->add_column(
+				'alert_types',
+				'default_user_enabled',
+				"tinyint(4) NOT NULL DEFAULT '1'",
+			);
+			break;
+		}
+	}
+	reload_mybbstuff_myalerts_alert_types();
+
 	$euantorPlugins['myalerts'] = array(
 		'title'   => 'MyAlerts',
 		'version' => $plugin_info['version'],
@@ -267,6 +299,12 @@ function myalerts_activate()
 			'autorefresh'    => array(
 				'title'       => $lang->setting_myalerts_autorefresh,
 				'description' => $lang->setting_myalerts_autorefresh_desc,
+				'value'       => '0',
+				'optionscode' => 'text',
+			),
+			'autorefresh_header_interval' => array(
+				'title'       => $lang->setting_myalerts_autorefresh_header_interval,
+				'description' => $lang->setting_myalerts_autorefresh_header_interval_desc,
 				'value'       => '0',
 				'optionscode' => 'text',
 			),
@@ -858,10 +896,24 @@ $plugins->add_hook(
 );
 function myalerts_datahandler_user_insert(&$dataHandler)
 {
-	global $db;
+	global $db, $cache;
 
+	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	if (is_null($alertTypeManager) || $alertTypeManager === false) {
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance(
+			$db,
+			$cache
+		);
+	}
+	$alertTypes = $alertTypeManager->getAlertTypes();
+	$disabledTypes = [];
+	foreach ($alertTypes as $alertType) {
+		if (empty($alertType['default_user_enabled'])) {
+			$disabledTypes[] = $alertType['id'];
+		}
+	}
 	$dataHandler->user_insert_data['myalerts_disabled_alert_types'] = $db->escape_string(
-		json_encode(array())
+		json_encode($disabledTypes)
 	);
 }
 
@@ -1486,10 +1538,14 @@ function myalerts_xmlhttp()
 			}
 		}
 
+		$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+
 		echo json_encode(
 			array(
 				'alerts'   => $alertsToReturn,
 				'template' => $alertsListing,
+				'unread_count' => $unread_count,
+				'unread_count_fmt' => my_number_format($unread_count)
 			)
 		);
 	}
@@ -1519,6 +1575,27 @@ function myalerts_xmlhttp()
 		} else {
 			$toReturn = array(
 				'errors' => array($lang->myalerts_error_alert_not_found),
+			);
+		}
+
+		echo json_encode($toReturn);
+	}
+
+	if ($mybb->get_input('action') == 'get_num_unread_alerts') {
+		header('Content-Type: application/json');
+
+		$userId = (int) $mybb->user['uid'];
+
+		if ($userId > 0) {
+			$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+			$toReturn = array(
+				'unread_count' => $unread_count,
+				'unread_count_fmt' => my_number_format($unread_count)
+			);
+		} else {
+			$toReturn = array(
+				'unread_count' => 0,
+				'unread_count_fmt' => my_number_format(0)
 			);
 		}
 

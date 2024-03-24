@@ -1,13 +1,13 @@
 .usercp_nav_myalerts {
-    background: url(images/usercp/transmit_blue.png) no-repeat left center;
+    background: url(images/usercp/transmit_blue.png) no-repeat left center !important;
 }
 
 .usercp_nav_myalerts_delete_all {
-    background: url(images/usercp/delete.png) no-repeat left center;
+    background: url(images/usercp/delete.png) no-repeat left center !important;
 }
 
 .usercp_nav_myalerts_delete_read {
-    background: url(images/usercp/bin.png) no-repeat left center;
+    background: url(images/usercp/bin.png) no-repeat left center !important;
 }
 
 .newAlerts > a {
