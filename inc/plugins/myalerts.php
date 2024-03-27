@@ -1225,7 +1225,7 @@ function myalerts_alert_quoted()
 		return;
 	}
 
-	$quoted_usernames = myalerts_get_quoted_usernames($post['message'], $mybb->user['name']);
+	$quoted_usernames = myalerts_get_quoted_usernames($post['message'], $mybb->user['username']);
 	$quoted_uids = myalerts_usernames_to_uids($quoted_usernames);
 
 	if ($quoted_uids) {
