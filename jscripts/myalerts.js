@@ -61,17 +61,19 @@
 
         module.prototype.markAllRead = function markAllRead(event) {
             event.preventDefault();
-            let url = (typeof myAlertsBcMode !== 'undefined' && myAlertsBcMode == '1')
-              ? 'alerts.php?action=mark_all_read&ajax=1'
-              : 'xmlhttp.php?action=markAllRead';
-            $.get(url+'&my_post_key='+my_post_key, function (data) {
-                if (data.error) {
-                    $.jGrowl(data.error, {theme:'jgrowl_error'});
-                } else {
-                    $('#myalerts_alerts_modal tbody:first').html(data['template']);
-                    MybbStuff.MyAlerts.prototype.updateVisibleCounts(0, 0);
-                }
-            });
+            if (confirm(myalerts_modal_mark_all_read_confirm)) {
+                let url = (typeof myAlertsBcMode !== 'undefined' && myAlertsBcMode == '1')
+                ? 'alerts.php?action=mark_all_read&ajax=1'
+                : 'xmlhttp.php?action=markAllRead';
+                $.get(url+'&my_post_key='+my_post_key, function (data) {
+                    if (data.error) {
+                        $.jGrowl(data.error, {theme:'jgrowl_error'});
+                    } else {
+	                    $('#myalerts_alerts_modal tbody:first').html(data['template']);
+    	                MybbStuff.MyAlerts.prototype.updateVisibleCounts(0, 0);
+                    }
+                });
+            }
         }
 
         module.prototype.getLatestAlerts = function getLatestAlerts(event) {
