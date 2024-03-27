@@ -1089,6 +1089,141 @@ function myalerts_alert_buddylist()
 	}
 }
 
+$plugins->add_hook('datahandler_post_update', 'myalerts_update_quoted');
+function myalerts_update_quoted($dataHandler)
+{
+	global $db;
+
+	if (!empty($dataHandler->data['savedraft'])) {
+		return;
+	}
+
+	$fid              = $dataHandler->data['fid'];
+	$pid              = $dataHandler->data['pid'];
+	$existing_post    = get_post($pid);
+	$tid              = $existing_post['tid'];
+	$existing_msg     = $existing_post['message'];
+	$updated_msg      = $dataHandler->data['message'];
+	$author           = get_user($dataHandler->data['uid']);
+	$subject          = $dataHandler->data['subject'] ? $dataHandler->data['subject'] : $existing_post['subject'];
+	$existing_quoted  = myalerts_get_quoted_usernames($existing_msg, $author['username']);
+	$updated_quoted   = myalerts_get_quoted_usernames( $updated_msg, $author['username']);
+	$quoted_to_delete = array_diff($existing_quoted,  $updated_quoted);
+	$quoted_to_add    = array_diff( $updated_quoted, $existing_quoted);
+
+	if ($quoted_to_delete || $quoted_to_add) {
+		myalerts_create_instances();
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+		$alertType = $alertTypeManager->getByCode('quoted');
+		if ($alertType != null && $alertType->getEnabled()) {
+			if ($quoted_to_add) {
+				// Add alerts for newly-quoted members in the edited version of the post
+				$quoted_uids_to_add = myalerts_usernames_to_uids($quoted_to_add);
+				$uids_to_add_permchk = [];
+				foreach ($quoted_uids_to_add as $uid) {
+					// TODO: update the next five lines of code to use the new
+					//       myalerts_can_view_thread() function from PR #325 once that PR is merged.
+					$forumPerms = forum_permissions($fid, $uid);
+					if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0
+					&&
+					($forumPerms['canonlyviewownthreads'] == 0 || $author['uid'] == $uid)
+					) {
+						$uids_to_add_permchk[] = $uid;
+					}
+				}
+				$alerts = [];
+				foreach ($uids_to_add_permchk as $uid) {
+					$alert = new MybbStuff_MyAlerts_Entity_Alert(
+						$uid,
+						$alertType,
+						$tid
+					);
+					$alert->setExtraDetails(
+						array(
+							'tid'     => $tid,
+							'pid'     => $pid,
+							'subject' => $subject,
+							'fid'     => $fid,
+						)
+					);
+					$alerts[] = $alert;
+				}
+				if ($alerts) {
+					MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
+				}
+			}
+
+			if ($quoted_to_delete) {
+				// Delete alerts for no-longer-quoted members quoted in the original post
+				$uids_for_del_cs = implode(',', myalerts_usernames_to_uids($quoted_to_delete));
+				$ids_for_del = [];
+				$type_id = $alertType->getId();
+				$query = $db->simple_select('alerts', 'id, extra_details', "alert_type_id = {$type_id} AND object_id = {$tid} AND uid IN ({$uids_for_del_cs})");
+				while ($alert = $db->fetch_array($query)) {
+					$extra_details = json_decode($alert['extra_details'], true);
+					if ($extra_details['pid'] == $pid) {
+						$ids_for_del[] = $alert['id'];
+					}
+				}
+				if ($ids_for_del) {
+					$ids_for_del_cs = implode(',', $ids_for_del);
+					$db->delete_query('alerts', "id in ({$ids_for_del_cs})");
+				}
+			}
+		}
+	}
+}
+
+function myalerts_get_quoted_usernames($message, $authorName)
+{
+	$userNames = [];
+
+	$pattern = "#\\[quote=(?:\"|'|&quot;|)(?<username>.*?)(?:\"|'|&quot;|)(?: pid=(?:\"|'|&quot;|)[\\d]*(?:\"|'|&quot;|))?(?:\"|'|&quot;|)(?: dateline=(?:\"|'|&quot;|)[\\d]*(?:\"|'|&quot;|))?(?:\"|'|&quot;|)\](?<message>.*?)\\[\\/quote\\]#si";
+
+	preg_match_all($pattern, $message, $matches);
+
+	$matches = array_filter($matches);
+
+	if (isset($matches['username'])) {
+		$users = array_unique(array_values($matches['username']));
+
+		if (!empty($users)) {
+			foreach ($users as $user) {
+				if ($user != $authorName) {
+					// Convert any multibyte non-breaking space characters to ordinary spaces.
+					$userNames[] = str_replace("\xc2\xa0", ' ', $user);
+				}
+			}
+		}
+	}
+
+	return $userNames;
+}
+
+function myalerts_usernames_to_uids($userNames)
+{
+	global $db;
+
+	$uids = [];
+	$userNames = array_map('stripslashes', $userNames);
+	$userNames = array_map(array($db, 'escape_string'), $userNames);
+	$userNames = "'".implode("','", $userNames)."'";
+
+	$query = $db->simple_select(
+		'users',
+		'uid',
+		"username IN({$userNames})"
+	);
+	while ($uid = $db->fetch_field($query, 'uid')) {
+		$uids[] = $uid;
+	}
+	$db->free_result($query);
+
+	return $uids;
+}
+
+// TODO: Refactor to use the new myalerts_get_quoted_usernames() and myalerts_usernames_to_uids()
+//       functions added above once PR #325 has been merged.
 $plugins->add_hook('newreply_do_newreply_end', 'myalerts_alert_quoted');
 function myalerts_alert_quoted()
 {
