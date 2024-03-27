@@ -1121,13 +1121,7 @@ function myalerts_update_quoted($dataHandler)
 				$quoted_uids_to_add = myalerts_usernames_to_uids($quoted_to_add);
 				$uids_to_add_permchk = [];
 				foreach ($quoted_uids_to_add as $uid) {
-					// TODO: update the next five lines of code to use the new
-					//       myalerts_can_view_thread() function from PR #325 once that PR is merged.
-					$forumPerms = forum_permissions($fid, $uid);
-					if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0
-					&&
-					($forumPerms['canonlyviewownthreads'] == 0 || $author['uid'] == $uid)
-					) {
+					if (myalerts_can_view_thread($fid, $author['uid'], $uid)) {
 						$uids_to_add_permchk[] = $uid;
 					}
 				}
@@ -1222,8 +1216,6 @@ function myalerts_usernames_to_uids($userNames)
 	return $uids;
 }
 
-// TODO: Refactor to use the new myalerts_get_quoted_usernames() and myalerts_usernames_to_uids()
-//       functions added above once PR #325 has been merged.
 $plugins->add_hook('newreply_do_newreply_end', 'myalerts_alert_quoted');
 function myalerts_alert_quoted()
 {
@@ -1233,73 +1225,42 @@ function myalerts_alert_quoted()
 		return;
 	}
 
-	$author = (int) $mybb->user['uid'];
-	$message = $post['message'];
+	$quoted_usernames = myalerts_get_quoted_usernames($post['message'], $mybb->user['name']);
+	$quoted_uids = myalerts_usernames_to_uids($quoted_usernames);
 
-	$pattern = "#\\[quote=(?:\"|'|&quot;|)(?<username>.*?)(?:\"|'|&quot;|)(?: pid=(?:\"|'|&quot;|)[\\d]*(?:\"|'|&quot;|))?(?:\"|'|&quot;|)(?: dateline=(?:\"|'|&quot;|)[\\d]*(?:\"|'|&quot;|))?(?:\"|'|&quot;|)\](?<message>.*?)\\[\\/quote\\]#si";
+	if ($quoted_uids) {
+		myalerts_create_instances();
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-	preg_match_all($pattern, $message, $matches);
+		/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
+		$alertType = $alertTypeManager->getByCode('quoted');
 
-	$matches = array_filter($matches);
-
-	if (isset($matches['username'])) {
-		$users = array_unique(array_values($matches['username']));
-
-		if (!empty($users)) {
-            myalerts_create_instances();
-
-            $alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-
-			/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-			$alertType = $alertTypeManager->getByCode('quoted');
-
-			if ($alertType != null && $alertType->getEnabled()) {
-				$userNames = [];
-				// Convert any multibyte non-breaking space characters to ordinary spaces.
-				foreach ($users as $user) {
-					$userNames[] = str_replace("\xc2\xa0", ' ', $user);
-				}
-				$userNames = array_map('stripslashes', $userNames);
-				$userNames = array_map(array($db, 'escape_string'), $userNames);
-
-				$userNames = "'" . implode(
-						"','",
-						$userNames
-					) . "'"; // TODO: When imploding, usernames with quotes in them might be breaking the query...
-
-				$query = $db->simple_select(
-					'users',
-					'uid, username',
-					"username IN({$userNames}) AND uid <> '{$author}'"
-				);
-
-				$alerts = array();
-				while ($uid = $db->fetch_array($query)) {
-					// Check forum permissions
-					if (myalerts_can_view_thread($post['fid'], $post['uid'], $uid['uid'])) {
-						$userList[] = (int) $uid['uid'];
-						$alert = new MybbStuff_MyAlerts_Entity_Alert(
-							(int) $uid['uid'],
-							$alertType,
-							(int) $post['tid']
-						);
-						$alert->setExtraDetails(
-							array(
-								'tid'     => $post['tid'],
-								'pid'     => $pid,
-								'subject' => $post['subject'],
-								'fid'     => (int) $post['fid'],
-							)
-						);
-						$alerts[] = $alert;
-					}
-				}
-
-				if (!empty($alerts)) {
-					MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts(
-						$alerts
+		if ($alertType != null && $alertType->getEnabled()) {
+			$alerts = array();
+			foreach ($quoted_uids as $uid) {
+				// Check forum permissions
+				if (myalerts_can_view_thread($post['fid'], $post['uid'], $uid)) {
+					$alert = new MybbStuff_MyAlerts_Entity_Alert(
+						(int) $uid,
+						$alertType,
+						(int) $post['tid']
 					);
+					$alert->setExtraDetails(
+						array(
+							'tid'     => $post['tid'],
+							'pid'     => $pid,
+							'subject' => $post['subject'],
+							'fid'     => (int) $post['fid'],
+						)
+					);
+					$alerts[] = $alert;
 				}
+			}
+
+			if (!empty($alerts)) {
+				MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts(
+					$alerts
+				);
 			}
 		}
 	}
