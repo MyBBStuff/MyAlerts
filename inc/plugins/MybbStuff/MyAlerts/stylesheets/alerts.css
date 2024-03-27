@@ -1,33 +1,33 @@
 .usercp_nav_myalerts {
-    background: url(images/usercp/transmit_blue.png) no-repeat left center !important;
+	background: url(images/usercp/transmit_blue.png) no-repeat left center !important;
 }
 
 .usercp_nav_myalerts_delete_all {
-    background: url(images/usercp/delete.png) no-repeat left center !important;
+	background: url(images/usercp/delete.png) no-repeat left center !important;
 }
 
 .usercp_nav_myalerts_delete_read {
-    background: url(images/usercp/bin.png) no-repeat left center !important;
+	background: url(images/usercp/bin.png) no-repeat left center !important;
 }
 
 .newAlerts > a {
-    color: red !important;
+	color: red !important;
 }
 
 ul.panel_links a.myalerts {
-    background-position: 0 -180px;
+	background-position: 0 -180px;
 }
 
 .alert-row__no-alerts td {
-    text-align: center;
+	text-align: center;
 }
 
 .alert--read.alert {
-    opacity: .5;
+	opacity: .5;
 }
 
 .alert.alert--read td.trow1 {
-    background-color: #F5F5F5;
+	background-color: #F5F5F5;
 }
 
 .alerts--new a {

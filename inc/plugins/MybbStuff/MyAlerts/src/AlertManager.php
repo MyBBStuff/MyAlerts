@@ -271,10 +271,7 @@ class MybbStuff_MyAlerts_AlertManager
 			$alert->getType(),
 			array($alert->getUserId())
 		);
-		if ($alertType->getEnabled(
-			) && (!empty($usersWhoWantAlert) || !$alertType->getCanBeUserDisabled(
-				))
-		) {
+		if ($alertType->getEnabled() && (!empty($usersWhoWantAlert) || !$alertType->getCanBeUserDisabled())) {
 			if ($alertType->getCode() === 'quoted') {
 				// If there is already an alert queued to the user of the type
 				// 'post_threadauthor', don't add the alert.
@@ -298,9 +295,7 @@ class MybbStuff_MyAlerts_AlertManager
 			);
 
 			// Basic duplicate checking by overwrite - only one alert for each alert type/object id combination
-			static::$alertQueue[$alert->getType()->getCode(
-			) . '_' . $alert->getUserId() . '_' . $alert->getObjectId(
-			)] = $alert;
+			static::$alertQueue[$alert->getType()->getCode() . '_' . $alert->getUserId() . '_' . $alert->getObjectId()] = $alert;
 		}
 
 		return $this;
@@ -423,9 +418,9 @@ class MybbStuff_MyAlerts_AlertManager
 				$prefix = TABLE_PREFIX;
 
 				$queryString = <<<SQL
-                SELECT COUNT(*) AS count FROM {$prefix}alerts a
-                INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
-                WHERE (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1 OR t.can_be_user_disabled = 0) AND t.enabled = 1 AND a.uid = {$this->mybb->user['uid']};
+SELECT COUNT(*) AS count FROM {$prefix}alerts a
+INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
+WHERE (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1 OR t.can_be_user_disabled = 0) AND t.enabled = 1 AND a.uid = {$this->mybb->user['uid']};
 SQL;
 
 				$query = $this->db->write_query($queryString);
@@ -469,9 +464,9 @@ SQL;
 
 				$prefix = TABLE_PREFIX;
 				$queryString = <<<SQL
-                SELECT COUNT(*) AS count FROM {$prefix}alerts a
-                INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
-                WHERE (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1 OR t.can_be_user_disabled = 0) AND t.enabled = 1 AND a.uid = {$this->mybb->user['uid']} AND a.unread = 1;
+SELECT COUNT(*) AS count FROM {$prefix}alerts a
+INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
+WHERE (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1 OR t.can_be_user_disabled = 0) AND t.enabled = 1 AND a.uid = {$this->mybb->user['uid']} AND a.unread = 1;
 SQL;
 
 				$query = $this->db->write_query($queryString);;

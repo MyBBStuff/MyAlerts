@@ -69,8 +69,8 @@
                     if (data.error) {
                         $.jGrowl(data.error, {theme:'jgrowl_error'});
                     } else {
-	                    $('#myalerts_alerts_modal tbody:first').html(data['template']);
-    	                MybbStuff.MyAlerts.prototype.updateVisibleCounts(0, 0);
+                        $('#myalerts_alerts_modal tbody:first').html(data['template']);
+                        MybbStuff.MyAlerts.prototype.updateVisibleCounts(0, 0);
                     }
                 });
             }
