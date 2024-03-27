@@ -105,9 +105,9 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 			/** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatter */
 			$formatter = new $formatterClass($this->mybb, $this->lang);
 			$formatter->init();
-		} elseif (is_object(
-				$formatterClass
-			) && $formatterClass instanceof MybbStuff_MyAlerts_Formatter_AbstractFormatter
+		} elseif (is_object($formatterClass)
+		          &&
+		          $formatterClass instanceof MybbStuff_MyAlerts_Formatter_AbstractFormatter
 		) {
 			$formatter = $formatterClass;
 		} else {
