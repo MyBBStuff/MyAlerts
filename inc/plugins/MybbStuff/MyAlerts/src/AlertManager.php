@@ -9,7 +9,7 @@
 class MybbStuff_MyAlerts_AlertManager
 {
 	/** @var string The version of the AlertManager. */
-	const VERSION                = '2.0.0';
+	const VERSION                = '2.1.0-beta';
 	const FIND_USERS_BY_UID      = 0;
 	const FIND_USERS_BY_USERNAME = 1;
 	/**
