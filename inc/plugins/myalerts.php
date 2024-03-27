@@ -1457,19 +1457,18 @@ function myalerts_xmlhttp()
 	if (in_array($mybb->get_input('action'), array('getLatestAlerts', 'markAllRead'))) {
 		header('Content-Type: application/json');
 
-		// We only get latest alerts from the full page alerts.php; in all other scenarios,
-		// we only reach this code from the modal (in the full page alerts.php, we reload the
-		// full page when marking all read, so that's not a counter-example).
-		$in_modal = ($mybb->get_input('action') != 'getLatestAlerts');
-		$perpage = $mybb->settings[$in_modal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
+		$inModal = ($mybb->get_input('modal') == '1');
+		$perpage = $mybb->settings[$inModal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
 		$had_one_page_only = ($mybb->get_input('pages', MyBB::INPUT_INT) == 1);
 		$num_to_get = $perpage;
 		if ($had_one_page_only) {
 			$num_to_get++;
 		}
+		$unreadOnly = !empty($mybb->cookies['myalerts_unread_only']) && $mybb->cookies['myalerts_unread_only'] != '0';
 		$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
 			0,
-			$num_to_get
+			$num_to_get,
+			$inModal && $unreadOnly
 		);
 
 		$alertsListing = '';
@@ -1489,7 +1488,15 @@ function myalerts_xmlhttp()
 
 				$alertsToReturn[] = $alert;
 
-				if (isset($mybb->input['from']) && $mybb->input['from'] == 'header') {
+				if ($alertObject->getUnread()) {
+					$markReadHiddenClass = '';
+					$markUnreadHiddenClass = ' hidden';
+				} else {
+					$markReadHiddenClass = ' hidden';
+					$markUnreadHiddenClass = '';
+				}
+
+				if ($inModal) {
 					if ($alert['message']) {
 						$alertsListing .= eval($templates->render(
 							'myalerts_alert_row_popup',
@@ -1508,7 +1515,7 @@ function myalerts_xmlhttp()
 				}
 			}
 
-			if ($more && $had_one_page_only) {
+			if (!$inModal && $more && $had_one_page_only) {
 				// This simple clickable message saves us from having to generate
 				// and return pagination items and update the page with them via
 				// Javascript
@@ -1523,7 +1530,7 @@ function myalerts_xmlhttp()
 
 			$altbg = alt_trow();
 
-			if (!empty($from) && $from == 'header') {
+			if ($inModal) {
 				$alertsListing = eval($templates->render(
 					'myalerts_alert_row_popup_no_alerts',
 					true,
@@ -1602,7 +1609,9 @@ function myalerts_xmlhttp()
 		echo json_encode($toReturn);
 	}
 
-	if ($mybb->get_input('action') == 'myalerts_mark_read') {
+	function myalerts_mark_read_or_unread($markRead = true) {
+		global $mybb, $lang;
+
 		header('Content-Type: application/json');
 
 		$id = $mybb->get_input('id', MyBB::INPUT_INT);
@@ -1616,7 +1625,8 @@ function myalerts_xmlhttp()
 					'errors' => array($lang->invalid_post_code),
 				);
 			} else {
-				MybbStuff_MyAlerts_AlertManager::getInstance()->markRead([$id]);
+				$method = $markRead ? 'markRead' : 'markUnread';
+				MybbStuff_MyAlerts_AlertManager::getInstance()->$method([$id]);
 				$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
 
 				$toReturn = array(
@@ -1632,6 +1642,12 @@ function myalerts_xmlhttp()
 		}
 
 		echo json_encode($toReturn);
+	}
+
+	if ($mybb->get_input('action') == 'myalerts_mark_read') {
+		myalerts_mark_read_or_unread(true);
+	} else if ($mybb->get_input('action') == 'myalerts_mark_unread') {
+		myalerts_mark_read_or_unread(false);
 	}
 
 	if ($mybb->input['action'] == 'getNumUnreadAlerts') {
