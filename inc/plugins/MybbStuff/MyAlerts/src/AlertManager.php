@@ -455,11 +455,11 @@ SQL;
 	 *
 	 * @return int The number of unread alerts
 	 */
-	public function getNumUnreadAlerts()
+	public function getNumUnreadAlerts($force_recount = false)
 	{
 		static $numUnreadAlerts;
 
-		if (!is_int($numUnreadAlerts)) {
+		if (!is_int($numUnreadAlerts) || $force_recount) {
 			$numAlerts = 0;
 
 			if (!empty($this->currentUserEnabledAlerts)) {
@@ -491,12 +491,13 @@ SQL;
 	 *
 	 * @param int $start The start point (used for multipaging alerts)
 	 * @param int $limit The maximum number of alerts to retrieve.
+	 * @param boolean $unreadOnly Whether to show only unread alerts.
 	 *
 	 * @return array The alerts for the user.
 	 * @return boolean If the user has no new alerts.
 	 * @throws Exception Thrown if the use cannot access the alerts system.
 	 */
-	public function getAlerts($start = 0, $limit = 0)
+	public function getAlerts($start = 0, $limit = 0, $unreadOnly = false)
 	{
 		$alerts = array();
 
@@ -511,13 +512,14 @@ SQL;
 			$alertTypes = $this->getAlertTypesForIn();
 
 			$this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
+			$unreadCondition = $unreadOnly ? " AND a.unread = 1" : '';
 			$prefix = TABLE_PREFIX;
 			$alertsQuery = <<<SQL
 SELECT a.*, u.uid, u.username, u.avatar, u.usergroup, u.displaygroup, t.code FROM {$prefix}alerts a
 LEFT JOIN {$prefix}users u ON (a.from_user_id = u.uid)
 INNER JOIN {$prefix}alert_types t ON (a.alert_type_id = t.id)
 WHERE a.uid = {$this->mybb->user['uid']}
-AND (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1 OR t.can_be_user_disabled = 0) AND t.enabled = 1 ORDER BY a.id DESC LIMIT {$limit} OFFSET {$start};
+AND (a.alert_type_id IN ({$alertTypes}) OR a.forced = 1 OR t.can_be_user_disabled = 0) AND t.enabled = 1{$unreadCondition} ORDER BY a.id DESC LIMIT {$limit} OFFSET {$start};
 SQL;
 
 			$query = $this->db->write_query($alertsQuery);
@@ -729,6 +731,31 @@ SQL;
 	 */
 	public function markRead(array $alerts = array())
 	{
+		return $this->markReadOrUnread($alerts, true);
+	}
+
+	/**
+	 *  Mark alerts as unread.
+	 *
+	 * @param array $alerts An array of alert IDs to be marked unread.
+	 *
+	 * @return bool Whether the alerts were marked unread successfully.
+	 */
+	public function markUnread(array $alerts = array())
+	{
+		return $this->markReadOrUnread($alerts, false);
+	}
+
+	/**
+	 *  Mark alerts as either read or unread.
+	 *
+	 * @param array $alerts An array of alert IDs to be marked read or unread.
+	 * @param bool $markRead Mark read if true; mark unread if false.
+	 *
+	 * @return bool Whether the alerts were marked read or unread successfully.
+	 */
+	public function markReadOrUnread(array $alerts = array(), $markRead = true)
+	{
 		$alerts = (array) $alerts;
 
 		$success = true;
@@ -740,7 +767,7 @@ SQL;
 			$success = (bool) $this->db->update_query(
 				'alerts',
 				array(
-					'unread' => '0'
+					'unread' => $markRead ? '0' : '1'
 				),
 				'id IN(' . $alerts . ') AND uid = ' . $this->mybb->user['uid']
 			);
@@ -758,7 +785,7 @@ SQL;
 			);
 
 			$this->plugins->run_hooks(
-				'myalerts_alert_manager_mark_read',
+				$markRead ? 'myalerts_alert_manager_mark_read' : 'myalerts_alert_manager_mark_unread',
 				$passToHook
 			);
 		}

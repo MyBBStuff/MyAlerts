@@ -1,13 +1,13 @@
 .usercp_nav_myalerts {
-    background: url(images/usercp/transmit_blue.png) no-repeat left center;
+    background: url(images/usercp/transmit_blue.png) no-repeat left center !important;
 }
 
 .usercp_nav_myalerts_delete_all {
-    background: url(images/usercp/delete.png) no-repeat left center;
+    background: url(images/usercp/delete.png) no-repeat left center !important;
 }
 
 .usercp_nav_myalerts_delete_read {
-    background: url(images/usercp/bin.png) no-repeat left center;
+    background: url(images/usercp/bin.png) no-repeat left center !important;
 }
 
 .newAlerts > a {
@@ -33,4 +33,12 @@ ul.panel_links a.myalerts {
 .alerts--new a {
 	color: red !important;
 	font-weight: bold;
+}
+
+#myalerts_alerts_modal {
+	width: 450px;
+}
+
+#myalerts_modal_right_btns {
+	margin-top: 4px;
 }

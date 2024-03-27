@@ -14,7 +14,7 @@
     </td>
     <td class="{$altbg} alert__time">
         {$alert['received_at']}<br />
-        <a href="{$mybb->settings['bburl']}/alerts.php?action=markread&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}" class="markReadAlertButton" id="markread_alert_{$alert['id']}" title="{$lang->myalerts_modal_row_read_title}">{$lang->myalerts_modal_row_read}</a> | 
+        <a href="{$mybb->settings['bburl']}/alerts.php?action=markread&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}" class="markReadAlertButton{$markReadHiddenClass}" id="popup_markread_alert_{$alert['id']}" title="{$lang->myalerts_modal_row_read_title}">{$lang->myalerts_modal_row_read}</a><a href="{$mybb->settings['bburl']}/alerts.php?action=markunread&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}" class="markUnreadAlertButton{$markUnreadHiddenClass}" id="popup_markunread_alert_{$alert['id']}" title="{$lang->myalerts_modal_row_unread_title}">{$lang->myalerts_modal_row_unread}</a> | 
         <a href="{$mybb->settings['bburl']}/alerts.php?action=delete&amp;id={$alert['id']}&amp;my_post_key={$mybb->post_code}" class="deleteAlertButton" id="delete_alert_{$alert['id']}" title="{$lang->myalerts_modal_row_delete_title}">{$lang->myalerts_modal_row_delete}</a>
     </td>
 </tr>

@@ -22,6 +22,14 @@ defined(
 	'PLUGINLIBRARY'
 ) or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
 
+if (!is_readable(PLUGINLIBRARY)) {
+	die('The MyAlerts plugin is aborting execution because it could not read the required PluginLibrary file at "'.PLUGINLIBRARY.'". Please install PluginLibrary from <a href="https://community.mybb.com/mods.php?action=view&pid=573">here</a> before continuing.');
+}
+
+if (!is_readable(MYBBSTUFF_CORE_PATH . 'ClassLoader.php')) {
+	die('The MyAlerts plugin is aborting execution because it could not read the required MyBBStuff Plugins.Core ClassLoader file at "'.MYBBSTUFF_CORE_PATH.'ClassLoader.php". Please install that file from <a href="https://raw.githubusercontent.com/MyBBStuff/Plugins.Core/master/ClassLoader.php">here</a> before continuing.');
+}
+
 require_once MYBBSTUFF_CORE_PATH . 'ClassLoader.php';
 
 $classLoader = new MybbStuff_Core_ClassLoader();
@@ -110,6 +118,7 @@ function myalerts_install()
                         code varchar(100) NOT NULL DEFAULT '' UNIQUE,
                         enabled smallint NOT NULL DEFAULT '1',
                         can_be_user_disabled smallint NOT NULL DEFAULT '1',
+                        default_user_enabled smallint NOT NULL DEFAULT '1',
                         PRIMARY KEY (id)
                     );"
                 );
@@ -121,6 +130,7 @@ function myalerts_install()
                         `code` varchar(100) NOT NULL DEFAULT '',
                         `enabled` tinyint(4) NOT NULL DEFAULT '1',
                         `can_be_user_disabled` tinyint(4) NOT NULL DEFAULT '1',
+                        `default_user_enabled` tinyint(4) NOT NULL DEFAULT '1',
                         PRIMARY KEY (`id`),
                         UNIQUE KEY `unique_code` (`code`)
                     ) ENGINE=MyISAM{$collation};"
@@ -159,6 +169,7 @@ function myalerts_install()
 		$alertType->setCode($type);
 		$alertType->setEnabled(true);
 		$alertType->setCanBeUserDisabled(true);
+		$alertType->setDefaultUserEnabled(true);
 
 		$alertTypesToAdd[] = $alertType;
 	}
@@ -241,6 +252,27 @@ function myalerts_activate()
 		}
 	}
 
+	// The `default_user_enabled` column was added in version 2.1.0
+	if (!$db->field_exists('default_user_enabled', 'alert_types')) {
+		switch ($db->type) {
+		case 'pgsql':
+			$db->add_column(
+				'alert_types',
+				'default_user_enabled',
+				"smallint NOT NULL DEFAULT '1'",
+			);
+			break;
+		default:
+			$db->add_column(
+				'alert_types',
+				'default_user_enabled',
+				"tinyint(4) NOT NULL DEFAULT '1'",
+			);
+			break;
+		}
+	}
+	reload_mybbstuff_myalerts_alert_types();
+
 	$euantorPlugins['myalerts'] = array(
 		'title'   => 'MyAlerts',
 		'version' => $plugin_info['version'],
@@ -267,6 +299,12 @@ function myalerts_activate()
 			'autorefresh'    => array(
 				'title'       => $lang->setting_myalerts_autorefresh,
 				'description' => $lang->setting_myalerts_autorefresh_desc,
+				'value'       => '0',
+				'optionscode' => 'text',
+			),
+			'autorefresh_header_interval' => array(
+				'title'       => $lang->setting_myalerts_autorefresh_header_interval,
+				'description' => $lang->setting_myalerts_autorefresh_header_interval_desc,
 				'value'       => '0',
 				'optionscode' => 'text',
 			),
@@ -858,10 +896,24 @@ $plugins->add_hook(
 );
 function myalerts_datahandler_user_insert(&$dataHandler)
 {
-	global $db;
+	global $db, $cache;
 
+	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	if (is_null($alertTypeManager) || $alertTypeManager === false) {
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance(
+			$db,
+			$cache
+		);
+	}
+	$alertTypes = $alertTypeManager->getAlertTypes();
+	$disabledTypes = [];
+	foreach ($alertTypes as $alertType) {
+		if (empty($alertType['default_user_enabled'])) {
+			$disabledTypes[] = $alertType['id'];
+		}
+	}
 	$dataHandler->user_insert_data['myalerts_disabled_alert_types'] = $db->escape_string(
-		json_encode(array())
+		json_encode($disabledTypes)
 	);
 }
 
@@ -956,6 +1008,32 @@ function myalerts_addAlert_pm($PMDataHandler)
 
         MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
     }
+}
+
+$plugins->add_hook('private_delete_end', 'myalerts_delete_pm_alert');
+function myalerts_delete_pm_alert()
+{
+	global $mybb, $db;
+
+	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
+	if ($alertType) {
+		$typeid = $alertType->getId();
+		$pmid = $mybb->get_input('pmid', MyBB::INPUT_INT);
+		$db->delete_query('alerts', "object_id='{$pmid}' AND alert_type_id='{$typeid}'");
+	}
+}
+
+$plugins->add_hook('private_read_end', 'myalerts_mark_pm_alert_read');
+function myalerts_mark_pm_alert_read()
+{
+	global $mybb, $db;
+
+	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
+	if ($alertType) {
+		$typeid = $alertType->getId();
+		$pmid = $mybb->get_input('pmid', MyBB::INPUT_INT);
+		$db->update_query('alerts', ['unread' => 0], "object_id='{$pmid}' AND alert_type_id='{$typeid}'");
+	}
 }
 
 $plugins->add_hook('usercp_do_editlists_end', 'myalerts_alert_buddylist');
@@ -1062,9 +1140,8 @@ function myalerts_alert_quoted()
 
 				$alerts = array();
 				while ($uid = $db->fetch_array($query)) {
-					$forumPerms = forum_permissions($post['fid'], $uid['uid']);
-
-					if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
+					// Check forum permissions
+					if (myalerts_can_view_thread($post['fid'], $post['uid'], $uid['uid'])) {
 						$userList[] = (int) $uid['uid'];
 						$alert = new MybbStuff_MyAlerts_Entity_Alert(
 							(int) $uid['uid'],
@@ -1139,10 +1216,8 @@ function myalerts_alert_post_threadauthor(&$post)
 			}
 
 			if ($thread['uid'] != $mybb->user['uid']) {
-				$forumPerms = forum_permissions($thread['fid'], $thread['uid']);
-
 				// Check forum permissions
-				if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
+				if (myalerts_can_view_thread($thread['fid'], $thread['uid'], $thread['uid'])) {
 					//check if alerted for this thread already
 					$query = $db->simple_select(
 						'alerts',
@@ -1202,10 +1277,8 @@ function myalerts_alert_rated_threadauthor()
         $thread = get_thread($tid);
 
         if ($thread['uid'] != $mybb->user['uid']) {
-            $forumPerms = forum_permissions($thread['fid'], $thread['uid']);
-
             // Check forum permissions
-            if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
+            if (myalerts_can_view_thread($thread['fid'], $thread['uid'], $thread['uid'])) {
                 $alert = new MybbStuff_MyAlerts_Entity_Alert(
                     $thread['uid'],
                     $alertType,
@@ -1260,14 +1333,12 @@ function myalerts_alert_voted_threadauthor()
         $thread = get_thread($poll['tid']);
 
         if ($thread['uid'] != $mybb->user['uid']) {
-            $forumPerms = forum_permissions($thread['fid'], $thread['uid']);
-
             // Check forum permissions
-            if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
+            if (myalerts_can_view_thread($thread['fid'], $thread['uid'], $thread['uid'])) {
                 $alert = new MybbStuff_MyAlerts_Entity_Alert(
                     $thread['uid'],
                     $alertType,
-                    (int) $tid
+                    (int) $poll['pid']
                 );
                 $alert->setExtraDetails(
                     array(
@@ -1322,9 +1393,8 @@ function myalertsrow_subscribed(&$dataHandler)
 		);
 
 		while ($poster = $db->fetch_array($query)) {
-			$forumPerms = forum_permissions($thread['fid'], $poster['uid']);
-
-			if ($forumPerms['canview'] != 0 && $forumPerms['canviewthreads'] != 0) {
+			// Check forum permissions
+			if (myalerts_can_view_thread($thread['fid'], $thread['uid'], $poster['uid'])) {
 				$alert = new MybbStuff_MyAlerts_Entity_Alert(
 					(int) $poster['uid'], $alertType, $thread['tid']
 				);
@@ -1413,6 +1483,103 @@ function myalerts_on_delete_post($pid)
 	}
 }
 
+$plugins->add_hook('showthread_linear'  , 'myalerts_auto_mark_read_for_thread');
+$plugins->add_hook('showthread_threaded', 'myalerts_auto_mark_read_for_thread');
+function myalerts_auto_mark_read_for_thread()
+{
+	global $db, $mybb, $tid, $pids;
+
+	if ($mybb->user['uid']) {
+		$alertTypeManager   = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+		$t_quoted_id        = $alertTypeManager->getByCode('quoted'           )->getId();
+		$t_post_ta_id       = $alertTypeManager->getByCode('post_threadauthor')->getId();
+		$t_subscribed_t_id  = $alertTypeManager->getByCode('subscribed_thread')->getId();
+
+		$alert_ids_to_mark_read = [];
+
+		$query = $db->query("
+SELECT id, alert_type_id, object_id, extra_details
+FROM   {$db->table_prefix}alerts
+WHERE  alert_type_id in ($t_quoted_id, $t_post_ta_id, $t_subscribed_t_id)
+       AND
+       uid = {$mybb->user['uid']}
+       AND
+       object_id = {$tid}
+       AND
+       unread = 1
+");
+		while ($alert = $db->fetch_array($query)) {
+			if ($alert['alert_type_id'] == $t_quoted_id) {
+				$extra = json_decode($alert['extra_details'], true);
+
+				// If it is set (meaning we're in linear mode), then convert
+				// the $pids string "pid IN ('1', '2', ...)" into an array of pids.
+				$pids_a = empty($pids)
+				  ? []
+				  : array_map(
+					function($el) {
+						return substr($el, 1, -1);
+					},
+					explode(',', substr($pids, 7, -1))
+				    );
+
+				// Auto-mark as read the unread alerts of type 'quoted' for the viewing member
+				// for the viewed thread *if* the post ID of the quoting post matches that of
+				// the viewed post (in threaded mode) OR the post ID of the quoting post occurs
+				// in the global $pids list (in linear mode).
+				if ($mybb->get_input('mode') == 'threaded' && $mybb->input['pid'] == $extra['pid']
+				    ||
+				    $mybb->get_input('mode') != 'threaded' && in_array($extra['pid'], $pids_a)
+				) {
+					$alert_ids_to_mark_read[] = $alert['id'];
+				}
+			} else {
+				// Auto-mark as read the unread alerts of type 'post_threadauthor' and
+				// 'subscribed_thread' for the viewing member for the viewed thread.
+				//
+				// We would really like to only mark these alerts as read if the member is viewing
+				// unread *posts*, but (1) that's tricky to determine, especially because (2) core code
+				// marks a thread as read regardless of whether any unread posts in it are actually
+				// being viewed, and regardless of whether, if new posts *are* actually being viewed,
+				// more exist beyond the currently-viewed page. We reluctantly, then, auto-mark the
+				// alert as read on the sole condition that *some* page of its alerted thread is being
+				// viewed.
+				$alert_ids_to_mark_read[] = $alert['id'];
+			}
+		}
+
+		if ($alert_ids_to_mark_read) {
+			$db->update_query('alerts', ['unread' => 0], 'id IN ('.implode(',', $alert_ids_to_mark_read).')');
+
+			// Regenerate the header and headerinclude templates, because the number of unread alerts
+			// has changed.
+			//
+			// We might cause PHP 8 to generate warnings here due to global variables relied upon
+			// by template insertions by other plugins being undeclared here (and those plugin-generated
+			// parts of the header might thus be mangled). That is the unfortunate price we pay for MyBB
+			// rendering the header template near the start of processing without providing a reliable,
+			// canonical means of updating it later.
+			global $templates, $lang, $theme, $header, $headerinclude, $menu_portal, $menu_search, $menu_memberlist, $menu_calendar, $quicksearch, $welcomeblock, $pm_notice, $remote_avatar_notice, $bannedwarning, $bbclosedwarning, $modnotice, $pending_joinrequests, $awaitingusers, $usercplink, $modcplink, $admincplink, $buddylink, $searchlink, $pmslink, $myalerts_js, $myalerts_headericon, $myalerts_return_link, $charset, $stylesheets, $jsTemplates;
+
+			$mybb->user['unreadAlerts'] = my_number_format(
+				(int) MybbStuff_MyAlerts_AlertManager::getInstance()
+								->getNumUnreadAlerts(true)
+			);
+			$newAlertsIndicator = '';
+			if ($mybb->user['unreadAlerts']) {
+				$newAlertsIndicator = 'alerts--new';
+			}
+			$myalerts_return_link = htmlspecialchars_uni(urlencode(myalerts_get_current_url()));
+			$myalerts_headericon = eval($templates->render('myalerts_headericon'));
+			$welcomeblock = eval($templates->render('header_welcomeblock_member'));
+			$header = eval($templates->render('header'));
+
+			$myalerts_js = eval($templates->render('myalerts_js_popup'));
+			$headerinclude = eval($templates->render('headerinclude'));
+		}
+	}
+}
+
 
 $plugins->add_hook('usercp_menu', 'myalerts_usercp_menu', 20);
 function myalerts_usercp_menu()
@@ -1474,19 +1641,18 @@ function myalerts_xmlhttp()
 	if (in_array($mybb->get_input('action'), array('getLatestAlerts', 'markAllRead'))) {
 		header('Content-Type: application/json');
 
-		// We only get latest alerts from the full page alerts.php; in all other scenarios,
-		// we only reach this code from the modal (in the full page alerts.php, we reload the
-		// full page when marking all read, so that's not a counter-example).
-		$in_modal = ($mybb->get_input('action') != 'getLatestAlerts');
-		$perpage = $mybb->settings[$in_modal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
+		$inModal = ($mybb->get_input('modal') == '1');
+		$perpage = $mybb->settings[$inModal ? 'myalerts_dropdown_limit' : 'myalerts_perpage'];
 		$had_one_page_only = ($mybb->get_input('pages', MyBB::INPUT_INT) == 1);
 		$num_to_get = $perpage;
 		if ($had_one_page_only) {
 			$num_to_get++;
 		}
+		$unreadOnly = !empty($mybb->cookies['myalerts_unread_only']) && $mybb->cookies['myalerts_unread_only'] != '0';
 		$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
 			0,
-			$num_to_get
+			$num_to_get,
+			$inModal && $unreadOnly
 		);
 
 		$alertsListing = '';
@@ -1506,7 +1672,15 @@ function myalerts_xmlhttp()
 
 				$alertsToReturn[] = $alert;
 
-				if (isset($mybb->input['from']) && $mybb->input['from'] == 'header') {
+				if ($alertObject->getUnread()) {
+					$markReadHiddenClass = '';
+					$markUnreadHiddenClass = ' hidden';
+				} else {
+					$markReadHiddenClass = ' hidden';
+					$markUnreadHiddenClass = '';
+				}
+
+				if ($inModal) {
 					if ($alert['message']) {
 						$alertsListing .= eval($templates->render(
 							'myalerts_alert_row_popup',
@@ -1525,7 +1699,7 @@ function myalerts_xmlhttp()
 				}
 			}
 
-			if ($more && $had_one_page_only) {
+			if (!$inModal && $more && $had_one_page_only) {
 				// This simple clickable message saves us from having to generate
 				// and return pagination items and update the page with them via
 				// Javascript
@@ -1540,7 +1714,7 @@ function myalerts_xmlhttp()
 
 			$altbg = alt_trow();
 
-			if (!empty($from) && $from == 'header') {
+			if ($inModal) {
 				$alertsListing = eval($templates->render(
 					'myalerts_alert_row_popup_no_alerts',
 					true,
@@ -1555,10 +1729,14 @@ function myalerts_xmlhttp()
 			}
 		}
 
+		$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+
 		echo json_encode(
 			array(
 				'alerts'   => $alertsToReturn,
 				'template' => $alertsListing,
+				'unread_count' => $unread_count,
+				'unread_count_fmt' => my_number_format($unread_count)
 			)
 		);
 	}
@@ -1594,7 +1772,30 @@ function myalerts_xmlhttp()
 		echo json_encode($toReturn);
 	}
 
-	if ($mybb->get_input('action') == 'myalerts_mark_read') {
+	if ($mybb->get_input('action') == 'get_num_unread_alerts') {
+		header('Content-Type: application/json');
+
+		$userId = (int) $mybb->user['uid'];
+
+		if ($userId > 0) {
+			$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+			$toReturn = array(
+				'unread_count' => $unread_count,
+				'unread_count_fmt' => my_number_format($unread_count)
+			);
+		} else {
+			$toReturn = array(
+				'unread_count' => 0,
+				'unread_count_fmt' => my_number_format(0)
+			);
+		}
+
+		echo json_encode($toReturn);
+	}
+
+	function myalerts_mark_read_or_unread($markRead = true) {
+		global $mybb, $lang;
+
 		header('Content-Type: application/json');
 
 		$id = $mybb->get_input('id', MyBB::INPUT_INT);
@@ -1608,7 +1809,8 @@ function myalerts_xmlhttp()
 					'errors' => array($lang->invalid_post_code),
 				);
 			} else {
-				MybbStuff_MyAlerts_AlertManager::getInstance()->markRead([$id]);
+				$method = $markRead ? 'markRead' : 'markUnread';
+				MybbStuff_MyAlerts_AlertManager::getInstance()->$method([$id]);
 				$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
 
 				$toReturn = array(
@@ -1624,6 +1826,12 @@ function myalerts_xmlhttp()
 		}
 
 		echo json_encode($toReturn);
+	}
+
+	if ($mybb->get_input('action') == 'myalerts_mark_read') {
+		myalerts_mark_read_or_unread(true);
+	} else if ($mybb->get_input('action') == 'myalerts_mark_unread') {
+		myalerts_mark_read_or_unread(false);
 	}
 
 	if ($mybb->input['action'] == 'getNumUnreadAlerts') {
@@ -1728,4 +1936,24 @@ function myalerts_acp_config_permissions(&$admin_permissions)
 	}
 
 	$admin_permissions['myalerts_alert_types'] = $lang->myalerts_can_manage_alert_types;
+}
+
+function myalerts_can_view_thread($fid, $thread_uid, $alerted_uid) {
+	// Get forum permissions for the potentially alerted member.
+	$forumPerms = forum_permissions($fid, $alerted_uid);
+
+	// The potentially alerted member can't view the thread if his/her forum permissions stipulate
+	// that (s)he doesn't have permission to view the forum or the threads within it,
+	// or that members can only view their own threads, and this is not his/her own thread.
+	if ($forumPerms['canview'] == 0
+	    ||
+	    $forumPerms['canviewthreads'] == 0
+	    ||
+	    $forumPerms['canonlyviewownthreads'] == 1 && $thread_uid != $alerted_uid
+	) {
+		return false;
+	}
+
+	// Otherwise, the potentially alerted member can view the thread.
+	return true;
 }

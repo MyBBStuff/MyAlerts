@@ -8,6 +8,8 @@
                 deleteAlertProxy = $.proxy(this.deleteAlert, this),
                 markAllReadProxy = $.proxy(this.markAllRead, this),
                 markReadAlertProxy = $.proxy(this.markReadAlert, this),
+                markUnreadAlertProxy = $.proxy(this.markUnreadAlert, this),
+                setUnreadOnlyProxy = $.proxy(this.setUnreadOnly, this),
                 bodySelector = $("body");
 
             var urlGetLatest = (typeof myAlertsBcMode !== 'undefined' && myAlertsBcMode == '1')
@@ -22,6 +24,10 @@
             bodySelector.on("click", ".deleteAlertButton", deleteAlertProxy);
             bodySelector.on("click", ".markAllReadButton", markAllReadProxy);
             bodySelector.on("click", ".markReadAlertButton", markReadAlertProxy);
+            bodySelector.on("click", ".markUnreadAlertButton", markUnreadAlertProxy);
+            bodySelector.on("click", "#unreadOnlyCheckbox", setUnreadOnlyProxy);
+
+            var refreshHeader = (typeof myAlertsAutoRefreshHdrInt !== 'undefined' && myAlertsAutoRefreshHdrInt > 0);
 
             if (typeof myalerts_autorefresh !== 'undefined' && myalerts_autorefresh > 0
                 &&
@@ -30,11 +36,22 @@
                 // alerts.
                 typeof page !== 'undefined' && page == 1
                ) {
+                refreshHeader = false; // Don't hit the server twice unnecessarily - we update the header here anyway,
+                                       // albeit at a potentially different frequency.
                 window.setInterval(function () {
                     $.get(urlGetLatest, function (data) {
                         $('#latestAlertsListing').html(data.template);
+                        MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
                     });
                 }, myalerts_autorefresh * 1000);
+            }
+
+            if (refreshHeader) {
+                window.setInterval(function () {
+                    $.get('xmlhttp.php?action=get_num_unread_alerts', function (data) {
+                        MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
+                    })
+                }, myAlertsAutoRefreshHdrInt * 1000);
             }
 
             if (typeof unreadAlerts !== 'undefined' && unreadAlerts > 0) {
@@ -52,16 +69,7 @@
                     $.jGrowl(data.error, {theme:'jgrowl_error'});
                 } else {
                     $('#myalerts_alerts_modal tbody:first').html(data['template']);
-                    var msg = $('.alerts a').html();
-                    var appendix = ' (' + unreadAlerts + ')';
-                    if (msg.length >= appendix.length && msg.substring(msg.length - appendix.length) == appendix) {
-                        msg = msg.substring(0, msg.length - appendix.length);
-                        $('.alerts a').html(msg + ' (0)');
-                    }
-                    if (window.document.title.length >= appendix.length && window.document.title.substring(window.document.title.length - appendix.length) == appendix) {
-                        window.document.title = window.document.title.substring(0, window.document.title.length - appendix.length);
-                    }
-                    $('.alerts').removeClass('alerts--new');
+                    MybbStuff.MyAlerts.prototype.updateVisibleCounts(0, 0);
                 }
             });
         }
@@ -70,6 +78,7 @@
             event.preventDefault();
             $.get(this.urlGetLatest, function (data) {
                 $('#latestAlertsListing').html(data.template);
+                MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count);
             });
         };
 
@@ -103,6 +112,9 @@
 
                 // Update the UCP sidebar item "View Alerts"
                 let sb_text = $('.usercp_nav_myalerts strong').html();
+                if (!sb_text) {
+                    sb_text = $('.usercp_nav_myalerts').html();
+                }
                 if (sb_text) {
                     sb_text_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(sb_text);
                     if (unread_count > 0) {
@@ -139,20 +151,48 @@
             return false;
         };
 
-        module.prototype.markReadAlert = function markReadAlert(event) {
+        module.prototype.markReadOrUnreadAlert = function markReadOrUnreadAlert(event, self, markRead) {
             event.preventDefault();
 
             var button = $(event.currentTarget),
-                alertId = button.attr("id").substring(15);
+                offset = markRead ? 15 : 17,
+                inPopup = button.attr("id").substring(0, 6) == 'popup_';
 
-            $.getJSON('xmlhttp.php?action=myalerts_mark_read', {
+            if (inPopup) {
+                offset += 6;
+            }
+
+            var alertId = button.attr("id").substring(offset);
+
+            $.getJSON('xmlhttp.php?action='+(markRead ? 'myalerts_mark_read' : 'myalerts_mark_unread'), {
                 accessMethod: 'js',
                 id: alertId,
                 my_post_key: my_post_key
             }, function (data) {
                 if (data.success) {
-                    $(button.parents('tr').get(0)).removeClass('alert--unread').addClass('alert--read');
+                    if (markRead) {
+                        remClass = 'alert--unread';
+                        addClass = 'alert--read';
+                    } else {
+                        remClass = 'alert--read';
+                        addClass = 'alert--unread';
+                    }
+                    $($('#markread_alert_'      +alertId).parents('tr').get(0)).removeClass(remClass).addClass(addClass);
+                    $($('#popup_markread_alert_'+alertId).parents('tr').get(0)).removeClass(remClass).addClass(addClass);
+                    $('#markread_alert_'  +alertId).toggleClass('hidden');
+                    $('#markunread_alert_'+alertId).toggleClass('hidden');
+                    $('#popup_markread_alert_'  +alertId).toggleClass('hidden');
+                    $('#popup_markunread_alert_'+alertId).toggleClass('hidden');
                     MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count)
+
+                    // If we're marking an alert read and showing only unread in the modal,
+                    // then make sure we hide the newly-read alert.
+                    let cbxOnlyUnread = document.getElementById('unreadOnlyCheckbox');
+                    if (cbxOnlyUnread && cbxOnlyUnread.checked && markRead) {
+                        $.get(self.urlGetLatest+'&modal=1', function (data) {
+                            $('#myalerts_alerts_modal tbody:first').html(data['template']);
+                        });
+                    }
                 }
                 else {
                     for (var i = 0; i < data.errors.length; ++i) {
@@ -164,6 +204,21 @@
 
             return false;
         };
+
+        module.prototype.markReadAlert = function markReadAlert(event) {
+            MybbStuff.MyAlerts.prototype.markReadOrUnreadAlert(event, this, true);
+        }
+
+        module.prototype.markUnreadAlert = function markUnreadAlert(event) {
+            MybbStuff.MyAlerts.prototype.markReadOrUnreadAlert(event, this, false);
+        }
+
+        module.prototype.setUnreadOnly = function setUnreadOnly(event) {
+            Cookie.set('myalerts_unread_only', event.currentTarget.checked ? '1' : '0');
+            $.get(this.urlGetLatest+'&modal=1', function (data) {
+                $('#myalerts_alerts_modal tbody:first').html(data['template']);
+            });
+        }
 
         return module;
     })(window, jQuery);
