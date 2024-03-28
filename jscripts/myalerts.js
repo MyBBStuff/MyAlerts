@@ -97,11 +97,15 @@
 
         module.prototype.updateVisibleCounts = function updateVisibleCounts(unread_count_fmt, unread_count) {
                 // Update the header
-                $('.alerts a').html(MybbStuff.MyAlerts.prototype.stripParenAppendix($('.alerts a').html()) + ' (' + unread_count_fmt + ')');
-                if (unread_count == 0) {
-                    $('.alerts').removeClass('alerts--new');
-                } else if (!$('.alerts').hasClass('alerts--new')) {
-                    $('.alerts').addClass('alerts--new');
+                let $hdr_alerts_el = $('.alerts a');
+                if ($hdr_alerts_el.length) {
+                    let hdr_alerts_text = $hdr_alerts_el.html();
+                    $hdr_alerts_el.html(MybbStuff.MyAlerts.prototype.stripParenAppendix(hdr_alerts_text) + ' (' + unread_count_fmt + ')');
+                    if (unread_count == 0) {
+                        $('.alerts').removeClass('alerts--new');
+                    } else if (!$('.alerts').hasClass('alerts--new')) {
+                        $('.alerts').addClass('alerts--new');
+                    }
                 }
 
                 // Update the browser window's title
