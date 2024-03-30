@@ -14,7 +14,7 @@
         <tr>
             <td class="tfoot smalltext" colspan="3">
                 <a href="{$mybb->settings['bburl']}/alerts.php">{$lang->myalerts_modal_display_alerts}</a>
-                <input type="checkbox" id="unreadOnlyCheckbox" name="unreadOnlyCheckbox" value="1"{$unreadOnlyChecked} /> <label for="unreadOnlyCheckbox">{$lang->myalerts_modal_unread_only}</label>
+                <input type="checkbox" id="unreadOnlyCheckbox" name="unreadOnlyCheckbox" value="1"{$unreadOnlyChecked} /> <label for="unreadOnlyCheckbox" style="cursor:pointer;">{$lang->myalerts_modal_unread_only}</label>
                 <span class="float_right" id="myalerts_modal_right_btns">
                     <a class="markAllReadButton" href="{$mybb->settings['bburl']}/alerts.php?action=mark_all_read&amp;my_post_key={$mybb->post_code}&amp;ret_link={$myalerts_return_link}">{$lang->myalerts_modal_mark_all_read}</a> | 
                     <a href="{$mybb->settings['bburl']}/alerts.php?action=delete_read&amp;my_post_key={$mybb->post_code}&amp;ret_link={$myalerts_return_link}"
