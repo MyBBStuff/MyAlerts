@@ -43,13 +43,13 @@ $l['myalerts_unread_title'] = 'Unread Alerts';
 
 $l['myalerts_no_alerts'] = 'No alerts to display';
 $l['myalerts_rep'] = '{1} modified your reputation.';
-$l['myalerts_pm'] = '{1} sent you a new private message titled</br><strong>"{2}"</strong>';
+$l['myalerts_pm'] = '{1} sent you a new private message titled<br><strong>"{2}"</strong>';
 $l['myalerts_buddylist'] = '{1} added you to their buddy list.';
-$l['myalerts_quoted'] = '{1} quoted you in</br><strong>"{2}"</strong>';
-$l['myalerts_post_threadauthor'] = '{1} replied to your thread</br><strong>"{2}"</strong> (<i>There may be more posts after this.</i>)';
-$l['myalerts_subscribed_thread'] = '{1} replied to your subscribed thread</br><strong>"{2}"</strong>';
-$l['myalerts_rated_threadauthor'] = '{1} rated your thread</br><strong>"{2}"</strong>';
-$l['myalerts_voted_threadauthor'] = '{1} voted in your poll in</br><strong>"{2}"</strong>';
+$l['myalerts_quoted'] = '{1} quoted you in<br><strong>"{2}"</strong>';
+$l['myalerts_post_threadauthor'] = '{1} replied to your thread<br><strong>"{2}"</strong> (<i>There may be more posts after this.</i>)';
+$l['myalerts_subscribed_thread'] = '{1} replied to your subscribed thread<br><strong>"{2}"</strong>';
+$l['myalerts_rated_threadauthor'] = '{1} rated your thread<br><strong>"{2}"</strong>';
+$l['myalerts_voted_threadauthor'] = '{1} voted in your poll in<br><strong>"{2}"</strong>';
 
 $l['myalerts_setting_rep'] = 'Receive alert for reputation?';
 $l['myalerts_setting_pm'] = 'Receive alert for Private Message (PM)?';
