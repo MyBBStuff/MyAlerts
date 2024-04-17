@@ -69,7 +69,7 @@
                     if (data.error) {
                         $.jGrowl(data.error, {theme:'jgrowl_error'});
                     } else {
-                        $('#myalerts_alerts_modal tbody:first').html(data['template']);
+                        $('#myalerts_alerts_modal #alerts_content').html(data['template']);
                         MybbStuff.MyAlerts.prototype.updateVisibleCounts(0, 0);
                     }
                 });
@@ -183,8 +183,8 @@
                         remClass = 'alert--read';
                         addClass = 'alert--unread';
                     }
-                    $($('#markread_alert_'      +alertId).parents('tr').get(0)).removeClass(remClass).addClass(addClass);
-                    $($('#popup_markread_alert_'+alertId).parents('tr').get(0)).removeClass(remClass).addClass(addClass);
+                    $($('#markread_alert_'      +alertId).parents('.alert').get(0)).removeClass(remClass).addClass(addClass);
+                    $($('#popup_markread_alert_'+alertId).parents('.alert').get(0)).removeClass(remClass).addClass(addClass);
                     $('#markread_alert_'  +alertId).toggleClass('hidden');
                     $('#markunread_alert_'+alertId).toggleClass('hidden');
                     $('#popup_markread_alert_'  +alertId).toggleClass('hidden');
@@ -196,7 +196,7 @@
                     let cbxOnlyUnread = document.getElementById('unreadOnlyCheckbox');
                     if (cbxOnlyUnread && cbxOnlyUnread.checked && markRead) {
                         $.get(self.urlGetLatest+'&modal=1', function (data) {
-                            $('#myalerts_alerts_modal tbody:first').html(data['template']);
+                            $('#myalerts_alerts_modal #alerts_content').html(data['template']);
                         });
                     }
                 }
@@ -222,7 +222,7 @@
         module.prototype.setUnreadOnly = function setUnreadOnly(event) {
             Cookie.set('myalerts_unread_only', event.currentTarget.checked ? '1' : '0');
             $.get(this.urlGetLatest+'&modal=1', function (data) {
-                $('#myalerts_alerts_modal tbody:first').html(data['template']);
+                $('#myalerts_alerts_modal #alerts_content').html(data['template']);
             });
         }
 
