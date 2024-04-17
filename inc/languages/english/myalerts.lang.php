@@ -16,7 +16,7 @@ $l['myalerts_page_more'] = 'Alerts overflow onto the next page. Click here to go
 
 $l['myalerts_modal_title'] = 'Recent Alerts';
 $l['myalerts_modal_display_alerts'] = 'View Alerts';
-$l['myalerts_modal_unread_only'] = 'Display Unread Only';
+$l['myalerts_modal_unread_only'] = 'Show Unread Only';
 $l['myalerts_modal_delete_read'] = 'Delete Read Alerts';
 $l['myalerts_modal_delete_all'] = 'Delete All Alerts';
 $l['myalerts_modal_delete_read_confirm'] = 'Really delete all read alerts? This cannot be undone!';
