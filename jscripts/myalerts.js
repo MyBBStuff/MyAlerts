@@ -86,7 +86,7 @@
 
         module.prototype.stripParenAppendix = function stripParenAppendix(str) {
             if (str[str.length - 1] == ')') {
-                let openParenPos = str.lastIndexOf(' (');
+                let openParenPos = str.lastIndexOf('(');
                 if (openParenPos >= 0) {
                     str = str.substring(0, openParenPos);
                 }
@@ -100,7 +100,7 @@
                 let $hdr_alerts_el = $('.alerts a');
                 if ($hdr_alerts_el.length) {
                     let hdr_alerts_text = $hdr_alerts_el.html();
-                    $hdr_alerts_el.html(MybbStuff.MyAlerts.prototype.stripParenAppendix(hdr_alerts_text) + ' (' + unread_count_fmt + ')');
+                    $hdr_alerts_el.html(MybbStuff.MyAlerts.prototype.stripParenAppendix(hdr_alerts_text) + '(' + unread_count_fmt + ')');
                     if (unread_count == 0) {
                         $('.alerts').removeClass('alerts--new');
                     } else if (!$('.alerts').hasClass('alerts--new')) {
@@ -111,7 +111,7 @@
                 // Update the browser window's title
                 let title_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(window.document.title);
                 if (unread_count > 0) {
-                    window.document.title = title_bare + ' (' + unread_count_fmt + ')';
+                    window.document.title = title_bare + '(' + unread_count_fmt + ')';
                 } else {
                     window.document.title = title_bare;
                 }
@@ -124,7 +124,7 @@
                 if (sb_text) {
                     sb_text_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(sb_text);
                     if (unread_count > 0) {
-                        $('.usercp_nav_myalerts').html('<strong>' + sb_text_bare + ' (' + unread_count_fmt + ')</strong>');
+                        $('.usercp_nav_myalerts').html('<strong>' + sb_text_bare + '(' + unread_count_fmt + ')</strong>');
                     } else {
                         $('.usercp_nav_myalerts').html(sb_text_bare);
                     }
