@@ -82,3 +82,8 @@ $l['myalerts_delete_read'] = 'Read alerts deleted successfully.';
 $l['myalerts_error_alert_not_found'] = 'Alert not found.';
 
 $l['myalerts_delete'] = 'Delete';
+
+// For the task when run from a user context via the task image bottom of page.
+// Duplicated in the admin language file for when the task runs from the ACP.
+$l['myalerts_task_cleanup_ran'] = 'Read alerts over {1} days old and unread alerts over {2} days old were deleted successfully!';
+$l['myalerts_task_cleanup_error'] = 'Something went wrong while cleaning up the alerts...';

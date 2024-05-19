@@ -17,7 +17,9 @@ $l['setting_myalerts_avatar_size_desc'] = "The dimensions to use when displaying
 $l['setting_myalerts_bc_mode'] = "Backwards compatibility mode";
 $l['setting_myalerts_bc_mode_desc'] = "To support client plugins which do not yet register their alerts formatters via this plugin's `myalerts_register_client_alert_formatters` hook. Turning this mode on will resolve the problem of empty alerts rows in the modal dialogue for some client alert types after clicking, for example, 'Mark All Read'.";
 
-$l['myalerts_task_cleanup_ran'] = 'Read alerts over a week old were deleted successfully!';
+// For the task when run from the ACP.
+// Duplicated in the user language file for when the task runs in a user context via the task image bottom of page.
+$l['myalerts_task_cleanup_ran'] = 'Read alerts over {1} days old and unread alerts over {2} days old were deleted successfully!';
 $l['myalerts_task_cleanup_error'] = 'Something went wrong while cleaning up the alerts...';
 
 $l['myalerts_task_title'] = 'MyAlerts Cleanup';
