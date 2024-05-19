@@ -47,7 +47,7 @@ function myalerts_info()
 		'website'       => 'http://mybbstuff.com/myalerts',
 		'author'        => 'Euan T',
 		'authorsite'    => 'http://euantor.com',
-		'version'       => '2.1.0-beta-dev',
+		'version'       => '2.1.0',
 		'compatibility' => '18*',
 		'codename'      => 'mybbstuff_myalerts',
 	);
