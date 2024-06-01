@@ -111,6 +111,10 @@
                 // Update the browser window's title
                 let title_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(window.document.title);
                 if (unread_count > 0) {
+                    // Make sure the parenthesised count is set off with a space - add one if there isn't one already.
+                    if (title_bare.substr(-1) != ' ') {
+                        title_bare += ' ';
+                    }
                     window.document.title = title_bare + '(' + unread_count_fmt + ')';
                 } else {
                     window.document.title = title_bare;
@@ -123,6 +127,10 @@
                 }
                 if (sb_text) {
                     sb_text_bare = MybbStuff.MyAlerts.prototype.stripParenAppendix(sb_text);
+                    // Make sure the parenthesised count is set off with a space - add one if there isn't one already.
+                    if (sb_text_bare.substr(-1) != ' ') {
+                        sb_text_bare += ' ';
+                    }
                     if (unread_count > 0) {
                         $('.usercp_nav_myalerts').html('<strong>' + sb_text_bare + '(' + unread_count_fmt + ')</strong>');
                     } else {
