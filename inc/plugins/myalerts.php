@@ -259,14 +259,14 @@ function myalerts_activate()
 			$db->add_column(
 				'alert_types',
 				'default_user_enabled',
-				"smallint NOT NULL DEFAULT '1'",
+				"smallint NOT NULL DEFAULT '1'"
 			);
 			break;
 		default:
 			$db->add_column(
 				'alert_types',
 				'default_user_enabled',
-				"tinyint(4) NOT NULL DEFAULT '1'",
+				"tinyint(4) NOT NULL DEFAULT '1'"
 			);
 			break;
 		}
