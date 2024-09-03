@@ -259,14 +259,14 @@ function myalerts_activate()
 			$db->add_column(
 				'alert_types',
 				'default_user_enabled',
-				"smallint NOT NULL DEFAULT '1'",
+				"smallint NOT NULL DEFAULT '1'"
 			);
 			break;
 		default:
 			$db->add_column(
 				'alert_types',
 				'default_user_enabled',
-				"tinyint(4) NOT NULL DEFAULT '1'",
+				"tinyint(4) NOT NULL DEFAULT '1'"
 			);
 			break;
 		}
@@ -663,17 +663,27 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 	$outputAlert = array();
 
 	if ($formatter != null) {
-		$plugins->run_hooks('myalerts_alerts_output_start', $alert);
+		$hook_arguments = [
+			'outputAlert' => &$outputAlert,
+			'formatter' => &$formatter,
+			'alertToParse' => &$formatter
+		];
+
+		$plugins->run_hooks('myalerts_alerts_output_start', $hook_arguments);
 
 		$formatter->init();
 
 		$fromUser = $alertToParse->getFromUser();
+
+		$hook_arguments['fromUser'] = &$fromUser;
 
 		$maxDimensions = str_replace(
 			'|',
 			'x',
 			$mybb->settings['myalerts_avatar_size']
 		);
+
+		$hook_arguments['maxDimensions'] = &$maxDimensions;
 
 		$outputAlert['avatar'] = format_avatar(
 			$fromUser['avatar'],
@@ -716,7 +726,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 			$alertToParse->getCreatedAt()->getTimestamp()
 		);
 
-		$plugins->run_hooks('myalerts_alerts_output_end', $alert);
+		$plugins->run_hooks('myalerts_alerts_output_end', $hook_arguments);
 	}
 
 	return $outputAlert;
@@ -1343,7 +1353,7 @@ $plugins->add_hook(
 );
 function myalerts_alert_rated_threadauthor()
 {
-	global $mybb, $db, $tid;
+	global $mybb, $db, $tid, $plugins;
 
 	if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
 		return;
