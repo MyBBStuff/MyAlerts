@@ -1353,7 +1353,7 @@ $plugins->add_hook(
 );
 function myalerts_alert_rated_threadauthor()
 {
-	global $mybb, $db, $tid, $plugins;
+	global $mybb, $db, $tid;
 
 	if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1) {
 		return;
@@ -1392,7 +1392,7 @@ function myalerts_alert_rated_threadauthor()
 				$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
 
 				if (is_null($alertManager) || $alertManager === false) {
-					global $cache;
+					global $cache, $plugins;
 
 					$alertManager = MybbStuff_MyAlerts_AlertManager::createInstance($mybb, $db, $cache, $plugins, $alertTypeManager);
 				}
