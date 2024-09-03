@@ -666,7 +666,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 		$hook_arguments = [
 			'outputAlert' => &$outputAlert,
 			'formatter' => &$formatter,
-			'alertToParse' => &$formatter
+			'alertToParse' => &$alertToParse
 		];
 
 		$plugins->run_hooks('myalerts_alerts_output_start', $hook_arguments);
