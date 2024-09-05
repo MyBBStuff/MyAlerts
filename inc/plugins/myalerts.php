@@ -663,17 +663,27 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 	$outputAlert = array();
 
 	if ($formatter != null) {
-		$plugins->run_hooks('myalerts_alerts_output_start', $alert);
+		$hook_arguments = [
+			'outputAlert' => &$outputAlert,
+			'formatter' => &$formatter,
+			'alertToParse' => &$alertToParse
+		];
+
+		$plugins->run_hooks('myalerts_alerts_output_start', $hook_arguments);
 
 		$formatter->init();
 
 		$fromUser = $alertToParse->getFromUser();
+
+		$hook_arguments['fromUser'] = &$fromUser;
 
 		$maxDimensions = str_replace(
 			'|',
 			'x',
 			$mybb->settings['myalerts_avatar_size']
 		);
+
+		$hook_arguments['maxDimensions'] = &$maxDimensions;
 
 		$outputAlert['avatar'] = format_avatar(
 			$fromUser['avatar'],
@@ -716,7 +726,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 			$alertToParse->getCreatedAt()->getTimestamp()
 		);
 
-		$plugins->run_hooks('myalerts_alerts_output_end', $alert);
+		$plugins->run_hooks('myalerts_alerts_output_end', $hook_arguments);
 	}
 
 	return $outputAlert;
@@ -1382,7 +1392,7 @@ function myalerts_alert_rated_threadauthor()
 				$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
 
 				if (is_null($alertManager) || $alertManager === false) {
-					global $cache;
+					global $cache, $plugins;
 
 					$alertManager = MybbStuff_MyAlerts_AlertManager::createInstance($mybb, $db, $cache, $plugins, $alertTypeManager);
 				}
