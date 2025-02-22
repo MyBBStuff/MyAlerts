@@ -1098,7 +1098,7 @@ function myalerts_update_quoted($dataHandler)
 {
 	global $db;
 
-	if (!empty($dataHandler->data['savedraft'])) {
+	if (!empty($dataHandler->data['savedraft']) || !isset($dataHandler->data['message'])) {
 		return;
 	}
 
@@ -1151,9 +1151,11 @@ function myalerts_update_quoted($dataHandler)
 				}
 			}
 
+			// Delete alerts for no-longer-quoted members quoted in the original post
 			if ($quoted_to_delete) {
-				// Delete alerts for no-longer-quoted members quoted in the original post
 				$uids_for_del_cs = implode(',', myalerts_usernames_to_uids($quoted_to_delete));
+			}
+			if ($uids_for_del_cs) {
 				$ids_for_del = [];
 				$type_id = $alertType->getId();
 				$query = $db->simple_select('alerts', 'id, extra_details', "alert_type_id = {$type_id} AND object_id = {$tid} AND uid IN ({$uids_for_del_cs})");
