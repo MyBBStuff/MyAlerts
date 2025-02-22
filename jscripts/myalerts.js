@@ -151,7 +151,8 @@
                 my_post_key: my_post_key
             }, function (data) {
                 if (data.success) {
-                    deleteButton.parents('tr').get(0).remove();
+                    $('#alert_row_'       + alertId).remove();
+                    $('#alert_row_popup_' + alertId).remove();
                     MybbStuff.MyAlerts.prototype.updateVisibleCounts(data.unread_count_fmt, data.unread_count)
                 }
                 else {
