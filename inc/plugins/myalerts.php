@@ -23,7 +23,7 @@ defined(
 ) or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
 
 if (!is_readable(PLUGINLIBRARY)) {
-	die('The MyAlerts plugin is aborting execution because it could not read the required PluginLibrary file at "'.PLUGINLIBRARY.'". Please install PluginLibrary from <a href="https://community.mybb.com/mods.php?action=view&pid=573">here</a> before continuing.');
+	die('The MyAlerts plugin is aborting execution because it could not read the required PluginLibrary file at "'.PLUGINLIBRARY.'". Please install PluginLibrary from <a href="https://github.com/mybbgroup/MyBB-PluginLibrary/">here</a> before continuing.');
 }
 
 if (!is_readable(MYBBSTUFF_CORE_PATH . 'ClassLoader.php')) {
