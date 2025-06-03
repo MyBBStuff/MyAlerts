@@ -1506,7 +1506,7 @@ function myalertsrow_subscribed(\PostDataHandler &$dataHandler): void
 		}
 	}
 
-	return $dataHandler;
+	return;
 }
 
 
