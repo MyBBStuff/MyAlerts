@@ -23,7 +23,7 @@ defined(
 ) or define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
 
 if (!is_readable(PLUGINLIBRARY)) {
-	die('The MyAlerts plugin is aborting execution because it could not read the required PluginLibrary file at "'.PLUGINLIBRARY.'". Please install PluginLibrary from <a href="https://community.mybb.com/mods.php?action=view&pid=573">here</a> before continuing.');
+	die('The MyAlerts plugin is aborting execution because it could not read the required PluginLibrary file at "'.PLUGINLIBRARY.'". Please install PluginLibrary from <a href="https://github.com/mybbgroup/MyBB-PluginLibrary/">here</a> before continuing.');
 }
 
 if (!is_readable(MYBBSTUFF_CORE_PATH . 'ClassLoader.php')) {
@@ -855,7 +855,7 @@ function myalerts_create_instances()
 $plugins->add_hook('global_intermediate', 'myalerts_global_intermediate');
 function myalerts_global_intermediate()
 {
-	global $templates, $mybb, $lang, $myalerts_return_link, $myalerts_headericon, $myalerts_modal, $myalerts_js, $theme;
+	global $templates, $mybb, $lang, $myalerts_return_link, $myalerts_headericon, $myalerts_modal, $myalerts_js, $theme, $newAlertsIndicator;
 
 	$myalerts_js = '';
 
@@ -1098,7 +1098,7 @@ function myalerts_update_quoted($dataHandler)
 {
 	global $db;
 
-	if (!empty($dataHandler->data['savedraft'])) {
+	if (!empty($dataHandler->data['savedraft']) || !isset($dataHandler->data['message'])) {
 		return;
 	}
 
@@ -1108,10 +1108,10 @@ function myalerts_update_quoted($dataHandler)
 	$tid              = $existing_post['tid'];
 	$existing_msg     = $existing_post['message'];
 	$updated_msg      = $dataHandler->data['message'];
-	$author           = get_user($dataHandler->data['uid']);
-	$subject          = $dataHandler->data['subject'] ? $dataHandler->data['subject'] : $existing_post['subject'];
-	$existing_quoted  = myalerts_get_quoted_usernames($existing_msg, $author['username']);
-	$updated_quoted   = myalerts_get_quoted_usernames( $updated_msg, $author['username']);
+	$author           = !empty($dataHandler->data['uid']) ? get_user($dataHandler->data['uid']) : [];
+	$subject          = isset($dataHandler->data['subject']) ? $dataHandler->data['subject'] : $existing_post['subject'];
+	$existing_quoted  = myalerts_get_quoted_usernames($existing_msg, !empty($author['username']) ? $author['username'] : '');
+	$updated_quoted   = myalerts_get_quoted_usernames( $updated_msg, !empty($author['username']) ? $author['username'] : '');
 	$quoted_to_delete = array_diff($existing_quoted,  $updated_quoted);
 	$quoted_to_add    = array_diff( $updated_quoted, $existing_quoted);
 
@@ -1125,7 +1125,7 @@ function myalerts_update_quoted($dataHandler)
 				$quoted_uids_to_add = myalerts_usernames_to_uids($quoted_to_add);
 				$uids_to_add_permchk = [];
 				foreach ($quoted_uids_to_add as $uid) {
-					if (myalerts_can_view_thread($fid, $author['uid'], $uid)) {
+					if (myalerts_can_view_thread($fid, isset($author['uid']) ? $author['uid'] : 0, $uid)) {
 						$uids_to_add_permchk[] = $uid;
 					}
 				}
@@ -1151,9 +1151,11 @@ function myalerts_update_quoted($dataHandler)
 				}
 			}
 
+			// Delete alerts for no-longer-quoted members quoted in the original post
 			if ($quoted_to_delete) {
-				// Delete alerts for no-longer-quoted members quoted in the original post
 				$uids_for_del_cs = implode(',', myalerts_usernames_to_uids($quoted_to_delete));
+			}
+			if (!empty($uids_for_del_cs)) {
 				$ids_for_del = [];
 				$type_id = $alertType->getId();
 				$query = $db->simple_select('alerts', 'id, extra_details', "alert_type_id = {$type_id} AND object_id = {$tid} AND uid IN ({$uids_for_del_cs})");
@@ -1297,23 +1299,14 @@ function myalerts_alert_post_threadauthor(&$post)
 		$alertType = $alertTypeManager->getByCode('post_threadauthor');
 
 		if ($alertType != null && $alertType->getEnabled()) {
-			if ($post->post_insert_data['tid'] == 0) {
-				$query = $db->simple_select(
-					'threads',
-					'uid,subject,fid',
-					'tid = ' . $post->data['tid'],
-					array('limit' => '1')
-				);
-				$thread = $db->fetch_array($query);
-			} else {
-				$query = $db->simple_select(
-					'threads',
-					'uid,subject,fid',
-					'tid = ' . $post->post_insert_data['tid'],
-					array('limit' => '1')
-				);
-				$thread = $db->fetch_array($query);
-			}
+			$tid = empty($post->post_insert_data['tid']) ? $post->data['tid'] : $post->post_insert_data['tid'];
+			$query = $db->simple_select(
+				'threads',
+				'uid,subject,fid',
+				'tid = ' . $tid,
+				array('limit' => '1')
+			);
+			$thread = $db->fetch_array($query);
 
 			if ($thread['uid'] != $mybb->user['uid']) {
 				// Check forum permissions
@@ -1322,18 +1315,18 @@ function myalerts_alert_post_threadauthor(&$post)
 					$query = $db->simple_select(
 						'alerts',
 						'id',
-						'object_id = ' . (int) $post->post_insert_data['tid'] . " AND unread = 1 AND alert_type_id = {$alertType->getId()}"
+						'object_id = ' . (int) $tid . " AND unread = 1 AND alert_type_id = {$alertType->getId()}"
 					);
 
 					if ($db->num_rows($query) == 0) {
 						$alert = new MybbStuff_MyAlerts_Entity_Alert(
 							$thread['uid'],
 							$alertType,
-							(int) $post->post_insert_data['tid']
+							(int) $tid
 						);
 						$alert->setExtraDetails(
 							array(
-								'tid'       => $post->post_insert_data['tid'],
+								'tid'       => $tid,
 								't_subject' => $thread['subject'],
 								'fid'       => (int) $thread['fid'],
 							)
