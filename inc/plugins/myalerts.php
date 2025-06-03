@@ -1460,12 +1460,14 @@ function myalerts_alert_voted_threadauthor()
 }
 
 $plugins->add_hook('datahandler_post_insert_post', 'myalertsrow_subscribed');
-function myalertsrow_subscribed(&$dataHandler)
+function myalertsrow_subscribed(\PostDataHandler &$dataHandler): \PostDataHandler
 {
-	global $mybb, $db, $post;
+	global $mybb, $db;
 
-	if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || $post['savedraft']) {
-		return;
+    $post = $dataHandler->data;
+
+	if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || !empty($post['savedraft'])) {
+		return $dataHandler;
 	}
 
 	myalerts_create_instances();
@@ -1482,9 +1484,9 @@ function myalertsrow_subscribed(&$dataHandler)
 		$post['uid'] = (int) $post['uid'];
 		$thread['lastpost'] = (int) $thread['lastpost'];
 
-		$query = $db->query("
-			SELECT s.uid FROM " . TABLE_PREFIX . "threadsubscriptions s
-			LEFT JOIN " . TABLE_PREFIX . "users u ON (u.uid=s.uid)
+		$query = $db->query('
+			SELECT s.uid FROM ' . TABLE_PREFIX . 'threadsubscriptions s
+			LEFT JOIN ' . TABLE_PREFIX . "users u ON (u.uid=s.uid)
 			WHERE (s.notification = 0 OR s.notification = 1) AND s.tid='{$post['tid']}'
 			AND s.uid != '{$post['uid']}'
 			AND u.lastactive>'{$thread['lastpost']}'"
@@ -1510,6 +1512,8 @@ function myalertsrow_subscribed(&$dataHandler)
 			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
 		}
 	}
+
+	return $dataHandler;
 }
 
 
