@@ -1276,7 +1276,7 @@ $plugins->add_hook(
 	'datahandler_post_insert_post',
 	'myalerts_alert_post_threadauthor'
 );
-function myalerts_alert_post_threadauthor(&$post)
+function myalerts_alert_post_threadauthor(\PostDataHandler &$dataHandler): void
 {
 	global $mybb, $db;
 
@@ -1284,7 +1284,7 @@ function myalerts_alert_post_threadauthor(&$post)
 		return;
 	}
 
-	if (!$post->data['savedraft']) {
+	if (!$dataHandler->data['savedraft']) {
 		myalerts_create_instances();
 
 		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
@@ -1299,7 +1299,7 @@ function myalerts_alert_post_threadauthor(&$post)
 		$alertType = $alertTypeManager->getByCode('post_threadauthor');
 
 		if ($alertType != null && $alertType->getEnabled()) {
-			$tid = empty($post->post_insert_data['tid']) ? $post->data['tid'] : $post->post_insert_data['tid'];
+			$tid = empty($dataHandler->post_insert_data['tid']) ? $dataHandler->data['tid'] : $dataHandler->post_insert_data['tid'];
 			$query = $db->simple_select(
 				'threads',
 				'uid,subject,fid',
