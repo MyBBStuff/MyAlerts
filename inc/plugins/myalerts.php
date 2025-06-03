@@ -901,7 +901,7 @@ $plugins->add_hook(
 	'datahandler_user_insert',
 	'myalerts_datahandler_user_insert'
 );
-function myalerts_datahandler_user_insert(&$dataHandler)
+function myalerts_datahandler_user_insert(\UserDataHandler &$dataHandler): void
 {
 	global $db, $cache;
 
@@ -986,7 +986,7 @@ function myalerts_addAlert_rep()
 }
 
 $plugins->add_hook('datahandler_pm_insert_commit', 'myalerts_addAlert_pm');
-function myalerts_addAlert_pm($PMDataHandler)
+function myalerts_addAlert_pm(\PMDataHandler &$PMDataHandler): void
 {
 	if ($PMDataHandler->pm_insert_data['fromid'] < 1) {
 		return;
@@ -1094,7 +1094,7 @@ function myalerts_alert_buddylist()
 }
 
 $plugins->add_hook('datahandler_post_update', 'myalerts_update_quoted');
-function myalerts_update_quoted($dataHandler)
+function myalerts_update_quoted(\PostDataHandler &$dataHandler): void
 {
 	global $db;
 
@@ -1453,14 +1453,14 @@ function myalerts_alert_voted_threadauthor()
 }
 
 $plugins->add_hook('datahandler_post_insert_post', 'myalertsrow_subscribed');
-function myalertsrow_subscribed(\PostDataHandler &$dataHandler): \PostDataHandler
+function myalertsrow_subscribed(\PostDataHandler &$dataHandler): void
 {
 	global $mybb, $db;
 
-    $post = $dataHandler->data;
+	$post = $dataHandler->data;
 
 	if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || !empty($post['savedraft'])) {
-		return $dataHandler;
+		return;
 	}
 
 	myalerts_create_instances();
