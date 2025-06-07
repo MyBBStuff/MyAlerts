@@ -901,7 +901,7 @@ $plugins->add_hook(
 	'datahandler_user_insert',
 	'myalerts_datahandler_user_insert'
 );
-function myalerts_datahandler_user_insert(&$dataHandler)
+function myalerts_datahandler_user_insert(\UserDataHandler &$dataHandler): void
 {
 	global $db, $cache;
 
@@ -986,7 +986,7 @@ function myalerts_addAlert_rep()
 }
 
 $plugins->add_hook('datahandler_pm_insert_commit', 'myalerts_addAlert_pm');
-function myalerts_addAlert_pm($PMDataHandler)
+function myalerts_addAlert_pm(\PMDataHandler &$PMDataHandler): void
 {
 	if ($PMDataHandler->pm_insert_data['fromid'] < 1) {
 		return;
@@ -1094,7 +1094,7 @@ function myalerts_alert_buddylist()
 }
 
 $plugins->add_hook('datahandler_post_update', 'myalerts_update_quoted');
-function myalerts_update_quoted($dataHandler)
+function myalerts_update_quoted(\PostDataHandler &$dataHandler): void
 {
 	global $db;
 
@@ -1276,7 +1276,7 @@ $plugins->add_hook(
 	'datahandler_post_insert_post',
 	'myalerts_alert_post_threadauthor'
 );
-function myalerts_alert_post_threadauthor(&$post)
+function myalerts_alert_post_threadauthor(\PostDataHandler &$dataHandler): void
 {
 	global $mybb, $db;
 
@@ -1284,7 +1284,7 @@ function myalerts_alert_post_threadauthor(&$post)
 		return;
 	}
 
-	if (!$post->data['savedraft']) {
+	if (!$dataHandler->data['savedraft']) {
 		myalerts_create_instances();
 
 		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
@@ -1299,7 +1299,7 @@ function myalerts_alert_post_threadauthor(&$post)
 		$alertType = $alertTypeManager->getByCode('post_threadauthor');
 
 		if ($alertType != null && $alertType->getEnabled()) {
-			$tid = empty($post->post_insert_data['tid']) ? $post->data['tid'] : $post->post_insert_data['tid'];
+			$tid = empty($dataHandler->post_insert_data['tid']) ? $dataHandler->data['tid'] : $dataHandler->post_insert_data['tid'];
 			$query = $db->simple_select(
 				'threads',
 				'uid,subject,fid',
@@ -1453,11 +1453,13 @@ function myalerts_alert_voted_threadauthor()
 }
 
 $plugins->add_hook('datahandler_post_insert_post', 'myalertsrow_subscribed');
-function myalertsrow_subscribed(&$dataHandler)
+function myalertsrow_subscribed(\PostDataHandler &$dataHandler): void
 {
-	global $mybb, $db, $post;
+	global $mybb, $db;
 
-	if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || $post['savedraft']) {
+	$post = $dataHandler->data;
+
+	if (!isset($mybb->user['uid']) || $mybb->user['uid'] < 1 || !empty($post['savedraft'])) {
 		return;
 	}
 
@@ -1475,9 +1477,9 @@ function myalertsrow_subscribed(&$dataHandler)
 		$post['uid'] = (int) $post['uid'];
 		$thread['lastpost'] = (int) $thread['lastpost'];
 
-		$query = $db->query("
-			SELECT s.uid FROM " . TABLE_PREFIX . "threadsubscriptions s
-			LEFT JOIN " . TABLE_PREFIX . "users u ON (u.uid=s.uid)
+		$query = $db->query('
+			SELECT s.uid FROM ' . TABLE_PREFIX . 'threadsubscriptions s
+			LEFT JOIN ' . TABLE_PREFIX . "users u ON (u.uid=s.uid)
 			WHERE (s.notification = 0 OR s.notification = 1) AND s.tid='{$post['tid']}'
 			AND s.uid != '{$post['uid']}'
 			AND u.lastactive>'{$thread['lastpost']}'"
@@ -1503,6 +1505,8 @@ function myalertsrow_subscribed(&$dataHandler)
 			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
 		}
 	}
+
+	return;
 }
 
 
