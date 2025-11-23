@@ -81,7 +81,9 @@ class MybbStuff_MyAlerts_AlertManager
 		$this->alertTypeManager = $alertTypeManager;
 
 		$this->currentUserEnabledAlerts = $this->filterEnabledAlerts(
-			$mybb->user['myalerts_disabled_alert_types']
+			is_array($this->mybb->user['myalerts_disabled_alert_types']) ?
+				$this->mybb->user['myalerts_disabled_alert_types'] :
+				json_decode($this->mybb->user['myalerts_disabled_alert_types'])
 		);
 
 		static::$alertQueue = array();
@@ -99,6 +101,7 @@ class MybbStuff_MyAlerts_AlertManager
 	private function filterEnabledAlerts(array $userDisabledAlertIds = array()): array
 	{
 		$alertTypes = $this->alertTypeManager->getAlertTypes();
+
 		$enabledAlertTypes = array();
 
 		foreach ($alertTypes as $alertType) {
@@ -150,7 +153,7 @@ class MybbStuff_MyAlerts_AlertManager
 		pluginSystem $plugins,
 		MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager
 	): self {
-		if (static::$instance === null) {
+		if (!isset(static::$instance)) {
 			static::$instance = new self(
 				$mybb,
 				$db,
@@ -172,7 +175,7 @@ class MybbStuff_MyAlerts_AlertManager
 	 */
 	public static function getInstance(): self
 	{
-		if (!(static::$instance instanceof MybbStuff_MyAlerts_AlertManager)) {
+		if (!isset(static::$instance)) {
 			throw new Exception('Alert manager not instantiated. Call createInstance() first.');
 		}
 

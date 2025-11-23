@@ -56,7 +56,7 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 	 */
 	public static function createInstance(MyBB $mybb, MyLanguage $lang): self
 	{
-		if (static::$instance === null) {
+		if (!isset(static::$instance)) {
 			static::$instance = new self($mybb, $lang);
 		}
 
@@ -71,7 +71,7 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 	 */
 	public static function getInstance(): self
 	{
-		if (!(static::$instance instanceof self)) {
+		if (!isset(static::$instance)) {
 			throw new Exception('AlertFormatterManager has not been instantiated.');
 		}
 

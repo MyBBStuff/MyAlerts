@@ -94,7 +94,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 */
 	public static function createInstance(DB_Base $db, datacache $cache): self
 	{
-		if (static::$instance === null) {
+		if (!isset(static::$instance)) {
 			static::$instance = new self($db, $cache);
 		}
 
@@ -108,7 +108,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 */
 	public static function getInstance(): self
 	{
-		if(static::$instance === null) {
+		if(!isset(static::$instance)) {
 			throw new RuntimeException('Alert type manager has not been created yet.');
 		}
 
