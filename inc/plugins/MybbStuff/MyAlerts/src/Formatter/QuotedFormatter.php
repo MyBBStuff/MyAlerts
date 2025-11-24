@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Alert formatter for quote alerts.
  */
@@ -9,7 +11,7 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter
 	/**
 	 * @var postParser $parser
 	 */
-	private $parser;
+	private postParser $parser;
 
 	/**
 	 * Format an alert into it's output string to be used in both the main
@@ -22,9 +24,9 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter
 	public function formatAlert(
 		MybbStuff_MyAlerts_Entity_Alert $alert,
 		array $outputAlert
-	) {
+	): string
+	{
 		$alertContent = $alert->getExtraDetails();
-		$postLink = $this->buildShowLink($alert);
 
 		return $this->lang->sprintf(
 			$this->lang->myalerts_quoted,
@@ -41,14 +43,14 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter
 	 *
 	 * @return void
 	 */
-	public function init()
+	public function init(): void
 	{
 		if (!$this->lang->myalerts) {
 			$this->lang->load('myalerts');
 		}
 
 		require_once MYBB_ROOT . 'inc/class_parser.php';
-		$this->parser = new postParser;
+		$this->parser = new postParser();
 	}
 
 	/**
@@ -60,14 +62,13 @@ class MybbStuff_MyAlerts_Formatter_QuotedFormatter
 	 *
 	 * @return string The built alert, preferably an absolute link.
 	 */
-	public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+	public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert): string
 	{
 		$alertContent = $alert->getExtraDetails();
-		$postLink = $this->mybb->settings['bburl'] . '/' . get_post_link(
+
+		return $this->mybb->settings['bburl'] . '/' . get_post_link(
 				(int) $alertContent['pid'],
 				(int) $alertContent['tid']
 			) . '#pid' . (int) $alertContent['pid'];
-
-		return $postLink;
 	}
 }

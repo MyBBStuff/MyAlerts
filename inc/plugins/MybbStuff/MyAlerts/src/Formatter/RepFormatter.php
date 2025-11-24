@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Alert formatter for reputation alerts.
  */
@@ -17,7 +19,8 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter
 	public function formatAlert(
 		MybbStuff_MyAlerts_Entity_Alert $alert,
 		array $outputAlert
-	) {
+	): string
+	{
 		return $this->lang->sprintf(
 			$this->lang->myalerts_rep,
 			$outputAlert['from_user']
@@ -30,7 +33,7 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter
 	 *
 	 * @return void
 	 */
-	public function init()
+	public function init(): void
 	{
 		if (!$this->lang->myalerts) {
 			$this->lang->load('myalerts');
@@ -41,12 +44,11 @@ class MybbStuff_MyAlerts_Formatter_RepFormatter
 	 * Build a link to an alert's content so that the system can redirect to
 	 * it.
 	 *
-	 * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the
-	 *                                               link for.
+	 * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
 	 *
 	 * @return string The built alert, preferably an absolute link.
 	 */
-	public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+	public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert): string
 	{
 		return "{$this->mybb->settings['bburl']}/reputation.php?uid={$this->mybb->user['uid']}";
 

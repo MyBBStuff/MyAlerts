@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Alert formatter for buddy list alerts.
  */
@@ -17,7 +19,8 @@ class MybbStuff_MyAlerts_Formatter_BuddylistFormatter
 	public function formatAlert(
 		MybbStuff_MyAlerts_Entity_Alert $alert,
 		array $outputAlert
-	) {
+	): string
+	{
 		return $this->lang->sprintf(
 			$this->lang->myalerts_buddylist,
 			$outputAlert['from_user']
@@ -30,7 +33,7 @@ class MybbStuff_MyAlerts_Formatter_BuddylistFormatter
 	 *
 	 * @return void
 	 */
-	public function init()
+	public function init(): void
 	{
 		if (!$this->lang->myalerts) {
 			$this->lang->load('myalerts');
@@ -46,7 +49,7 @@ class MybbStuff_MyAlerts_Formatter_BuddylistFormatter
 	 *
 	 * @return string The built alert, preferably an absolute link.
 	 */
-	public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+	public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert): string
 	{
 		return get_profile_link($alert->getFromUserId());
 	}

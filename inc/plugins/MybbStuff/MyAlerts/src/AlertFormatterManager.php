@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Manager class for alert formatters.
  *
- * All alert formatters should be registered with this class in order to be
- * displayed.
+ * All alert formatters should be registered with this class to be displayed.
  *
  * @package MybbStuff\MyAlerts
  */
@@ -13,23 +14,23 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 	/**
 	 * @var MybbStuff_MyAlerts_AlertFormatterManager
 	 */
-	private static $instance = null;
+	private static MybbStuff_MyAlerts_AlertFormatterManager $instance;
 	/**
 	 * @var MyBB
 	 */
-	private $mybb;
+	private MyBB $mybb;
 	/**
 	 * @var MyLanguage
 	 */
-	private $lang;
+	private MyLanguage $lang;
 	/**
-	 * @var array
+	 * @var MybbStuff_MyAlerts_Formatter_AbstractFormatter[]
 	 */
-	private $alertFormatters;
+	private array $alertFormatters;
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
-	private $registrationHookHasRun;
+	private bool $registrationHookHasRun;
 
 	/**
 	 * Create a new formatter manager.
@@ -53,9 +54,9 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 	 *
 	 * @return MybbStuff_MyAlerts_AlertFormatterManager The created instance.
 	 */
-	public static function createInstance(MyBB $mybb, MyLanguage $lang)
+	public static function createInstance(MyBB $mybb, MyLanguage $lang): self
 	{
-		if (static::$instance === null) {
+		if (!isset(static::$instance)) {
 			static::$instance = new self($mybb, $lang);
 		}
 
@@ -64,17 +65,14 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 
 	/**
 	 * Get an instance of the AlertFormatterManager if one has been created via
+	 * @return MybbStuff_MyAlerts_AlertFormatterManager The existing instance, or false if not already instantiated.
+	 * @throws Exception
 	 * @see createInstance().
-	 *
-	 * @return bool|MybbStuff_MyAlerts_AlertFormatterManager The existing
-	 *                                                       instance, or false
-	 *                                                       if not already
-	 *                                                       instantiated.
 	 */
-	public static function getInstance()
+	public static function getInstance(): self
 	{
-		if (static::$instance === null) {
-			return false;
+		if (!isset(static::$instance)) {
+			throw new Exception('AlertFormatterManager has not been instantiated.');
 		}
 
 		return static::$instance;
@@ -83,40 +81,13 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 	/**
 	 * Register a new alert type formatter.
 	 *
-	 * @param string|MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatterClass The
-	 *                                                                              formatter
-	 *                                                                              to
-	 *                                                                              use.
-	 *                                                                              Either
-	 *                                                                              the
-	 *                                                                              name
-	 *                                                                              or
-	 *                                                                              instance
-	 *                                                                              of
-	 *                                                                              a class extending MybbStuff_MyAlerts_Formatter_AbstractFormatter.
+	 * @param MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatterClass The formatter to use. Either the name or instance of a class extending MybbStuff_MyAlerts_Formatter_AbstractFormatter.
 	 *
 	 * @return $this
 	 */
-	public function registerFormatter($formatterClass = '')
+	public function registerFormatter(\MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatterClass): MybbStuff_MyAlerts_AlertFormatterManager
 	{
-		$formatter = null;
-
-		if (is_string($formatterClass)) {
-			/** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatter */
-			$formatter = new $formatterClass($this->mybb, $this->lang);
-			$formatter->init();
-		} elseif (is_object($formatterClass)
-		          &&
-		          $formatterClass instanceof MybbStuff_MyAlerts_Formatter_AbstractFormatter
-		) {
-			$formatter = $formatterClass;
-		} else {
-			throw new InvalidArgumentException(
-				'$formatterClass must either be the name or instance of a class extending MybbStuff_MyAlerts_Formatter_AbstractFormatter.'
-			);
-		}
-
-		$this->alertFormatters[$formatter->getAlertTypeName()] = $formatter;
+		$this->alertFormatters[$formatterClass->getAlertTypeName()] = $formatterClass;
 
 		return $this;
 	}
@@ -124,17 +95,11 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 	/**
 	 * Get the registered formatter for an alert type.
 	 *
-	 * @param string $alertTypeName The name of the alert type to retrieve the
-	 *                              formatter for.
+	 * @param string $alertTypeName The name of the alert type to retrieve the formatter for.
 	 *
-	 * @return MybbStuff_MyAlerts_Formatter_AbstractFormatter|null The located
-	 *                                                             formatter or
-	 *                                                             null if a
-	 *                                                             registered
-	 *                                                             formatter is
-	 *                                                             not found.
+	 * @return MybbStuff_MyAlerts_Formatter_AbstractFormatter The located formatter if a registered formatter is not found.
 	 */
-	public function getFormatterForAlertType($alertTypeName = '')
+	public function getFormatterForAlertType(string $alertTypeName = ''): \MybbStuff_MyAlerts_Formatter_AbstractFormatter
 	{
 		if (!$this->registrationHookHasRun) {
 			global $plugins;
@@ -143,13 +108,10 @@ class MybbStuff_MyAlerts_AlertFormatterManager
 			$this->registrationHookHasRun = true;
 		}
 
-		$alertTypeName = (string) $alertTypeName;
-		$formatter = null;
-
-		if (isset($this->alertFormatters[$alertTypeName])) {
-			$formatter = $this->alertFormatters[$alertTypeName];
+		if (!isset($this->alertFormatters[$alertTypeName])) {
+			throw new InvalidArgumentException("No formatter registered for alert type '$alertTypeName'.");
 		}
 
-		return $formatter;
+		return $this->alertFormatters[$alertTypeName];
 	}
 }

@@ -10,7 +10,7 @@ $templatelist = 'myalerts_alert_row_popup,myalerts_alert_row_popup_no_alerts,mya
 
 require_once __DIR__ . '/global.php';
 
-$action = $mybb->get_input('action', MyBB::INPUT_STRING);
+$action = $mybb->get_input('action');
 
 if (!isset($lang->myalerts)) {
 	$lang->load('myalerts');
@@ -249,7 +249,7 @@ function myalerts_mark_all_alerts_read($mybb, $lang)
 
 	MybbStuff_MyAlerts_AlertManager::getInstance()->markAllRead();
 
-	$retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
+	$retLink = $mybb->get_input('ret_link');
 
 	if (!empty($retLink) && stripos($retLink, $mybb->settings['bburl']) === 0) {
 		$retLink = htmlspecialchars_uni($retLink);
@@ -278,7 +278,7 @@ function myalerts_delete_read_alerts($mybb, $db, $lang)
 
 	$db->delete_query('alerts', "uid = {$userId} AND unread = 0");
 
-	$retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
+	$retLink = $mybb->get_input('ret_link');
 
 	if (!empty($retLink) && stripos($retLink, $mybb->settings['bburl']) === 0) {
 		$retLink = htmlspecialchars_uni($retLink);
@@ -312,7 +312,7 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
 
 	$db->delete_query('alerts', "uid = {$userId}");
 
-	$retLink = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
+	$retLink = $mybb->get_input('ret_link');
 
 	if (!empty($retLink) && stripos($retLink, $mybb->settings['bburl']) === 0) {
 		$retLink = htmlspecialchars_uni($retLink);
@@ -338,7 +338,7 @@ function myalerts_delete_all_alerts($mybb, $db, $lang)
  * @param MyLanguage $lang       Language object.
  * @param templates  $templates  Template manager.
  * @param array      $theme      Details about the current theme.
- * @param boolean    $unreadOnly Whether to show only unread alerts.
+ * @param bool    $unreadOnly Whether to show only unread alerts.
  */
 function myalerts_view_modal($mybb, $lang, $templates, $theme, $unreadOnly = false)
 {
@@ -379,7 +379,7 @@ function myalerts_view_modal($mybb, $lang, $templates, $theme, $unreadOnly = fal
 		));
 	}
 
-	$myalerts_return_link = $mybb->get_input('ret_link', MyBB::INPUT_STRING);
+	$myalerts_return_link = $mybb->get_input('ret_link');
 
 	if (!empty($myalerts_return_link)) {
 		if (stripos($myalerts_return_link, $mybb->settings['bburl']) !== 0) {

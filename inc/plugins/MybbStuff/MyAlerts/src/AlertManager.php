@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Manages the creating, fetching and manipulating of alerts within the
  * database.
@@ -9,39 +11,39 @@
 class MybbStuff_MyAlerts_AlertManager
 {
 	/** @var string The version of the AlertManager. */
-	const VERSION                = '2.1.0-beta';
-	const FIND_USERS_BY_UID      = 0;
-	const FIND_USERS_BY_USERNAME = 1;
+	public const VERSION = '2.1.0-beta';
+	public const FIND_USERS_BY_UID = 0;
+	public const FIND_USERS_BY_USERNAME = 1;
 	/**
 	 * @var MybbStuff_MyAlerts_Entity_Alert[] A queue of alerts waiting to be
 	 *      committed to the database.
 	 */
-	private static $alertQueue;
+	private static array $alertQueue;
 	/** @var  MybbStuff_MyAlerts_Entity_AlertType[] A cache of the alert types currently available in the system. */
-	private static $alertTypes;
+	private static array $alertTypes;
 	/** @var MybbStuff_MyAlerts_AlertManager */
-	private static $instance = null;
+	private static MybbStuff_MyAlerts_AlertManager $instance;
 	/** @var MyBB MyBB core object used to get settings and more. */
-	private $mybb;
+	private MyBB $mybb;
 	/** @var DB_Base Database connection to be used when manipulating alerts. */
-	private $db;
+	private DB_Base $db;
 	/** @var datacache Cache instance used to manipulate alerts. */
-	private $cache;
+	private datacache $cache;
 	/** @var pluginSystem $plugins MyBB plugin system. */
-	private $plugins;
+	private pluginSystem $plugins;
 	/** @var MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager */
-	private $alertTypeManager;
+	private \MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager;
 	/** @var array An array of the currently enabled alert types for the user. */
-	private $currentUserEnabledAlerts = array();
+	private array $currentUserEnabledAlerts = array();
 	/**
 	 * Whether the commit() function is registered.
 	 */
-	public static $isCommitRegistered = false;
+	public static bool $isCommitRegistered = false;
 
 	/**
-	 * Initialise a new instance of the AlertManager.
+	 * Initialize a new instance of the AlertManager.
 	 *
-	 * @param MyBB                                $mybb             MyBB core
+	 * @param MyBB $mybb             MyBB core
 	 *                                                              object used
 	 *                                                              to get
 	 *                                                              settings
@@ -66,10 +68,10 @@ class MybbStuff_MyAlerts_AlertManager
 	 *                                                              instance.
 	 */
 	private function __construct(
-		$mybb,
-		DB_Base $db,
-		datacache $cache,
-		pluginSystem $plugins,
+		MyBB                                $mybb,
+		DB_Base                             $db,
+		datacache                           $cache,
+		pluginSystem                        $plugins,
 		MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager
 	) {
 		$this->mybb = $mybb;
@@ -79,7 +81,9 @@ class MybbStuff_MyAlerts_AlertManager
 		$this->alertTypeManager = $alertTypeManager;
 
 		$this->currentUserEnabledAlerts = $this->filterEnabledAlerts(
-			$mybb->user['myalerts_disabled_alert_types']
+			is_array($this->mybb->user['myalerts_disabled_alert_types']) ?
+				$this->mybb->user['myalerts_disabled_alert_types'] :
+				json_decode($this->mybb->user['myalerts_disabled_alert_types'])
 		);
 
 		static::$alertQueue = array();
@@ -94,10 +98,10 @@ class MybbStuff_MyAlerts_AlertManager
 	 *
 	 * @return array The filtered array.
 	 */
-	private function filterEnabledAlerts($userDisabledAlertIds = array())
+	private function filterEnabledAlerts(array $userDisabledAlertIds = array()): array
 	{
-		$userDisabledAlertIds = (array) $userDisabledAlertIds;
 		$alertTypes = $this->alertTypeManager->getAlertTypes();
+
 		$enabledAlertTypes = array();
 
 		foreach ($alertTypes as $alertType) {
@@ -112,7 +116,7 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * @return MybbStuff_MyAlerts_Entity_Alert[]
 	 */
-	public static function getAlertQueue()
+	public static function getAlertQueue(): array
 	{
 		return self::$alertQueue;
 	}
@@ -120,7 +124,7 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * @return MybbStuff_MyAlerts_Entity_AlertType[]
 	 */
-	public static function getAlertTypes()
+	public static function getAlertTypes(): array
 	{
 		return self::$alertTypes;
 	}
@@ -148,8 +152,8 @@ class MybbStuff_MyAlerts_AlertManager
 		datacache $cache,
 		pluginSystem $plugins,
 		MybbStuff_MyAlerts_AlertTypeManager $alertTypeManager
-	) {
-		if (static::$instance === null) {
+	): self {
+		if (!isset(static::$instance)) {
 			static::$instance = new self(
 				$mybb,
 				$db,
@@ -163,17 +167,16 @@ class MybbStuff_MyAlerts_AlertManager
 	}
 
 	/**
-	 * Get a prior created instance of the alert manager. @see
-	 * createInstance().
+	 * Get a prior-created instance of the alert manager.
+	 * @return MybbStuff_MyAlerts_AlertManager The existing instance, or false if not already instantiated.
+	 * @throws Exception
+	 * @see createInstance().
 	 *
-	 * @return bool|MybbStuff_MyAlerts_AlertManager The existing instance, or
-	 *                                              false if not already
-	 *                                              instantiated.
 	 */
-	public static function getInstance()
+	public static function getInstance(): self
 	{
-		if (static::$instance === null) {
-			return false;
+		if (!isset(static::$instance)) {
+			throw new Exception('Alert manager not instantiated. Call createInstance() first.');
 		}
 
 		return static::$instance;
@@ -182,7 +185,7 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * @return MyBB
 	 */
-	public function getMybb()
+	public function getMybb(): MyBB
 	{
 		return $this->mybb;
 	}
@@ -190,7 +193,7 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * @return DB_Base
 	 */
-	public function getDb()
+	public function getDb(): DB_Base
 	{
 		return $this->db;
 	}
@@ -198,7 +201,7 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * @return datacache
 	 */
-	public function getCache()
+	public function getCache(): datacache
 	{
 		return $this->cache;
 	}
@@ -206,7 +209,7 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * @return pluginSystem
 	 */
-	public function getPlugins()
+	public function getPlugins(): pluginSystem
 	{
 		return $this->plugins;
 	}
@@ -214,7 +217,7 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * @return MybbStuff_MyAlerts_AlertTypeManager
 	 */
-	public function getAlertTypeManager()
+	public function getAlertTypeManager(): MybbSTuff_MyAlerts_AlertTypeManager
 	{
 		return $this->alertTypeManager;
 	}
@@ -222,7 +225,7 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * @return array
 	 */
-	public function getCurrentUserEnabledAlerts()
+	public function getCurrentUserEnabledAlerts(): array
 	{
 		return $this->currentUserEnabledAlerts;
 	}
@@ -232,7 +235,7 @@ class MybbStuff_MyAlerts_AlertManager
 	 *
 	 * @return array An array of settings and values.
 	 */
-	public function settings()
+	public function settings(): array
 	{
 		return $this->mybb->settings;
 	}
@@ -240,10 +243,9 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * Add a list of alerts.
 	 *
-	 * @param MybbStuff_MyAlerts_Entity_Alert[] $alerts An array of alerts to
-	 *                                                  add.
+	 * @param MybbStuff_MyAlerts_Entity_Alert[] $alerts An array of alerts to add.
 	 */
-	public function addAlerts(array $alerts)
+	public function addAlerts(array $alerts): void
 	{
 		foreach ($alerts as $alert) {
 			$this->addAlert($alert);
@@ -257,7 +259,7 @@ class MybbStuff_MyAlerts_AlertManager
 	 *
 	 * @return $this
 	 */
-	public function addAlert(MybbStuff_MyAlerts_Entity_Alert $alert)
+	public function addAlert(MybbStuff_MyAlerts_Entity_Alert $alert): MybbStuff_MyAlerts_AlertManager
 	{
 		$fromUser = $alert->getFromUser();
 
@@ -294,7 +296,7 @@ class MybbStuff_MyAlerts_AlertManager
 				$passToHook
 			);
 
-			// Basic duplicate checking by overwrite - only one alert for each alert type/object id combination
+			// Basic duplicate checking by overwriting - only one alert for each alert type/object id combination
 			static::$alertQueue[$alert->getType()->getCode() . '_' . $alert->getUserId() . '_' . $alert->getObjectId()] = $alert;
 		}
 
@@ -304,24 +306,18 @@ class MybbStuff_MyAlerts_AlertManager
 	/**
 	 * Get the users who want to receive a certain alert type.
 	 *
-	 * @param MybbStuff_MyAlerts_Entity_AlertType $alertType   The alert type
-	 *                                                         to check.
-	 * @param array                               $users       An array of User
-	 *                                                         IDs to check.
-	 * @param int                                 $findUsersBy The column to
-	 *                                                         find users by.
-	 *                                                         Should be one of
-	 *                                                         FIND_USERS_BY_UID
-	 *                                                         or
-	 *                                                         FIND_USERS_BY_USERNAME
+	 * @param MybbStuff_MyAlerts_Entity_AlertType $alertType   The alert type to check.
+	 * @param array $users An array of User IDs to check.
+	 * @param int $findUsersBy The column to find users by. Should be one of FIND_USERS_BY_UID or FIND_USERS_BY_USERNAME
 	 *
 	 * @return array
 	 */
 	public function doUsersWantAlert(
 		MybbStuff_MyAlerts_Entity_AlertType $alertType,
 		array $users = array(),
-		$findUsersBy = self::FIND_USERS_BY_UID
-	) {
+		int $findUsersBy = self::FIND_USERS_BY_UID
+	): array
+	{
 		$usersWhoWantAlert = array();
 
 		switch ($findUsersBy) {
@@ -370,8 +366,10 @@ class MybbStuff_MyAlerts_AlertManager
 	 *
 	 * @return bool Whether the alerts were added successfully.
 	 */
-	public function commit()
+	public function commit(): bool
 	{
+		$success = false;
+
 		if (empty(static::$alertQueue)) {
 			$success = true;
 		} else {
@@ -390,10 +388,15 @@ class MybbStuff_MyAlerts_AlertManager
 			// Empty the alert queue.
 			static::$alertQueue = array();
 
-			$success = (boolean) $this->db->insert_query_multiple(
-				'alerts',
-				$toCommit
-			);
+			try {
+				$this->db->insert_query_multiple(
+					'alerts',
+					$toCommit
+				);
+
+				$success = true;
+			} catch (Exception $e) {
+			}
 		}
 
 		return $success;
@@ -404,7 +407,7 @@ class MybbStuff_MyAlerts_AlertManager
 	 *
 	 * @return int The total number of alerts the user has
 	 */
-	public function getNumAlerts()
+	public function getNumAlerts(): int
 	{
 		static $numAlerts;
 
@@ -438,11 +441,9 @@ SQL;
 	 *
 	 * @return string The formatted string of alert types enabled for the user.
 	 */
-	private function getAlertTypesForIn()
+	private function getAlertTypesForIn(): string
 	{
-		$alertTypes = implode(',', $this->currentUserEnabledAlerts);
-
-		return $alertTypes;
+		return implode(',', $this->currentUserEnabledAlerts);
 	}
 
 	/**
@@ -450,12 +451,12 @@ SQL;
 	 *
 	 * @return int The number of unread alerts
 	 */
-	public function getNumUnreadAlerts($force_recount = false)
+	public function getNumUnreadAlerts(bool $force_recount = false): int
 	{
 		static $numUnreadAlerts;
 
 		if (!is_int($numUnreadAlerts) || $force_recount) {
-			$numAlerts = 0;
+			$numUnreadAlerts = 0;
 
 			if (!empty($this->currentUserEnabledAlerts)) {
 				$alertTypes = $this->getAlertTypesForIn();
@@ -482,22 +483,19 @@ SQL;
 	}
 
 	/**
-	 *  Fetch all alerts for the currently logged in user
+	 *  Fetch all alerts for the currently logged-in user
 	 *
 	 * @param int $start The start point (used for multipaging alerts)
 	 * @param int $limit The maximum number of alerts to retrieve.
-	 * @param boolean $unreadOnly Whether to show only unread alerts.
+	 * @param bool $unreadOnly Whether to show only unread alerts.
 	 *
 	 * @return array The alerts for the user.
-	 * @return boolean If the user has no new alerts.
-	 * @throws Exception Thrown if the use cannot access the alerts system.
+	 * @return bool If the user has no new alerts.
+	 * @throws Exception Thrown if the use cannot access the alerts' system.
 	 */
-	public function getAlerts($start = 0, $limit = 0, $unreadOnly = false)
+	public function getAlerts(int $start = 0, int $limit = 0, bool $unreadOnly = false): array
 	{
 		$alerts = array();
-
-		$start = (int) $start;
-		$limit = (int) $limit;
 
 		if (!empty($this->currentUserEnabledAlerts)) {
 			if ($limit == 0) {
@@ -520,12 +518,12 @@ SQL;
 			$query = $this->db->write_query($alertsQuery);
 
 			if ($this->db->num_rows($query) > 0) {
-				$return = array();
 				while ($alertRow = $this->db->fetch_array($query)) {
-					$alertType = $this->alertTypeManager->getByCode(
-						$alertRow['code']
-					);
-					if ($alertType != null) {
+					try {
+						$alertType = $this->alertTypeManager->getByCode(
+							$alertRow['code']
+						);
+
 						$alert = new MybbStuff_MyAlerts_Entity_Alert(
 							$alertRow['uid'],
 							$alertType,
@@ -551,6 +549,8 @@ SQL;
 						$alert->setFromUser($user);
 
 						$alerts[] = $alert;
+					} catch (Exception $e) {
+
 					}
 				}
 			}
@@ -560,13 +560,13 @@ SQL;
 	}
 
 	/**
-	 *  Fetch all unread alerts for the currently logged in user.
+	 *  Fetch all unread alerts for the currently logged-in user.
 	 *
 	 * @return Array When the user has unread alerts.
-	 * @return boolean If the user has no new alerts.
-	 * @throws Exception Thrown if the use cannot access the alerts system.
+	 * @return bool If the user has no new alerts.
+	 * @throws Exception Thrown if the use cannot access the alerts' system.
 	 */
-	public function getUnreadAlerts()
+	public function getUnreadAlerts(): array
 	{
 		$alerts = array();
 
@@ -587,11 +587,11 @@ SQL;
 
 			if ($this->db->num_rows($query) > 0) {
 				while ($alertRow = $this->db->fetch_array($query)) {
-					$alertType = $this->alertTypeManager->getByCode(
-						$alertRow['code']
-					);
+					try {
+						$alertType = $this->alertTypeManager->getByCode(
+							$alertRow['code']
+						);
 
-					if ($alertType != null) {
 						$alert = new MybbStuff_MyAlerts_Entity_Alert(
 							$alertRow['uid'],
 							$alertType,
@@ -617,6 +617,8 @@ SQL;
 						$alert->setFromUser($user);
 
 						$alerts[] = $alert;
+					} catch (Exception $e) {
+
 					}
 				}
 			}
@@ -631,11 +633,10 @@ SQL;
 	 * @param int $id The ID of the alert to fetch.
 	 *
 	 * @return MybbSTuff_MyAlerts_Entity_Alert
+	 * @throws Exception
 	 */
-	public function getAlert($id = 0)
+	public function getAlert(int $id = 0): \MybbStuff_MyAlerts_Entity_Alert
 	{
-		$id = (int) $id;
-
 		$alert = null;
 
 		$this->mybb->user['uid'] = (int) $this->mybb->user['uid'];
@@ -651,11 +652,11 @@ SQL;
 
 		if ($this->db->num_rows($query) > 0) {
 			while ($alertRow = $this->db->fetch_array($query)) {
-				$alertType = $this->alertTypeManager->getByCode(
-					$alertRow['code']
-				);
+				try {
+					$alertType = $this->alertTypeManager->getByCode(
+						$alertRow['code']
+					);
 
-				if ($alertType != null) {
 					$alert = new MybbStuff_MyAlerts_Entity_Alert(
 						$alertRow['uid'],
 						$alertType,
@@ -677,19 +678,26 @@ SQL;
 					);
 
 					$alert->setFromUser($user);
+				} catch (Exception $e) {
+
 				}
 			}
+		}
+
+		if(!($alert instanceof MybbStuff_MyAlerts_Entity_Alert)) {
+			throw new Exception("Alert with ID {$id} not found.");
 		}
 
 		return $alert;
 	}
 
 	/**
-	 * Mark all alerts for the currently logged in user as read.
+	 * Mark all alerts for the currently logged-in user as read.
 	 *
 	 * @return bool Whether all alerts were marked read successfully.
 	 */
-	public function markAllRead() {
+	public function markAllRead(): bool
+	{
 		$success = (bool) $this->db->update_query(
 			'alerts',
 			array(
@@ -724,7 +732,7 @@ SQL;
 	 *
 	 * @return bool Whether the alerts were marked read successfully.
 	 */
-	public function markRead(array $alerts = array())
+	public function markRead(array $alerts = array()): bool
 	{
 		return $this->markReadOrUnread($alerts, true);
 	}
@@ -736,7 +744,7 @@ SQL;
 	 *
 	 * @return bool Whether the alerts were marked unread successfully.
 	 */
-	public function markUnread(array $alerts = array())
+	public function markUnread(array $alerts = array()): bool
 	{
 		return $this->markReadOrUnread($alerts, false);
 	}
@@ -749,13 +757,11 @@ SQL;
 	 *
 	 * @return bool Whether the alerts were marked read or unread successfully.
 	 */
-	public function markReadOrUnread(array $alerts = array(), $markRead = true)
+	public function markReadOrUnread(array $alerts = array(), $markRead = true): bool
 	{
-		$alerts = (array) $alerts;
-
 		$success = true;
 
-		if (is_array($alerts) && !empty($alerts)) {
+		if (!empty($alerts)) {
 			$alerts = array_map('intval', $alerts);
 			$alerts = "'" . implode("','", $alerts) . "'";
 
@@ -795,7 +801,7 @@ SQL;
 	 *
 	 * @return bool Whether the alerts were deleted successfully.
 	 */
-	public function deleteAlerts(array $alerts = array())
+	public function deleteAlerts(array $alerts = array()): bool
 	{
 		$success = false;
 

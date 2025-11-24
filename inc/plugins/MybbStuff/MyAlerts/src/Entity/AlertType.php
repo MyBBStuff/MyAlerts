@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * A single alert type object as it's represented in the database.
  *
@@ -8,24 +10,24 @@
 class MybbStuff_MyAlerts_Entity_AlertType
 {
 	/** @var int The ID of the alert type. */
-	private $id = 0;
+	private int $id = 0;
 	/** @var string The short code identifying the alert type - eg: 'pm', 'rep'. */
-	private $code = '';
+	private string $code = '';
 	/** @var bool Whether the alert type is enabled. */
-	private $enabled = true;
+	private bool $enabled = true;
 	/** @var bool Whether this alert type can be disabled by users. */
-	private $canBeUserDisabled = true;
+	private bool $canBeUserDisabled = true;
 	/** @var bool Whether this alert type is enabled for users by default. */
-	private $defaultUserEnabled = true;
+	private bool $defaultUserEnabled = true;
 
 	/**
 	 * Unserialize an alert type from an array created using toArray().
 	 *
 	 * @param array $serialized The serialized alert type.
 	 *
-	 * @return MybbStuff_MyAlerts_Entity_AlertType The unserialized alert type.
+	 * @return MybbStuff_MyAlerts_Entity_AlertType The unserialised alert type.
 	 */
-	public static function unserialize(array $serialized)
+	public static function unserialize(array $serialized): MybbStuff_MyAlerts_Entity_AlertType
 	{
 		$serialized = array_merge(
 			array(
@@ -51,9 +53,9 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	/**
 	 * Serialize the alert type to an array.
 	 *
-	 * @return array The seralized alert type.
+	 * @return array The serialized alert type.
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		return array(
 			'id'                   => $this->getId(),
@@ -67,7 +69,7 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	/**
 	 * @return int
 	 */
-	public function getId()
+	public function getId(): int
 	{
 		return $this->id;
 	}
@@ -77,9 +79,9 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	 *
 	 * @return MybbStuff_Myalerts_Entity_AlertType $this.
 	 */
-	public function setId($id = 0)
+	public function setId(int $id = 0): MybbStuff_Myalerts_Entity_AlertType
 	{
-		$this->id = (int) $id;
+		$this->id = $id;
 
 		return $this;
 	}
@@ -87,7 +89,7 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	/**
 	 * @return string
 	 */
-	public function getCode()
+	public function getCode(): string
 	{
 		return $this->code;
 	}
@@ -97,71 +99,71 @@ class MybbStuff_MyAlerts_Entity_AlertType
 	 *
 	 * @return MybbStuff_Myalerts_Entity_AlertType $this.
 	 */
-	public function setCode($code)
+	public function setCode(string $code): static
 	{
-		$this->code = (string) $code;
+		$this->code = $code;
 
 		return $this;
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
-	public function getEnabled()
+	public function getEnabled(): bool
 	{
 		return $this->enabled;
 	}
 
 	/**
-	 * @param boolean $enabled Whether the alert type is enabled.
+	 * @param bool $enabled Whether the alert type is enabled.
 	 *
 	 * @return MybbStuff_Myalerts_Entity_AlertType $this.
 	 */
-	public function setEnabled($enabled = true)
+	public function setEnabled(bool $enabled = true): static
 	{
-		$this->enabled = (bool) $enabled;
+		$this->enabled = $enabled;
 
 		return $this;
 	}
 
 	/**
-	 * @return boolean Whether this alert type can be disabled by users.
+	 * @return bool Whether this alert type can be disabled by users.
 	 */
-	public function getCanBeUserDisabled()
+	public function getCanBeUserDisabled(): bool
 	{
 		return $this->canBeUserDisabled;
 	}
 
 	/**
-	 * @return boolean Whether this alert type is enabled for users by default.
+	 * @return bool Whether this alert type is enabled for users by default.
 	 */
-	public function getDefaultUserEnabled()
+	public function getDefaultUserEnabled(): bool
 	{
 		return $this->defaultUserEnabled;
 	}
 
 	/**
-	 * @param boolean $canBeUserDisabled Whether this alert type can be
+	 * @param bool $canBeUserDisabled Whether this alert type can be
 	 *                                   disabled by users.
 	 *
 	 * @return $this
 	 */
-	public function setCanBeUserDisabled($canBeUserDisabled = true)
+	public function setCanBeUserDisabled(bool $canBeUserDisabled = true): MybbStuff_MyAlerts_Entity_AlertType
 	{
-		$this->canBeUserDisabled = (bool) $canBeUserDisabled;
+		$this->canBeUserDisabled = $canBeUserDisabled;
 
 		return $this;
 	}
 
 	/**
-	 * @param boolean $defaultUserEnabled Whether this alert type is
+	 * @param bool $defaultUserEnabled Whether this alert type is
 	 *                                   enabled for users by default.
 	 *
 	 * @return $this
 	 */
-	public function setDefaultUserEnabled($defaultUserEnabled = true)
+	public function setDefaultUserEnabled(bool $defaultUserEnabled = true): MybbStuff_MyAlerts_Entity_AlertType
 	{
-		$this->defaultUserEnabled = (bool) $defaultUserEnabled;
+		$this->defaultUserEnabled = $defaultUserEnabled;
 
 		return $this;
 	}

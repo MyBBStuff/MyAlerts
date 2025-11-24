@@ -9,6 +9,8 @@
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
 
+declare(strict_types=1);
+
 if (!defined('IN_MYBB')) {
 	die('Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.');
 }
@@ -16,7 +18,7 @@ if (!defined('IN_MYBB')) {
 defined(
 	'MYBBSTUFF_CORE_PATH'
 ) or define('MYBBSTUFF_CORE_PATH', MYBB_ROOT . 'inc/plugins/MybbStuff/Core/');
-define('MYALERTS_PLUGIN_PATH', MYBB_ROOT . 'inc/plugins/MybbStuff/MyAlerts');
+const MYALERTS_PLUGIN_PATH = MYBB_ROOT . 'inc/plugins/MybbStuff/MyAlerts';
 
 defined(
 	'PLUGINLIBRARY'
@@ -39,7 +41,7 @@ $classLoader->registerNamespace(
 );
 $classLoader->register();
 
-function myalerts_info()
+function myalerts_info(): array
 {
 	return array(
 		'name'          => 'MyAlerts',
@@ -53,7 +55,7 @@ function myalerts_info()
 	);
 }
 
-function myalerts_install()
+function myalerts_install(): void
 {
 	global $db, $cache, $plugins;
 
@@ -179,14 +181,14 @@ function myalerts_install()
 	$plugins->run_hooks('myalerts_install');
 }
 
-function myalerts_is_installed()
+function myalerts_is_installed(): bool
 {
 	global $db;
 
 	return $db->table_exists('alerts');
 }
 
-function myalerts_uninstall()
+function myalerts_uninstall(): void
 {
 	global $db, $lang, $cache, $PL, $plugins;
 
@@ -220,7 +222,7 @@ function myalerts_uninstall()
 	$cache->delete('mybbstuff_myalerts_alert_types');
 }
 
-function myalerts_activate()
+function myalerts_activate(): void
 {
 	global $db, $lang, $PL, $plugins, $cache;
 
@@ -419,7 +421,7 @@ function myalerts_activate()
 		$nextrun = fetch_next_run($theTask);
 		$db->update_query(
 			'tasks',
-			'nextrun = ' . $nextrun,
+			['nextrun' => $nextrun],
 			'tid = ' . (int) $task_id
 		);
 		$plugins->run_hooks('admin_tools_tasks_add_commit');
@@ -443,7 +445,7 @@ function myalerts_activate()
 	$plugins->run_hooks('myalerts_activate');
 }
 
-function myalerts_upgrade_105_200()
+function myalerts_upgrade_105_200(): void
 {
 	global $db, $lang, $cache, $plugins;
 
@@ -536,7 +538,7 @@ function myalerts_upgrade_105_200()
 	flash_message($lang->myalerts_upgraded, 'success');
 }
 
-function myalerts_deactivate()
+function myalerts_deactivate(): void
 {
 	global $PL, $db, $lang, $plugins;
 
@@ -614,7 +616,7 @@ function myalerts_deactivate()
  *
  * @return bool Whether MyAlerts is activated and installed.
  */
-function myalerts_is_activated()
+function myalerts_is_activated(): bool
 {
 	global $cache;
 
@@ -637,7 +639,7 @@ function myalerts_is_activated()
  * "reload_{$cacheitem['title']}" to add the reload button for a cache. Having
  * this function in place fixes that.
  */
-function reload_mybbstuff_myalerts_alert_types()
+function reload_mybbstuff_myalerts_alert_types(): void
 {
 	myalerts_create_instances();
 
@@ -646,7 +648,7 @@ function reload_mybbstuff_myalerts_alert_types()
 	$alertTypeManager->getAlertTypes(true);
 }
 
-function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
+function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse): array
 {
 	global $mybb, $lang, $plugins;
 
@@ -656,13 +658,12 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 
 	myalerts_create_instances();
 
-	/** @var MybbStuff_MyAlerts_Formatter_AbstractFormatter $formatter */
-	$formatter = MybbStuff_MyAlerts_AlertFormatterManager::getInstance()
-		->getFormatterForAlertType($alertToParse->getType()->getCode());
-
 	$outputAlert = array();
 
-	if ($formatter != null) {
+	try{
+		$formatter = MybbStuff_MyAlerts_AlertFormatterManager::getInstance()
+			->getFormatterForAlertType($alertToParse->getType()->getCode());
+
 		$hook_arguments = [
 			'outputAlert' => &$outputAlert,
 			'formatter' => &$formatter,
@@ -727,6 +728,8 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 		);
 
 		$plugins->run_hooks('myalerts_alerts_output_end', $hook_arguments);
+	} catch (Exception $e) {
+
 	}
 
 	return $outputAlert;
@@ -734,7 +737,7 @@ function parse_alert(MybbStuff_MyAlerts_Entity_Alert $alertToParse)
 
 
 $plugins->add_hook('admin_user_users_delete_commit', 'myalerts_user_delete');
-function myalerts_user_delete()
+function myalerts_user_delete(): void
 {
 	global $db, $user;
 	$user['uid'] = (int) $user['uid'];
@@ -742,7 +745,7 @@ function myalerts_user_delete()
 }
 
 $plugins->add_hook('global_start', 'myalerts_global_start', -1);
-function myalerts_global_start()
+function myalerts_global_start(): void
 {
 	global $mybb, $templatelist, $templates;
 
@@ -803,11 +806,13 @@ function myalerts_global_start()
 			(int) MybbStuff_MyAlerts_AlertManager::getInstance()
 			                                     ->getNumUnreadAlerts()
 		);
+	} else {
+		$mybb->user['myalerts_disabled_alert_types'] = [];
 	}
 }
 
 $plugins->add_hook('admin_tabs', 'myalerts_create_instances', -1);
-function myalerts_create_instances()
+function myalerts_create_instances(): void
 {
 	global $mybb, $db, $cache, $lang, $plugins;
 
@@ -815,18 +820,18 @@ function myalerts_create_instances()
 		$lang->load('myalerts');
 	}
 
-	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-
-	if (is_null($alertTypeManager) || $alertTypeManager === false) {
+	try {
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	} catch (Exception $e) {
 		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance(
 			$db,
 			$cache
 		);
 	}
 
-	$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
-
-	if (is_null($alertManager) || $alertManager === false) {
+	try {
+		$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+	} catch (Exception $e) {
 		$alertManager = MybbStuff_MyAlerts_AlertManager::createInstance(
 			$mybb,
 			$db,
@@ -836,24 +841,28 @@ function myalerts_create_instances()
 		);
 	}
 
-	$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
-
-	if (is_null($formatterManager) || $formatterManager === false) {
+	try {
+		$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+	} catch (Exception $e) {
 		$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
 	}
 
 	myalerts_register_core_formatters($mybb, $lang);
 
 	if (!MybbStuff_MyAlerts_AlertManager::$isCommitRegistered) {
-		register_shutdown_function(
-			array(MybbStuff_MyAlerts_AlertManager::getInstance(), 'commit')
-		);
-		MybbStuff_MyAlerts_AlertManager::$isCommitRegistered = true;
+		try {
+			register_shutdown_function(
+				array(MybbStuff_MyAlerts_AlertManager::getInstance(), 'commit')
+			);
+			MybbStuff_MyAlerts_AlertManager::$isCommitRegistered = true;
+		} catch (Exception $e) {
+
+		}
 	}
 }
 
 $plugins->add_hook('global_intermediate', 'myalerts_global_intermediate');
-function myalerts_global_intermediate()
+function myalerts_global_intermediate(): void
 {
 	global $templates, $mybb, $lang, $myalerts_return_link, $myalerts_headericon, $myalerts_modal, $myalerts_js, $theme, $newAlertsIndicator;
 
@@ -883,7 +892,7 @@ function myalerts_global_intermediate()
  *
  * @return string The current URL, including query parameters.
  */
-function myalerts_get_current_url()
+function myalerts_get_current_url(): string
 {
 	global $mybb;
 
@@ -905,13 +914,15 @@ function myalerts_datahandler_user_insert(\UserDataHandler &$dataHandler): void
 {
 	global $db, $cache;
 
-	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-	if (is_null($alertTypeManager) || $alertTypeManager === false) {
+	try {
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	} catch (Exception $e) {
 		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance(
 			$db,
 			$cache
 		);
 	}
+
 	$alertTypes = $alertTypeManager->getAlertTypes();
 	$disabledTypes = [];
 	foreach ($alertTypes as $alertType) {
@@ -928,7 +939,7 @@ $plugins->add_hook(
 	'fetch_wol_activity_end',
 	'myalerts_online_activity'
 );
-function myalerts_online_activity($user_activity)
+function myalerts_online_activity(array $user_activity): array
 {
 	if ($user_activity['activity'] == 'unknown') {
 		$split_loc = explode('.php', $user_activity['location']);
@@ -945,7 +956,7 @@ $plugins->add_hook(
 	'build_friendly_wol_location_end',
 	'myalerts_online_location'
 );
-function myalerts_online_location(&$plugin_array)
+function myalerts_online_location(array &$plugin_array): void
 {
 	if ($plugin_array['user_activity']['activity'] == 'alerts') {
 		global $lang;
@@ -959,7 +970,7 @@ function myalerts_online_location(&$plugin_array)
 }
 
 $plugins->add_hook('reputation_do_add_process', 'myalerts_addAlert_rep');
-function myalerts_addAlert_rep()
+function myalerts_addAlert_rep(): void
 {
 	global $mybb, $reputation;
 
@@ -971,17 +982,23 @@ function myalerts_addAlert_rep()
 
 	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-	/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-	$alertType = $alertTypeManager->getByCode('rep');
+	try {
+		$alertType = $alertTypeManager->getByCode('rep');
+	} catch (Exception $e) {
+		return;
+	}
 
-	if ($alertType != null && $alertType->getEnabled()) {
+	if ($alertType->getEnabled()) {
 		$alert = new MybbStuff_MyAlerts_Entity_Alert(
 			$reputation['uid'],
 			$alertType,
 			0
 		);
 
-		MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+		try {
+			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+		} catch (Exception $e) {
+		}
 	}
 }
 
@@ -996,14 +1013,17 @@ function myalerts_addAlert_pm(\PMDataHandler &$PMDataHandler): void
 
 	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-	/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-	$alertType = $alertTypeManager->getByCode('pm');
+	try {
+		$alertType = $alertTypeManager->getByCode('pm');
+	} catch (Exception $e) {
+		return;
+	}
 
-	if ($alertType != null && $alertType->getEnabled()) {
-		$pmId = current(array_slice($PMDataHandler->pmid, -1));
+	if ($alertType->getEnabled()) {
+		$pmId = current(array_slice((array)$PMDataHandler->pmid, -1));
 
 		$alert = new MybbStuff_MyAlerts_Entity_Alert(
-		(int) $PMDataHandler->pm_insert_data['uid'],
+			(int) $PMDataHandler->pm_insert_data['uid'],
 			$alertType,
 			$pmId
 		);
@@ -1013,38 +1033,47 @@ function myalerts_addAlert_pm(\PMDataHandler &$PMDataHandler): void
 			)
 		);
 
-		MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+		try {
+			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+		} catch (Exception $e) {
+		}
 	}
 }
 
 $plugins->add_hook('private_delete_end', 'myalerts_delete_pm_alert');
-function myalerts_delete_pm_alert()
+function myalerts_delete_pm_alert(): void
 {
 	global $mybb, $db;
 
-	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
-	if ($alertType) {
+	try {
+		$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
+
 		$typeid = $alertType->getId();
 		$pmid = $mybb->get_input('pmid', MyBB::INPUT_INT);
 		$db->delete_query('alerts', "object_id='{$pmid}' AND alert_type_id='{$typeid}'");
+	} catch (Exception $e) {
+
 	}
 }
 
 $plugins->add_hook('private_read_end', 'myalerts_mark_pm_alert_read');
-function myalerts_mark_pm_alert_read()
+function myalerts_mark_pm_alert_read(): void
 {
 	global $mybb, $db;
 
-	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
-	if ($alertType) {
+	try {
+		$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('pm');
+
 		$typeid = $alertType->getId();
 		$pmid = $mybb->get_input('pmid', MyBB::INPUT_INT);
 		$db->update_query('alerts', ['unread' => 0], "object_id='{$pmid}' AND alert_type_id='{$typeid}'");
+	} catch (Exception $e) {
+
 	}
 }
 
 $plugins->add_hook('usercp_do_editlists_end', 'myalerts_alert_buddylist');
-function myalerts_alert_buddylist()
+function myalerts_alert_buddylist(): void
 {
 	global $mybb, $error_message, $db;
 
@@ -1062,10 +1091,13 @@ function myalerts_alert_buddylist()
 
 			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-			/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-			$alertType = $alertTypeManager->getByCode('buddylist');
+			try {
+				$alertType = $alertTypeManager->getByCode('buddylist');
+			} catch (Exception $e) {
+				return;
+			}
 
-			if ($alertType != null && $alertType->getEnabled()) {
+			if ($alertType->getEnabled()) {
 				$userNames = array_map(array($db, 'escape_string'), $addUsers);
 
 				$userNames = "'" . implode("','", $userNames) . "'";
@@ -1084,9 +1116,10 @@ function myalerts_alert_buddylist()
 				}
 
 				if (!empty($alerts)) {
-					MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts(
-						$alerts
-					);
+					try {
+						MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
+					} catch (Exception $e) {
+					}
 				}
 			}
 		}
@@ -1109,7 +1142,7 @@ function myalerts_update_quoted(\PostDataHandler &$dataHandler): void
 	$existing_msg     = $existing_post['message'];
 	$updated_msg      = $dataHandler->data['message'];
 	$author           = !empty($dataHandler->data['uid']) ? get_user($dataHandler->data['uid']) : [];
-	$subject          = isset($dataHandler->data['subject']) ? $dataHandler->data['subject'] : $existing_post['subject'];
+	$subject          = $dataHandler->data['subject'] ?? $existing_post['subject'];
 	$existing_quoted  = myalerts_get_quoted_usernames($existing_msg, !empty($author['username']) ? $author['username'] : '');
 	$updated_quoted   = myalerts_get_quoted_usernames( $updated_msg, !empty($author['username']) ? $author['username'] : '');
 	$quoted_to_delete = array_diff($existing_quoted,  $updated_quoted);
@@ -1118,14 +1151,20 @@ function myalerts_update_quoted(\PostDataHandler &$dataHandler): void
 	if ($quoted_to_delete || $quoted_to_add) {
 		myalerts_create_instances();
 		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-		$alertType = $alertTypeManager->getByCode('quoted');
-		if ($alertType != null && $alertType->getEnabled()) {
+
+		try {
+			$alertType = $alertTypeManager->getByCode('quoted');
+		} catch (Exception $e) {
+			return;
+		}
+
+		if ($alertType->getEnabled()) {
 			if ($quoted_to_add) {
-				// Add alerts for newly-quoted members in the edited version of the post
+				// Add alerts for newly quoted members in the edited version of the post
 				$quoted_uids_to_add = myalerts_usernames_to_uids($quoted_to_add);
 				$uids_to_add_permchk = [];
 				foreach ($quoted_uids_to_add as $uid) {
-					if (myalerts_can_view_thread($fid, isset($author['uid']) ? $author['uid'] : 0, $uid)) {
+					if (myalerts_can_view_thread($fid, $author['uid'] ?? 0, $uid)) {
 						$uids_to_add_permchk[] = $uid;
 					}
 				}
@@ -1147,7 +1186,10 @@ function myalerts_update_quoted(\PostDataHandler &$dataHandler): void
 					$alerts[] = $alert;
 				}
 				if ($alerts) {
-					MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
+					try {
+						MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
+					} catch (Exception $e) {
+					}
 				}
 			}
 
@@ -1174,7 +1216,7 @@ function myalerts_update_quoted(\PostDataHandler &$dataHandler): void
 	}
 }
 
-function myalerts_get_quoted_usernames($message, $authorName)
+function myalerts_get_quoted_usernames(string $message, string $authorName): array
 {
 	$userNames = [];
 
@@ -1200,7 +1242,7 @@ function myalerts_get_quoted_usernames($message, $authorName)
 	return $userNames;
 }
 
-function myalerts_usernames_to_uids($userNames)
+function myalerts_usernames_to_uids(array $userNames): array
 {
 	global $db;
 
@@ -1223,7 +1265,7 @@ function myalerts_usernames_to_uids($userNames)
 }
 
 $plugins->add_hook('newreply_do_newreply_end', 'myalerts_alert_quoted');
-function myalerts_alert_quoted()
+function myalerts_alert_quoted(): void
 {
 	global $mybb, $pid, $post, $db;
 
@@ -1238,10 +1280,13 @@ function myalerts_alert_quoted()
 		myalerts_create_instances();
 		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-		/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-		$alertType = $alertTypeManager->getByCode('quoted');
+		try {
+			$alertType = $alertTypeManager->getByCode('quoted');
+		} catch (Exception $e) {
+			return;
+		}
 
-		if ($alertType != null && $alertType->getEnabled()) {
+		if ($alertType->getEnabled()) {
 			$alerts = array();
 			foreach ($quoted_uids as $uid) {
 				// Check forum permissions
@@ -1264,9 +1309,10 @@ function myalerts_alert_quoted()
 			}
 
 			if (!empty($alerts)) {
-				MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts(
-					$alerts
-				);
+				try {
+					MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
+				} catch (Exception $e) {
+				}
 			}
 		}
 	}
@@ -1287,18 +1333,21 @@ function myalerts_alert_post_threadauthor(\PostDataHandler &$dataHandler): void
 	if (!$dataHandler->data['savedraft']) {
 		myalerts_create_instances();
 
-		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-
-		if (is_null($alertTypeManager) || $alertTypeManager === false) {
+		try {
+			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+		} catch (Exception $e) {
 			global $cache;
 
 			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
 		}
 
-		/** @var MybbStuff_MyAlerts_Entity_AlertType $alertType */
-		$alertType = $alertTypeManager->getByCode('post_threadauthor');
+		try {
+			$alertType = $alertTypeManager->getByCode('post_threadauthor');
+		} catch (Exception $e) {
+			return;
+		}
 
-		if ($alertType != null && $alertType->getEnabled()) {
+		if ($alertType->getEnabled()) {
 			$tid = empty($dataHandler->post_insert_data['tid']) ? $dataHandler->data['tid'] : $dataHandler->post_insert_data['tid'];
 			$query = $db->simple_select(
 				'threads',
@@ -1332,7 +1381,10 @@ function myalerts_alert_post_threadauthor(\PostDataHandler &$dataHandler): void
 							)
 						);
 
-						MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+						try {
+							MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+						} catch (Exception $e) {
+						}
 					}
 				}
 			}
@@ -1344,7 +1396,7 @@ $plugins->add_hook(
 	'ratethread_process',
 	'myalerts_alert_rated_threadauthor'
 );
-function myalerts_alert_rated_threadauthor()
+function myalerts_alert_rated_threadauthor(): void
 {
 	global $mybb, $db, $tid;
 
@@ -1354,17 +1406,21 @@ function myalerts_alert_rated_threadauthor()
 
 	myalerts_create_instances();
 
-	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-
-	if (is_null($alertTypeManager) || $alertTypeManager === false) {
+	try {
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	} catch (Exception $e) {
 		global $cache;
 
 		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
 	}
 
-	$alertType = $alertTypeManager->getByCode('rated_threadauthor');
+	try {
+		$alertType = $alertTypeManager->getByCode('rated_threadauthor');
+	} catch (Exception $e) {
+		return;
+	}
 
-	if ($alertType != null && $alertType->getEnabled()) {
+	if ($alertType->getEnabled()) {
 		$thread = get_thread($tid);
 
 		if ($thread['uid'] != $mybb->user['uid']) {
@@ -1382,9 +1438,9 @@ function myalerts_alert_rated_threadauthor()
 					)
 				);
 
-				$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
-
-				if (is_null($alertManager) || $alertManager === false) {
+				try {
+					$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+				} catch (Exception $e) {
 					global $cache, $plugins;
 
 					$alertManager = MybbStuff_MyAlerts_AlertManager::createInstance($mybb, $db, $cache, $plugins, $alertTypeManager);
@@ -1400,7 +1456,7 @@ $plugins->add_hook(
 	'polls_vote_end',
 	'myalerts_alert_voted_threadauthor'
 );
-function myalerts_alert_voted_threadauthor()
+function myalerts_alert_voted_threadauthor(): void
 {
 	global $mybb, $db, $cache, $plugins, $poll;
 
@@ -1410,17 +1466,21 @@ function myalerts_alert_voted_threadauthor()
 
 	myalerts_create_instances();
 
-	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-
-	if (is_null($alertTypeManager) || $alertTypeManager === false) {
+	try {
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+	} catch (Exception $e) {
 		global $cache;
 
 		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
 	}
 
-	$alertType = $alertTypeManager->getByCode('voted_threadauthor');
+	try {
+		$alertType = $alertTypeManager->getByCode('voted_threadauthor');
+	} catch (Exception $e) {
+		return;
+	}
 
-	if ($alertType != null && $alertType->getEnabled()) {
+	if ($alertType->getEnabled()) {
 		$thread = get_thread($poll['tid']);
 
 		if ($thread['uid'] != $mybb->user['uid']) {
@@ -1438,9 +1498,9 @@ function myalerts_alert_voted_threadauthor()
 					)
 				);
 
-				$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
-
-				if (is_null($alertManager) || $alertManager === false) {
+				try {
+					$alertManager = MybbStuff_MyAlerts_AlertManager::getInstance();
+				} catch (Exception $e) {
 					global $cache;
 
 					$alertManager = MybbStuff_MyAlerts_AlertManager::createInstance($mybb, $db, $cache, $plugins, $alertTypeManager);
@@ -1467,9 +1527,13 @@ function myalertsrow_subscribed(\PostDataHandler &$dataHandler): void
 
 	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 
-	$alertType = $alertTypeManager->getByCode('subscribed_thread');
+	try {
+		$alertType = $alertTypeManager->getByCode('subscribed_thread');
+	} catch (Exception $e) {
+		return;
+	}
 
-	if ($alertType != null && $alertType->getEnabled()) {
+	if ($alertType->getEnabled()) {
 		$thread = get_thread($post['tid']);
 		$alerts = array();
 
@@ -1502,41 +1566,63 @@ function myalertsrow_subscribed(\PostDataHandler &$dataHandler): void
 		}
 
 		if (!empty($alerts)) {
-			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
+			try {
+				MybbStuff_MyAlerts_AlertManager::getInstance()->addAlerts($alerts);
+			} catch (Exception $e) {
+			}
 		}
 	}
-
-	return;
 }
 
 
 $plugins->add_hook('class_moderation_delete_thread', 'myalerts_on_delete_thread');
-function myalerts_on_delete_thread($tid)
+function myalerts_on_delete_thread(int $tid): void
 {
 	global $db;
 
 	$type_ids = [];
 	$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-	$alertTypeScrThr = $alertTypeManager->getByCode('subscribed_thread');
-	if ($alertTypeScrThr) {
+
+	try{
+		$alertTypeScrThr = $alertTypeManager->getByCode('subscribed_thread');
+
 		$type_ids[] = $alertTypeScrThr->getId();
+	} catch (Exception $e) {
+
 	}
-	$alertTypePostThrAuth = $alertTypeManager->getByCode('post_threadauthor');
-	if ($alertTypePostThrAuth) {
+
+	try{
+		$alertTypePostThrAuth = $alertTypeManager->getByCode('post_threadauthor');
+
 		$type_ids[] = $alertTypePostThrAuth->getId();
+	} catch (Exception $e) {
+
 	}
-	$alertTypeRateAuth = $alertTypeManager->getByCode('rated_threadauthor');
-	if ($alertTypeRateAuth) {
+
+	try{
+		$alertTypeRateAuth = $alertTypeManager->getByCode('rated_threadauthor');
+
 		$type_ids[] = $alertTypeRateAuth->getId();
+	} catch (Exception $e) {
+
 	}
-	$alertTypeVoted = $alertTypeManager->getByCode('voted_threadauthor');
-	if ($alertTypeVoted) {
+
+	try{
+		$alertTypeVoted = $alertTypeManager->getByCode('voted_threadauthor');
+
 		$type_ids[] = $alertTypeVoted->getId();
+	} catch (Exception $e) {
+
 	}
-	$alertTypeQuoted = $alertTypeManager->getByCode('quoted');
-	if ($alertTypeQuoted) {
+
+	try{
+		$alertTypeQuoted = $alertTypeManager->getByCode('quoted');
+
 		$type_ids[] = $alertTypeQuoted->getId();
+	} catch (Exception $e) {
+
 	}
+
 	if ($type_ids) {
 		$type_ids = implode(',', $type_ids);
 		$db->delete_query('alerts', "alert_type_id in ({$type_ids}) AND object_id = {$tid}");
@@ -1545,7 +1631,11 @@ function myalerts_on_delete_thread($tid)
 
 
 $plugins->add_hook('class_moderation_delete_post_start', 'myalerts_save_tid');
-function myalerts_save_tid($pid)
+
+/**
+ * @param int $pid The post-identifier
+ */
+function myalerts_save_tid($pid): void
 {
 	global $db, $myalerts_saved_tid;
 
@@ -1556,31 +1646,38 @@ function myalerts_save_tid($pid)
 
 
 $plugins->add_hook('class_moderation_delete_post', 'myalerts_on_delete_post');
-function myalerts_on_delete_post($pid)
+
+/**
+ * @param int $pid The post-identifier
+ */
+function myalerts_on_delete_post($pid): void
 {
 	global $db, $myalerts_saved_tid;
 
-	$alertTypeQuoted = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('quoted');
-	if ($alertTypeQuoted) {
-		$type_id = $alertTypeQuoted->getId();
-		$ids_for_del = [];
-		$query = $db->simple_select('alerts', 'id, extra_details', "alert_type_id = {$type_id} AND object_id = {$myalerts_saved_tid}");
-		while ($alert = $db->fetch_array($query)) {
-			$extra_details = json_decode($alert['extra_details'], true);
-			if ($extra_details['pid'] == $pid) {
-				$ids_for_del[] = $alert['id'];
-			}
+	try {
+		$alertTypeQuoted = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('quoted');
+	} catch (Exception $e) {
+		return;
+	}
+
+	$type_id = $alertTypeQuoted->getId();
+	$ids_for_del = [];
+	$query = $db->simple_select('alerts', 'id, extra_details', "alert_type_id = {$type_id} AND object_id = {$myalerts_saved_tid}");
+	while ($alert = $db->fetch_array($query)) {
+		$extra_details = json_decode($alert['extra_details'], true);
+		if ($extra_details['pid'] == $pid) {
+			$ids_for_del[] = $alert['id'];
 		}
-		if ($ids_for_del) {
-			$ids_for_del = implode(',', $ids_for_del);
-			$db->delete_query('alerts', "id in ({$ids_for_del})");
-		}
+	}
+	if ($ids_for_del) {
+		$ids_for_del = implode(',', $ids_for_del);
+		$db->delete_query('alerts', "id in ({$ids_for_del})");
 	}
 }
 
 $plugins->add_hook('showthread_linear'  , 'myalerts_auto_mark_read_for_thread');
 $plugins->add_hook('showthread_threaded', 'myalerts_auto_mark_read_for_thread');
-function myalerts_auto_mark_read_for_thread()
+function myalerts_auto_mark_read_for_thread(): void
 {
 	global $db, $mybb, $tid, $pids;
 
@@ -1618,9 +1715,9 @@ WHERE  alert_type_id in ($t_quoted_id, $t_post_ta_id, $t_subscribed_t_id)
 					explode(',', substr($pids, 7, -1))
 				    );
 
-				// Auto-mark as read the unread alerts of type 'quoted' for the viewing member
-				// for the viewed thread *if* the post ID of the quoting post matches that of
-				// the viewed post (in threaded mode) OR the post ID of the quoting post occurs
+				// Auto-mark as read the unread alerts of a type 'quoted' for the viewing member
+				// for the viewed thread *if* the post-ID of the quoting post matches that of
+				// the viewed post (in threaded mode) OR the post-ID of the quoting post occurs
 				// in the global $pids list (in linear mode).
 				if ($mybb->get_input('mode') == 'threaded' && $mybb->input['pid'] == $extra['pid']
 				    ||
@@ -1635,8 +1732,8 @@ WHERE  alert_type_id in ($t_quoted_id, $t_post_ta_id, $t_subscribed_t_id)
 				// We would really like to only mark these alerts as read if the member is viewing
 				// unread *posts*, but (1) that's tricky to determine, especially because (2) core code
 				// marks a thread as read regardless of whether any unread posts in it are actually
-				// being viewed, and regardless of whether, if new posts *are* actually being viewed,
-				// more exist beyond the currently-viewed page. We reluctantly, then, auto-mark the
+				// being viewed, whether new posts *are* actually being viewed,
+				// more exist beyond the currently viewed page. We reluctantly, then, auto-mark the
 				// alert as read on the sole condition that *some* page of its alerted thread is being
 				// viewed.
 				$alert_ids_to_mark_read[] = $alert['id'];
@@ -1646,7 +1743,7 @@ WHERE  alert_type_id in ($t_quoted_id, $t_post_ta_id, $t_subscribed_t_id)
 		if ($alert_ids_to_mark_read) {
 			$db->update_query('alerts', ['unread' => 0], 'id IN ('.implode(',', $alert_ids_to_mark_read).')');
 
-			// Regenerate the header and headerinclude templates, because the number of unread alerts
+			// Regenerate the header and headerinclude templates because the number of unread alerts
 			// has changed.
 			//
 			// We might cause PHP 8 to generate warnings here due to global variables relied upon
@@ -1656,10 +1753,14 @@ WHERE  alert_type_id in ($t_quoted_id, $t_post_ta_id, $t_subscribed_t_id)
 			// canonical means of updating it later.
 			global $templates, $lang, $theme, $header, $headerinclude, $menu_portal, $menu_search, $menu_memberlist, $menu_calendar, $quicksearch, $welcomeblock, $pm_notice, $remote_avatar_notice, $bannedwarning, $bbclosedwarning, $modnotice, $pending_joinrequests, $awaitingusers, $usercplink, $modcplink, $admincplink, $buddylink, $searchlink, $pmslink, $myalerts_js, $myalerts_headericon, $myalerts_return_link, $charset, $stylesheets, $jsTemplates;
 
-			$mybb->user['unreadAlerts'] = my_number_format(
-				(int) MybbStuff_MyAlerts_AlertManager::getInstance()
-								->getNumUnreadAlerts(true)
-			);
+			try {
+				$mybb->user['unreadAlerts'] = my_number_format(
+					MybbStuff_MyAlerts_AlertManager::getInstance()
+						->getNumUnreadAlerts(true)
+				);
+			} catch (Exception $e) {
+			}
+
 			$newAlertsIndicator = '';
 			if ($mybb->user['unreadAlerts']) {
 				$newAlertsIndicator = 'alerts--new';
@@ -1677,7 +1778,7 @@ WHERE  alert_type_id in ($t_quoted_id, $t_post_ta_id, $t_subscribed_t_id)
 
 
 $plugins->add_hook('usercp_menu', 'myalerts_usercp_menu', 20);
-function myalerts_usercp_menu()
+function myalerts_usercp_menu(): void
 {
 	global $mybb, $templates, $theme, $usercpmenu, $lang, $collapse, $collapsed, $collapsedimg;
 
@@ -1685,7 +1786,7 @@ function myalerts_usercp_menu()
 		return;
 	}
 
-	if (!($lang->myalerts)) {
+	if (!isset($lang->myalerts)) {
 		$lang->load('myalerts');
 	}
 
@@ -1707,7 +1808,7 @@ function myalerts_usercp_menu()
 }
 
 $plugins->add_hook('xmlhttp', 'myalerts_xmlhttp', -1);
-function myalerts_xmlhttp()
+function myalerts_xmlhttp(): void
 {
 	global $mybb, $lang, $templates, $db, $plugins;
 
@@ -1744,17 +1845,17 @@ function myalerts_xmlhttp()
 			$num_to_get++;
 		}
 		$unreadOnly = !empty($mybb->cookies['myalerts_unread_only']) && $mybb->cookies['myalerts_unread_only'] != '0';
-		$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
-			0,
-			$num_to_get,
-			$inModal && $unreadOnly
-		);
 
 		$alertsListing = '';
 
 		$alertsToReturn = array();
 
-		if (is_array($latestAlerts) && !empty($latestAlerts)) {
+		try {
+			$latestAlerts = MybbStuff_MyAlerts_AlertManager::getInstance()->getAlerts(
+				0,
+				$num_to_get,
+				$inModal && $unreadOnly
+			);
 			$more = (count($latestAlerts) > $perpage);
 			if ($more) {
 				array_pop($latestAlerts);
@@ -1783,29 +1884,27 @@ function myalerts_xmlhttp()
 							false
 						));
 					}
-				} else {
-					if ($alert['message']) {
-						$alertsListing .= eval($templates->render(
-							'myalerts_alert_row',
-							true,
-							false
-						));
-					}
+				} elseif ($alert['message']) {
+					$alertsListing .= eval($templates->render(
+						'myalerts_alert_row',
+						true,
+						false
+					));
 				}
 			}
 
 			if (!$inModal && $more && $had_one_page_only) {
 				// This simple clickable message saves us from having to generate
 				// and return pagination items and update the page with them via
-				// Javascript
+				// JavaScript
 				$alertsListing .= eval($templates->render(
 					'myalerts_alert_row_more',
 					true,
 					false
 				));
 			}
-		} else {
-			$from = $mybb->get_input('from', MyBB::INPUT_STRING);
+		} catch (Exception $e) {
+			$from = $mybb->get_input('from');
 
 			$altbg = alt_trow();
 
@@ -1824,7 +1923,11 @@ function myalerts_xmlhttp()
 			}
 		}
 
-		$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+		try {
+			$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+		} catch (Exception $e) {
+			$unread_count = 0;
+		}
 
 		echo json_encode(
 			array(
@@ -1851,7 +1954,13 @@ function myalerts_xmlhttp()
 				);
 			} else {
 				$db->delete_query('alerts', "id = {$id} AND uid = {$userId}");
-				$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+
+				try {
+					$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+				} catch (Exception $e) {
+					$unread_count = 0;
+				}
+
 				$toReturn = array(
 					'success'  => true,
 					'unread_count' => $unread_count,
@@ -1873,7 +1982,12 @@ function myalerts_xmlhttp()
 		$userId = (int) $mybb->user['uid'];
 
 		if ($userId > 0) {
-			$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+			try {
+				$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+			} catch (Exception $e) {
+				$unread_count = 0;
+			}
+
 			$toReturn = array(
 				'unread_count' => $unread_count,
 				'unread_count_fmt' => my_number_format($unread_count)
@@ -1888,7 +2002,7 @@ function myalerts_xmlhttp()
 		echo json_encode($toReturn);
 	}
 
-	function myalerts_mark_read_or_unread($markRead = true) {
+	function myalerts_mark_read_or_unread(bool $markRead = true): void {
 		global $mybb, $lang;
 
 		header('Content-Type: application/json');
@@ -1904,8 +2018,12 @@ function myalerts_xmlhttp()
 					'errors' => array($lang->invalid_post_code),
 				);
 			} else {
-				$method = $markRead ? 'markRead' : 'markUnread';
-				MybbStuff_MyAlerts_AlertManager::getInstance()->$method([$id]);
+				if($markRead) {
+					MybbStuff_MyAlerts_AlertManager::getInstance()->markRead([$id]);
+				} else {
+					MybbStuff_MyAlerts_AlertManager::getInstance()->markUnread([$id]);
+				}
+
 				$unread_count = (int) MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
 
 				$toReturn = array(
@@ -1930,15 +2048,21 @@ function myalerts_xmlhttp()
 	}
 
 	if ($mybb->input['action'] == 'getNumUnreadAlerts') {
-		echo MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts(
-		);
+		try {
+			echo MybbStuff_MyAlerts_AlertManager::getInstance()->getNumUnreadAlerts();
+		} catch (Exception $e) {
+
+		}
 	}
 }
 
-function myalerts_register_core_formatters($mybb, $lang)
+function myalerts_register_core_formatters(\MyBB $mybb, \MyLanguage $lang): void
 {
-	/** @var MybbStuff_Myalerts_AlertFormatterManager $formatterManager */
-	$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+	try {
+		$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+	} catch (Exception $e) {
+		return;
+	}
 
 	$formatterManager->registerFormatter(
 		new MybbStuff_MyAlerts_Formatter_RepFormatter($mybb, $lang, 'rep')
@@ -1991,7 +2115,7 @@ function myalerts_register_core_formatters($mybb, $lang)
 }
 
 $plugins->add_hook('admin_config_menu', 'myalerts_acp_config_menu');
-function myalerts_acp_config_menu(&$sub_menu)
+function myalerts_acp_config_menu(array &$sub_menu): void
 {
 	global $lang;
 
@@ -2010,7 +2134,7 @@ $plugins->add_hook(
 	'admin_config_action_handler',
 	'myalerts_acp_config_action_handler'
 );
-function myalerts_acp_config_action_handler(&$actions)
+function myalerts_acp_config_action_handler(array &$actions): void
 {
 	$actions['myalerts_alert_types'] = array(
 		'active' => 'myalerts_alert_types',
@@ -2022,7 +2146,7 @@ $plugins->add_hook(
 	'admin_config_permissions',
 	'myalerts_acp_config_permissions'
 );
-function myalerts_acp_config_permissions(&$admin_permissions)
+function myalerts_acp_config_permissions(array &$admin_permissions): void
 {
 	global $lang;
 
@@ -2033,7 +2157,7 @@ function myalerts_acp_config_permissions(&$admin_permissions)
 	$admin_permissions['myalerts_alert_types'] = $lang->myalerts_can_manage_alert_types;
 }
 
-function myalerts_can_view_thread($fid, $thread_uid, $alerted_uid) {
+function myalerts_can_view_thread(int $fid, int $thread_uid, int $alerted_uid): bool {
 	// Get forum permissions for the potentially alerted member.
 	$forumPerms = forum_permissions($fid, $alerted_uid);
 

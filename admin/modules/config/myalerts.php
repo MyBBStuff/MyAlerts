@@ -10,6 +10,8 @@
  * @version 2.0.0
  */
 
+declare(strict_types=1);
+
 if (!defined('IN_MYBB')) {
 	die('Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.');
 }
@@ -30,7 +32,7 @@ switch ($mybb->get_input('action')) {
 		break;
 }
 
-function myalerts_acp_manage_alert_types()
+function myalerts_acp_manage_alert_types(): void
 {
 	global $mybb, $lang, $page;
 
@@ -99,7 +101,7 @@ function myalerts_acp_manage_alert_types()
 			'index.php?module=config-myalerts_alert_types', 'post'
 		);
 
-		$table = new Table;
+		$table = new Table();
 		$table->construct_header($lang->myalerts_alert_type_code);
 		$table->construct_header(
 			$lang->myalerts_alert_type_enabled,

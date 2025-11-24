@@ -8,11 +8,13 @@
  * @package MyAlerts
  */
 
+declare(strict_types=1);
+
 if (!defined('IN_MYBB')) {
 	die('Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.');
 }
 
-function task_myalerts($task)
+function task_myalerts(array $task): void
 {
 	global $db, $lang;
 

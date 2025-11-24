@@ -1,23 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Manager class for alert types.
  */
 class MybbStuff_MyAlerts_AlertTypeManager
 {
-	const CACHE_NAME = 'mybbstuff_myalerts_alert_types';
+	public const CACHE_NAME = 'mybbstuff_myalerts_alert_types';
 
 	/** @var MybbStuff_MyAlerts_AlertTypeManager */
-	private static $instance = null;
+	private static MybbStuff_MyAlerts_AlertTypeManager $instance;
 
 	/** @var array */
-	private $alertTypes = array();
+	private array $alertTypes = array();
 
 	/** @var DB_Base */
-	private $db;
+	private DB_Base $db;
 
 	/** @var datacache */
-	private $cache;
+	private datacache $cache;
 
 	private function __construct(DB_Base $db, datacache $cache)
 	{
@@ -28,7 +30,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	}
 
 	/**
-	 * Get all of the alert types in the system.
+	 * Get all the alert types in the system.
 	 *
 	 * Alert types are both stored in the private $alertTypes variable and are
 	 * also returned for usage.
@@ -36,12 +38,10 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 * @param bool $forceDatabase Whether to force the reading of alert types
 	 *                            from the database.
 	 *
-	 * @return array All of the alert types currently in the system.
+	 * @return array All the alert types currently in the system.
 	 */
-	public function getAlertTypes($forceDatabase = false)
+	public function getAlertTypes(bool $forceDatabase = false): array
 	{
-		$forceDatabase = (bool) $forceDatabase;
-
 		$this->alertTypes = array();
 
 		if (($cachedAlertTypes = $this->cache->read(self::CACHE_NAME)) === false || $forceDatabase) {
@@ -55,13 +55,12 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	}
 
 	/**
-	 * Load all of the alert types currently in the system from the database.
+	 * Load all the alert types currently in the system from the database.
 	 * Should only be used to refresh the cache.
 	 *
-	 * @return MybbStuff_MyAlerts_Entity_AlertType[] All of the alert types
-	 *                                               currently in the database.
+	 * @return MybbStuff_MyAlerts_Entity_AlertType[] All the alert types currently in the database.
 	 */
-	private function loadAlertTypes()
+	private function loadAlertTypes(): array
 	{
 		$query = $this->db->simple_select('alert_types', '*');
 
@@ -93,9 +92,9 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 *
 	 * @return MybbStuff_MyAlerts_AlertTypeManager The created instance.
 	 */
-	public static function createInstance(DB_Base $db, datacache $cache)
+	public static function createInstance(DB_Base $db, datacache $cache): self
 	{
-		if (static::$instance === null) {
+		if (!isset(static::$instance)) {
 			static::$instance = new self($db, $cache);
 		}
 
@@ -105,15 +104,12 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	/**
 	 * Get a prior created instance of the alert type manager. @see createInstance().
 	 *
-	 * @return bool|MybbStuff_MyAlerts_AlertTypeManager The prior created
-	 *                                                  instance, or false if
-	 *                                                  not already
-	 *                                                  instantiated.
+	 * @return self The prior created instance, or false if not already instantiated.
 	 */
-	public static function getInstance()
+	public static function getInstance(): self
 	{
-		if (static::$instance === null) {
-		return false;
+		if(!isset(static::$instance)) {
+			throw new RuntimeException('Alert type manager has not been created yet.');
 		}
 
 		return static::$instance;
@@ -124,7 +120,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 *
 	 * @return bool Whether the alert type was added successfully.
 	 */
-	public function add(MybbStuff_MyAlerts_Entity_AlertType $alertType)
+	public function add(MybbStuff_MyAlerts_Entity_AlertType $alertType): bool
 	{
 		$success = true;
 
@@ -155,7 +151,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 *
 	 * @return bool Whether the alert types were added successfully.
 	 */
-	public function addTypes(array $alertTypes)
+	public function addTypes(array $alertTypes): bool
 	{
 		$toInsert = array();
 		$success = true;
@@ -175,10 +171,14 @@ class MybbStuff_MyAlerts_AlertTypeManager
 		}
 
 		if (!empty($toInsert)) {
-			$success = (bool) $this->db->insert_query_multiple(
-				'alert_types',
-				$toInsert
-			);
+			try{
+				$this->db->insert_query_multiple(
+					'alert_types',
+					$toInsert
+				);
+			} catch (Exception $e) {
+				$success = false;
+			}
 		}
 
 		$this->getAlertTypes(true);
@@ -193,7 +193,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 *                                                          alert types to
 	 *                                                          update.
 	 */
-	public function updateAlertTypes(array $alertTypes)
+	public function updateAlertTypes(array $alertTypes): void
 	{
 		foreach ($alertTypes as $alertType) {
 			if (!($alertType instanceof MybbStuff_MyAlerts_Entity_AlertType)) {
@@ -206,7 +206,7 @@ class MybbStuff_MyAlerts_AlertTypeManager
 				'default_user_enabled' => (int) $alertType->getDefaultUserEnabled(),
 			);
 
-			$id = (int) $alertType->getId();
+			$id = $alertType->getId();
 
 			$this->db->update_query(
 				'alert_types',
@@ -225,41 +225,32 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 * @param string $code The unique code for the alert type.
 	 *
 	 * @return bool Whether the alert type was deleted.
+	 * @throws Exception
 	 */
-	public function deleteByCode($code = '')
+	public function deleteByCode(string $code = ''): bool
 	{
 		$alertType = $this->getByCode($code);
 
-		if ($alertType !== null) {
 		return $this->deleteById($alertType->getId());
-		}
-
-		return false;
 	}
 
 	/**
-	 * Get an alert type by it's code.
+	 * Get an alert type by its code.
 	 *
 	 * @param string $code The code of the alert type to fetch.
 	 *
-	 * @return MybbStuff_MyAlerts_Entity_AlertType|null The found alert type or
-	 *                                                  null if it doesn't
-	 *                                                  exist (hasn't yet been
-	 *                                                  registered).
+	 * @return MybbStuff_MyAlerts_Entity_AlertType The found alert type or null if it doesn't exist (hasn't yet been registered).
+	 * @throws Exception
 	 */
-	public function getByCode($code = '')
+	public function getByCode(string $code = ''): \MybbStuff_MyAlerts_Entity_AlertType
 	{
-		$code = (string) $code;
-
-		$alertType = null;
-
-		if (isset($this->alertTypes[$code])) {
-			$alertType = MybbStuff_MyAlerts_Entity_AlertType::unserialize(
-				$this->alertTypes[$code]
-			);
+		if (!isset($this->alertTypes[$code])) {
+			throw new Exception("Alert type with code '{$code}' does not exist.");
 		}
 
-		return $alertType;
+		return MybbStuff_MyAlerts_Entity_AlertType::unserialize(
+			$this->alertTypes[$code]
+		);
 	}
 
 	/**
@@ -269,10 +260,8 @@ class MybbStuff_MyAlerts_AlertTypeManager
 	 *
 	 * @return bool Whether the alert type was deleted.
 	 */
-	public function deleteById($id = 0)
+	public function deleteById(int $id = 0): bool
 	{
-		$id = (int) $id;
-
 		$queryResult = (bool) $this->db->delete_query(
 			'alert_types',
 			"id = {$id}"

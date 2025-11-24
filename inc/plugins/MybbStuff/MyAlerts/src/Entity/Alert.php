@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * A single alert object as it's represented in the database.
  *
@@ -8,36 +10,36 @@
 class MybbStuff_MyAlerts_Entity_Alert
 {
 	/** @var int The ID of the alert. */
-	private $id = 0;
+	private int $id = 0;
 	/** @var array The details of the user that sent the alert. */
-	private $fromUser = array();
+	private array $fromUser = array();
 	/** @var int The ID of the user this alert is from. */
-	private $fromUserId;
+	private int $fromUserId;
 	/** @var int The ID of the user this alert is for. */
-	private $userId;
-	/** @var int|string The ID of the type of alert this is. */
-	private $typeId;
+	private int $userId;
+	/** @var int The ID of the type of alert this is. */
+	private int $typeId;
 	/** @var MybbSTuff_MyAlerts_Entity_AlertType The type of the alert. */
-	private $type = null;
+	private MybbSTuff_MyAlerts_Entity_AlertType $type;
 	/** @var int The ID of the object this alert is linked to. */
-	private $objectId = null;
-	/** @var \DateTime The date/time this alert was created at. */
-	private $createdAt;
+	private int $objectId;
+	/** @var DateTime The date/time this alert was created at. */
+	private DateTime $createdAt;
 	/** @var bool Whether the alert is unread. */
-	private $unread = true;
+	private bool $unread = true;
 	/** @var array Any extra details for the alert. */
-	private $extraDetails = array();
+	private array $extraDetails = array();
 
 	/**
-	 * Initialise a new Alert instance.
+	 * Initialize a new Alert instance.
 	 *
-	 * @param int|array                                      $user     The ID
+	 * @param int                                      $user     The ID
 	 *                                                                 of the
 	 *                                                                 user
 	 *                                                                 this
 	 *                                                                 alert is
 	 *                                                                 for.
-	 * @param int|MybbSTuff_MyAlerts_Entity_AlertType|string $type     The ID
+	 * @param MybbSTuff_MyAlerts_Entity_AlertType $type     The ID
 	 *                                                                 of the
 	 *                                                                 object
 	 *                                                                 this
@@ -56,62 +58,36 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *                                                                 linked
 	 *                                                                 to.
 	 */
-	public function __construct($user = 0, $type = 0, $objectId = null)
+	public function __construct(int $user, \MybbStuff_MyAlerts_Entity_AlertType $type, int $objectId = 0)
 	{
-		if (is_array($user)) {
-			$this->userId = (int) $user['uid'];
-		} else {
-			$this->userId = (int) $user;
+		$this->userId =  $user;
+
+		$this->setType($type);
+
+		if ($objectId) {
+			$this->objectId = $objectId;
 		}
 
-		if ($type instanceof MybbStuff_MyAlerts_Entity_AlertType) {
-			$this->setType($type);
-		} else {
-			$this->setTypeId($type);
-		}
-
-		if (isset($objectId)) {
-			$this->objectId = (int) $objectId;
-		}
-
-		$this->createdAt = new \DateTime();
+		$this->createdAt = new DateTime();
 	}
 
 	/**
 	 * Create an alert object with the given details.
 	 *
-	 * @param int|array                               $user         The ID of
-	 *                                                              the user
-	 *                                                              this alert
-	 *                                                              is for.
-	 * @param int|MybbStuff_MyAlerts_Entity_AlertType $type         The ID of
-	 *                                                              the object
-	 *                                                              this alert
-	 *                                                              is linked
-	 *                                                              to.
-	 * @param int                                     $objectId     The ID of
-	 *                                                              the object
-	 *                                                              this alert
-	 *                                                              is linked
-	 *                                                              to.
-	 * @param array                                   $extraDetails An array of
-	 *                                                              optional
-	 *                                                              extra
-	 *                                                              details to
-	 *                                                              be stored
-	 *                                                              with the
-	 *                                                              alert.
+	 * @param int $userID         The ID of the user this alert is for.
+	 * @param MybbStuff_MyAlerts_Entity_AlertType $type         The ID of the object this alert is linked to.
+	 * @param int $objectId     The ID of the object this alert is linked to.
+	 * @param array $extraDetails An array of optional extra details to be stored with the alert.
 	 *
 	 * @return MybbStuff_MyAlerts_Entity_Alert The created alert object.
 	 */
 	public static function make(
-		$user = 0,
-		$type = 0,
-		$objectId = null,
+		int $userID,
+		MybbStuff_MyAlerts_Entity_AlertType $type,
+		int $objectId = 0,
 		array $extraDetails = array()
-	) {
-		/** @var MybbStuff_MyAlerts_Entity_Alert $alert */
-		$alert = new static($user, $type, $objectId);
+	): MybbStuff_MyAlerts_Entity_Alert {
+		$alert = new static($userID, $type, $objectId);
 
 		$alert->setExtraDetails($extraDetails);
 
@@ -121,7 +97,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * @return int
 	 */
-	public function getId()
+	public function getId():int
 	{
 		return $this->id;
 	}
@@ -131,9 +107,9 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *
 	 * @return MybbStuff_MyAlerts_Entity_Alert $this
 	 */
-	public function setId($id)
+	public function setId(int $id): MybbStuff_MyAlerts_Entity_Alert
 	{
-		$this->id = (int) $id;
+		$this->id = $id;
 
 		return $this;
 	}
@@ -144,7 +120,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *
 	 * @return array Array representation of the Alert.
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		return array(
 			'uid'           => $this->getUserId(),
@@ -160,9 +136,9 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * @return int
 	 */
-	public function getUserId()
+	public function getUserId(): int
 	{
-		return (int) $this->userId;
+		return $this->userId;
 	}
 
 	/**
@@ -170,9 +146,9 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setUserId($userId)
+	public function setUserId(int $userId): MybbStuff_MyAlerts_Entity_Alert
 	{
-		$this->userId = (int) $userId;
+		$this->userId = $userId;
 
 		return $this;
 	}
@@ -180,27 +156,27 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * @return int
 	 */
-	public function getFromUserId()
+	public function getFromUserId(): int
 	{
-		return (int) $this->fromUserId;
+		return $this->fromUserId;
 	}
 
 	/**
-	 * @param int $fromUserId The from user ID to set.
+	 * @param int $fromUserId The form user ID to set.
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setFromUserId($fromUserId)
+	public function setFromUserId(int $fromUserId): MybbStuff_MyAlerts_Entity_Alert
 	{
-		$this->fromUserId = (int) $fromUserId;
+		$this->fromUserId = $fromUserId;
 
 		return $this;
 	}
 
 	/**
-	 * @return int|string
+	 * @return int
 	 */
-	public function getTypeId()
+	public function getTypeId(): int
 	{
 		return $this->typeId;
 	}
@@ -210,9 +186,9 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setTypeId($typeId)
+	public function setTypeId(int $typeId): MybbStuff_MyAlerts_Entity_Alert
 	{
-		$this->typeId = (int) $typeId;
+		$this->typeId = $typeId;
 
 		return $this;
 	}
@@ -220,9 +196,9 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * @return int
 	 */
-	public function getObjectId()
+	public function getObjectId(): int
 	{
-		return (int) $this->objectId;
+		return $this->objectId;
 	}
 
 	/**
@@ -230,27 +206,27 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setObjectId($objectId = 0)
+	public function setObjectId(int $objectId = 0): MybbStuff_MyAlerts_Entity_Alert
 	{
-		$this->objectId = (int) $objectId;
+		$this->objectId = $objectId;
 
 		return $this;
 	}
 
 	/**
-	 * @return \DateTime
+	 * @return DateTime
 	 */
-	public function getCreatedAt()
+	public function getCreatedAt(): DateTime
 	{
 		return $this->createdAt;
 	}
 
 	/**
-	 * @param \DateTime $createdAt The date the alert was created at.
+	 * @param DateTime $createdAt The date the alert was created at.
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setCreatedAt(DateTime $createdAt)
+	public function setCreatedAt(DateTime $createdAt): MybbStuff_MyAlerts_Entity_Alert
 	{
 		$this->createdAt = $createdAt;
 
@@ -260,7 +236,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * @return array
 	 */
-	public function getExtraDetails()
+	public function getExtraDetails(): array
 	{
 		return $this->extraDetails;
 	}
@@ -270,7 +246,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setExtraDetails(array $extraDetails = array())
+	public function setExtraDetails(array $extraDetails = array()): MybbStuff_MyAlerts_Entity_Alert
 	{
 		$this->extraDetails = $extraDetails;
 
@@ -278,21 +254,21 @@ class MybbStuff_MyAlerts_Entity_Alert
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
-	public function getUnread()
+	public function getUnread(): bool
 	{
-		return (boolean) $this->unread;
+		return $this->unread;
 	}
 
 	/**
-	 * @param boolean $unread Whether the alert is unread.
+	 * @param bool $unread Whether the alert is unread.
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setUnread($unread = true)
+	public function setUnread(bool $unread = true): MybbStuff_MyAlerts_Entity_Alert
 	{
-		$this->unread = (boolean) $unread;
+		$this->unread = $unread;
 
 		return $this;
 	}
@@ -300,7 +276,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * @return MybbSTuff_MyAlerts_Entity_AlertType The type of alert this is.
 	 */
-	public function getType()
+	public function getType(): \MybbSTuff_MyAlerts_Entity_AlertType
 	{
 		return $this->type;
 	}
@@ -310,7 +286,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setType(MybbStuff_MyAlerts_Entity_AlertType $type)
+	public function setType(MybbStuff_MyAlerts_Entity_AlertType $type): MybbStuff_MyAlerts_Entity_Alert
 	{
 		$this->type = $type;
 		$this->setTypeId($type->getId());
@@ -321,7 +297,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	/**
 	 * Get the user who sent the alert's details.
 	 */
-	public function getFromUser()
+	public function getFromUser(): array
 	{
 		return $this->fromUser;
 	}
@@ -331,7 +307,7 @@ class MybbStuff_MyAlerts_Entity_Alert
 	 *
 	 * @return MybbStuff_Myalerts_Entity_Alert $this.
 	 */
-	public function setFromUser(array $user = array())
+	public function setFromUser(array $user = array()): MybbStuff_MyAlerts_Entity_Alert
 	{
 		$this->fromUser = $user;
 		$this->setFromUserId($user['uid']);

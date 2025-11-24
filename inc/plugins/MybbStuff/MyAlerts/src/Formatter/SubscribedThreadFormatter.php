@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Alert formatter for subscribed thread alerts.
  */
@@ -17,7 +19,8 @@ class MybbStuff_MyAlerts_Formatter_SubscribedThreadFormatter
 	public function formatAlert(
 		MybbStuff_MyAlerts_Entity_Alert $alert,
 		array $outputAlert
-	) {
+	): string
+	{
 		$alertContent = $alert->getExtraDetails();
 
 		return $this->lang->sprintf(
@@ -33,7 +36,7 @@ class MybbStuff_MyAlerts_Formatter_SubscribedThreadFormatter
 	 *
 	 * @return void
 	 */
-	public function init()
+	public function init(): void
 	{
 		if (!$this->lang->myalerts) {
 			$this->lang->load('myalerts');
@@ -49,16 +52,14 @@ class MybbStuff_MyAlerts_Formatter_SubscribedThreadFormatter
 	 *
 	 * @return string The built alert, preferably an absolute link.
 	 */
-	public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+	public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert): string
 	{
 		$alertContent = $alert->getExtraDetails();
 
-		$threadLink = $this->mybb->settings['bburl'] . '/' . get_thread_link(
+		return $this->mybb->settings['bburl'] . '/' . get_thread_link(
 				(int) $alertContent['tid'],
 				0,
 				'newpost'
 			);
-
-		return $threadLink;
 	}
 }
